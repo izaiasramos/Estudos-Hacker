@@ -1,9 +1,9 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.10  
-**Data:** 2026-10-05  
-**Status:** rascunho para alinhamento do time  
+**Versão:** 0.13  
+**Data:** 2026-10-07  
+**Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
 
 ---
@@ -357,6 +357,30 @@ Mínimo aceitável:
 
 Editor de código do lab L5: no MVP, pode ser **Web IDE embutido** (ex.: recorte de 1–3 arquivos) ou download do repo + upload do patch. Preferência: editor no browser para reduzir atrito.
 
+### 12.3 Laboratório da pizzaria (modo embutido)
+
+Por padrão, a Pizzaria do Lab roda **dentro do próprio Next.js**, em `/lab/pizzaria`. O iframe da trilha aponta para esse caminho no mesmo domínio. Funciona na Vercel e no `npm run dev`, sem Docker.
+
+Fluxo:
+
+1. O aluno clica em **Iniciar ambiente** na unidade 6.
+2. O servidor grava `lab_sessions` com `runtime = embedded`.
+3. O iframe abre `/lab/pizzaria`. Login e pedidos usam rotas em `/lab/pizzaria/login` e `/lab/pizzaria/pedidos`.
+4. A sessão da pizzaria fica num cookie httpOnly amarrado ao `lab_sessions.id` do aluno.
+5. **Rodar checker HTTP** valida o comportamento esperado (Alice entra, senha errada cai, pedidos só dela).
+
+Contas fictícias continuam em `labs/pizzaria/fixture.json`. O arquivo `labs/pizzaria/server.mjs` permanece para o modo legado.
+
+#### Modo legado (`LAB_RUNTIME=local`)
+
+Se `LAB_RUNTIME=local` no `.env`, o orquestrador tenta Docker e, se falhar, um processo Node em `127.0.0.1`. O iframe volta a apontar para a porta local. Esse modo exige Docker na máquina e **não** funciona na Vercel. Serve para quem quiser o container isolado descrito em 12.2.
+
+| Parte | Vercel / padrão | `LAB_RUNTIME=local` |
+| --- | --- | --- |
+| Pizzaria no iframe | `/lab/pizzaria` | `http://127.0.0.1:{porta}/` |
+| Docker | não usa | opcional |
+| Lab defensivo (editor) | sim | sim |
+
 ---
 
 ## 13. Modelo de dados (mínimo)
@@ -559,7 +583,20 @@ Escolha pensada para um time júnior web:
 | Testes de lab | suite no próprio image + HTTP checker | |
 | Host | VPS única no começo; labs na mesma máquina com cota | barato para o grupo |
 
-Alternativa mais leve se o orquestrador atrasar o MVP: **labs locais via Docker Compose** que o aluno sobe na máquina, e a plataforma só marca “concluí” com um token de checker. Isso reduz risco e custo, com pior UX. Decisão de go/no-go na seção 22.
+O repositório não seguiu a tabela inteira. Hoje está assim:
+
+| Camada | No código |
+|---|---|
+| Front + API | Next.js 16 (App Router), React 19, TypeScript 5 |
+| UI | Tailwind CSS 4 e `motion` na landing |
+| Auth | Cookie httpOnly assinado no próprio código, bcrypt na senha, Google OAuth opcional. Não é Auth.js |
+| DB | Postgres 16 via `pg`. Sem Prisma e sem Drizzle. O schema nasce na primeira requisição |
+| Conteúdo | TypeScript em `src/content`. MDX ainda não |
+| Labs | Docker quando existe; senão um processo Node em `127.0.0.1` |
+| Testes | O CI roda lint, tipos e build. Vitest e Playwright ainda não existem |
+| Host | Cada dev sobe com `npm run dev`. Não há servidor compartilhado |
+
+Alternativa mais leve se o orquestrador atrasar o MVP: **labs locais via Docker Compose** que o aluno sobe na máquina, e a plataforma só marca “concluí” com um token de checker. Isso reduz risco e custo, com pior UX. A Fase 2 já sobe o lab na máquina de quem roda o app.
 
 ---
 
@@ -625,7 +662,7 @@ Checklist de review de conteúdo (todo PR de aula):
 
 ## 22. Fases de entrega
 
-Andamento em 2026-10-05. O que está marcado já roda no app.
+Andamento em 2026-10-07. O que está marcado já roda no app.
 
 ### Fase 0 — Fundação (1–2 semanas)
 
@@ -637,7 +674,7 @@ Andamento em 2026-10-05. O que está marcado já roda no app.
 - [x] Começo do progresso: usuário, XP e a unidade `etica` em `progress`.
 - [x] Player da trilha e quiz genérico: 70% para avançar, explicação em cada erro, XP uma vez, ordem travada.
 - [x] Teoria de SQL Injection publicada: unidades 1–5, 7, 8 e 10. Os labs 6 e 9 e o selo entram na Fase 1.
-- [ ] CI básico.
+- [x] CI básico. Em todo pull request: `npm ci`, lint, `next typegen`, `tsc --noEmit` e `npm run build`. O ramo `main` exige pull request e esse check verde. Aprovação de outra pessoa ainda não é obrigatória.
 - [ ] Verificação de e-mail (sem SMTP ainda).
 - [x] Postgres no lugar do SQLite local. Sobe com `docker compose up -d`. `npm run db:import` copia o arquivo antigo uma vez, se o Postgres ainda estiver vazio.
 - [ ] Arquivos MDX. O conteúdo desta leva está em `src/content`, versionado no Git, no formato que o player já lê.
@@ -668,6 +705,40 @@ Andamento em 2026-10-05. O que está marcado já roda no app.
 - [x] Time em `/squad`: quem abre vira mentor e recebe um código. Todo o time vê nota, tentativas, ranking de cada trilha e ranking geral.
 - [x] A nota é a média das unidades já pontuadas. A ordem segue essa média. No empate, menos tentativas fica na frente. Quem abre o time é quem pode encerrá-lo.
 
+### O que falta
+
+Quem chega no repositório encontra instalação, variáveis e o fluxo de pull request no `README.md`.
+
+#### Já no ar (2026-10-07)
+
+- [x] Next na Vercel, plano free, ligado ao `main`. Merge publica sozinho.
+- [x] Postgres no Supabase. Em produção, `DATABASE_URL` usa a URI do **Session pooler** (porta `5432`, host `pooler.supabase.com`, usuário `postgres.[ref]`). A conexão **Direct** (`db.[ref].supabase.co`) não funciona na Vercel. O placeholder `[YOUR-PASSWORD]` da URI deve virar a senha pura, sem colchetes.
+- [x] `AUTH_SECRET` e Google OAuth em produção. URI autorizado: `https://estudos-hacker.vercel.app/api/auth/google/callback`.
+- [x] CI no GitHub. Pull request obrigatório no `main`. Job `check`: lint, tipos, build.
+- [x] README com stack, instalação do zero, variáveis, contribuição e leitura de logs do CI.
+
+#### Operacional (time)
+
+- [ ] Convidar colaboradores no GitHub (**Settings → Collaborators**) para enviar código sem fork.
+- [ ] Comunicar ao time: trilha e lab ofensivo funcionam em https://estudos-hacker.vercel.app; Docker só se alguém ligar `LAB_RUNTIME=local` (ver 12.3).
+- [ ] Subir a spec 0.13 para o `main` via pull request (alteração local ainda não está no GitHub).
+
+#### Produto e código
+
+- [x] Laboratório da pizzaria embutido em `/lab/pizzaria` (Vercel e local). Modo Docker legado com `LAB_RUNTIME=local` (ver 12.3).
+- [ ] Recuperação de senha por e-mail.
+- [ ] Verificação de e-mail no cadastro. Não há SMTP.
+- [ ] Conteúdo em MDX. O player lê `src/content`.
+- [ ] Vitest na lógica pura (`lab-check`, nota do quiz, `touchStreak`, desbloqueio de unidade) e, depois, Playwright de smoke.
+- [ ] Cenas da seção 15.4 que ainda não estão na tela: traço de luz entre os nós, shake do quiz errado e as três etapas nomeadas no boot do lab.
+- [ ] Próximas trilhas, nesta ordem: autenticação quebrada e senhas, XSS, CSRF, phishing interno, controle de acesso, headers. SSRF e upload ficam para depois.
+- [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).
+
+#### Decisões em aberto
+
+- [ ] Nome final do produto.
+- [ ] YouTube opcional nas unidades (texto já cobre tudo).
+
 ---
 
 ## 23. Critérios de pronto do MVP
@@ -680,6 +751,8 @@ O MVP está pronto quando um colega que **não escreveu o conteúdo** consegue, 
 4. no lab defensivo, fazer os testes passarem;
 5. ver o badge na home;
 6. não encontrar na UI nenhum incentivo a testar site de terceiros.
+
+**Andamento (2026-10-07):** itens 1–3, 4–6 funcionam na Vercel com o lab embutido (seção 12.3). A trilha de sessão inteira também funciona na Vercel.
 
 ---
 
@@ -696,11 +769,17 @@ O MVP está pronto quando um colega que **não escreveu o conteúdo** consegue, 
 
 ## 25. Decisões em aberto (para o time votar)
 
+Ainda em aberto:
+
 1. **Nome final** do produto.
-2. **Lab remoto vs lab local** no MVP (recomendação: local na Fase 1, remoto na Fase 2).
-3. **Editor no browser vs patch por upload.**
-4. **YouTube desde o dia 1 ou só texto** (recomendação: texto obrigatório, vídeo opcional para não bloquear).
-5. Segunda trilha: sessão, entregue na fase 3. Autenticação quebrada fica para uma trilha futura.
+2. **YouTube** (recomendação já seguida no código: texto obrigatório, vídeo ainda não entrou).
+
+Já decidido e no código:
+
+- Lab na máquina de quem roda o app, com Docker e reserva em processo Node. Não há orquestrador elástico.
+- Editor de defesa no browser. O servidor não executa o código enviado.
+- Segunda trilha: sessão. Autenticação quebrada fica para uma trilha futura.
+- Ranking só dentro do time, com nome, nota e tentativas.
 
 ---
 

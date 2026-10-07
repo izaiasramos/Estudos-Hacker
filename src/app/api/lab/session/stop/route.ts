@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { stopLab } from "@/lib/lab-runtime";
+import { clearPizzariaCookie } from "@/lib/pizzaria-lab";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
 import { findUserById } from "@/lib/users";
 
@@ -10,6 +11,8 @@ export async function POST(request: Request) {
   const payload = readSessionToken(jar.get(SESSION_COOKIE)?.value);
   const user = payload ? await findUserById(payload.sub) : null;
   if (user) await stopLab(user.id);
+  const cleared = clearPizzariaCookie();
+  jar.set(cleared.name, cleared.value, cleared.options);
   const referer = request.headers.get("referer");
   if (referer) {
     try {
