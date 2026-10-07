@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #07080d;
+  --surface: #12141c;
+  --text: #f4f1ea;
+  --muted: #a8a49b;
+  --accent: #d6ff4a;
+  --danger: #ff5c39;
+  --defense: #3ee0b0;
+  --background: var(--ink);
+  --foreground: var(--text);
 }
 
 @theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-danger: var(--danger);
+  --color-defense: var(--defense);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --radius-card: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-sans), sans-serif;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.mesh {
+  background:
+    radial-gradient(900px 520px at 8% -10%, rgba(214, 255, 74, 0.16), transparent 58%),
+    radial-gradient(720px 480px at 96% 0%, rgba(62, 224, 176, 0.1), transparent 52%),
+    radial-gradient(640px 520px at 70% 110%, rgba(255, 92, 57, 0.07), transparent 50%);
+  animation: mesh-drift 18s ease-in-out infinite alternate;
+}
+
+.veil {
+  background: radial-gradient(120% 80% at 50% 0%, transparent 0%, rgba(7, 8, 13, 0.2) 46%, #07080d 100%);
+}
+
+.rise {
+  animation: rise 0.55s ease both;
+}
+
+.pulse-ring {
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+
+@keyframes mesh-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -16px, 0) scale(1.04);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.glossary {
+  position: relative;
+  display: inline;
+}
+
+.glossary-panel {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  top: calc(100% + 8px);
+  width: min(280px, 70vw);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: #12141c;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #a8a49b;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.glossary:hover .glossary-panel,
+.glossary:focus-within .glossary-panel {
+  display: block;
+}
+
+.seal-ring {
+  animation: seal-ring 0.9s ease both;
+}
+
+.seal-core {
+  animation: rise 0.45s ease 0.25s both;
+}
+
+.seal-name {
+  animation: rise 0.4s ease 0.55s both;
+}
+
+@keyframes seal-ring {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .mesh,
+  .rise,
+  .pulse-ring,
+  .seal-ring,
+  .seal-core,
+  .seal-name {
+    animation: none;
+  }
+
+  .rise {
+    opacity: 1;
+    transform: none;
+  }
 }

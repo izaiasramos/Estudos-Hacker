@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "email": "alice@lab.local",
+      "password": "pizza-lab",
+      "name": "Alice",
+      "orders": ["Mussarela", "Calabresa"]
+    },
+    {
+      "email": "bruno@lab.local",
+      "password": "forno-lab",
+      "name": "Bruno",
+      "orders": ["Portuguesa"]
+    }
+  ]
+}

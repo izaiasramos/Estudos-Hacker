@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shieldpath
+      POSTGRES_PASSWORD: shieldpath
+      POSTGRES_DB: shieldpath
+    ports:
+      - "5432:5432"
+    volumes:
+      - shieldpath-pg:/var/lib/postgresql/data
+
+volumes:
+  shieldpath-pg:

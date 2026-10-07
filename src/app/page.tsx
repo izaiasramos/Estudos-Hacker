@@ -1,69 +1,106 @@
-import Image from "next/image";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { PrimaryLink } from "@/components/primary-link";
+import { TrailMap } from "@/components/trail-map";
+import Link from "next/link";
+
+const STEPS = [
+  {
+    index: "01",
+    title: "Teoria curta",
+    body: "Blocos de poucos minutos. O que quebrou, e por quê. Sem playbook para levar embora.",
+  },
+  {
+    index: "02",
+    title: "Lab isolado",
+    body: "Um app fictício, sem saída para a internet. Você vê o buraco com dados que não são de ninguém.",
+  },
+  {
+    index: "03",
+    title: "Patch com teste verde",
+    body: "O selo só sai quando o teste confirma que o vetor fechou e a feature continua de pé.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="relative isolate min-h-full overflow-x-hidden">
+      <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[920px]" />
+      <div aria-hidden className="veil pointer-events-none absolute inset-x-0 top-0 h-[920px]" />
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
+      >
+        Pular para o conteúdo
+      </a>
+      <SiteHeader />
+      <main id="conteudo">
+        <section className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-20 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)] lg:gap-6 lg:pt-10">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+              Trilha para devs júnior
+            </p>
+            <h1 className="mt-4 max-w-[14ch] text-4xl font-semibold leading-[1.02] tracking-tight sm:text-6xl">
+              Feche o buraco que você acabou de entender.
+            </h1>
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
+              Aprenda o ataque no laboratório. Defenda no código. Saia com o selo.
+            </p>
+            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+              <PrimaryLink href="/criar-conta">Criar conta</PrimaryLink>
+              <Link
+                href="/entrar"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 px-6 text-sm font-medium text-text transition hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+              >
+                Entrar com Google
+              </Link>
+            </div>
+            <p className="mt-5 text-sm text-muted">Uso só em laboratório próprio.</p>
+          </div>
+          <TrailMap />
+        </section>
+
+        <section
+          id="metodo"
+          aria-labelledby="metodo-titulo"
+          className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8"
+        >
+          <h2 id="metodo-titulo" className="text-sm font-medium text-muted">
+            O método
+          </h2>
+          <ol className="mt-5 grid gap-4 md:grid-cols-3">
+            {STEPS.map((step, index) => (
+              <li
+                key={step.index}
+                className="rise rounded-[16px] border border-white/10 bg-surface/80 p-5"
+                style={{ animationDelay: `${index * 90}ms` }}
+              >
+                <p className="font-mono text-[11px] tracking-[0.18em] text-accent">{step.index}</p>
+                <h3 className="mt-3 text-lg font-semibold tracking-tight">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section
+          id="contrato"
+          aria-labelledby="contrato-titulo"
+          className="relative mx-auto w-full max-w-6xl px-5 pb-16 sm:px-8"
+        >
+          <div id="regras" className="max-w-2xl rounded-[16px] border border-white/10 bg-surface/50 p-6 sm:p-8">
+            <h2 id="contrato-titulo" className="text-lg font-semibold tracking-tight">
+              Regras do jogo
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              ShieldPath é estudo. O único alvo permitido é o laboratório da plataforma.
+              Técnicas contra sistemas sem autorização escrita ficam fora do produto.
+              Antes de qualquer lab, a unidade Regras do jogo é obrigatória.
+            </p>
+          </div>
+        </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }
