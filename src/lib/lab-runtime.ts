@@ -3,8 +3,8 @@ import { randomUUID } from "node:crypto";
 import { createServer } from "node:net";
 import path from "node:path";
 import { promisify } from "node:util";
-import { readFileSync } from "node:fs";
 import { one, many, run } from "@/lib/db";
+import { runPizzariaBehaviorChecks } from "@/lib/pizzaria-lab";
 
 const exec = promisify(execFile);
 const TTL_MS = 75 * 60 * 1000;
@@ -15,7 +15,7 @@ const LAB_DIR = path.join(process.cwd(), "labs", "pizzaria");
 export type LabSession = {
   id: string;
   userId: string;
-  runtime: "docker" | "process";
+  runtime: "docker" | "process" | "embedded";
   containerId: string | null;
   pid: number | null;
   port: number | null;
@@ -37,11 +37,17 @@ type Row = {
   last_check: string | null;
 };
 
+function mapRuntime(value: string): LabSession["runtime"] {
+  if (value === "docker") return "docker";
+  if (value === "embedded") return "embedded";
+  return "process";
+}
+
 function mapSession(row: Row): LabSession {
   return {
     id: row.id,
     userId: row.user_id,
-    runtime: row.runtime === "docker" ? "docker" : "process",
+    runtime: mapRuntime(row.runtime),
     containerId: row.container_id,
     pid: row.pid,
     port: row.port,
@@ -49,6 +55,16 @@ function mapSession(row: Row): LabSession {
     startedAt: row.started_at,
     expiresAt: row.expires_at,
   };
+}
+
+export function labIsLive(session: LabSession) {
+  return session.runtime === "embedded" || session.port !== null;
+}
+
+export function labRuntimeLabel(session: LabSession) {
+  if (session.runtime === "embedded") return "app embutido";
+  if (session.runtime === "docker") return "container";
+  return "processo local";
 }
 
 export async function activeLab(userId: string) {
@@ -69,12 +85,27 @@ export function minutesLeft(session: LabSession) {
   return Math.max(1, Math.ceil((Date.parse(session.expiresAt) - Date.now()) / 60000));
 }
 
+function prefersLocalLabRuntime() {
+  return process.env.LAB_RUNTIME === "local";
+}
+
 export async function startLab(userId: string) {
   const current = await activeLab(userId);
   if (current) return current;
   const id = randomUUID();
   const startedAt = new Date();
   const expiresAt = new Date(startedAt.getTime() + TTL_MS);
+
+  if (!prefersLocalLabRuntime()) {
+    await run(
+      `INSERT INTO lab_sessions (
+        id, user_id, runtime, container_id, pid, port, status, started_at, expires_at, last_check
+      ) VALUES (?, ?, ?, ?, ?, ?, 'running', ?, ?, NULL)`,
+      [id, userId, "embedded", null, null, null, startedAt.toISOString(), expiresAt.toISOString()],
+    );
+    return activeLab(userId);
+  }
+
   const docker = await startDocker(id).catch(() => null);
   const runtime = docker ?? (await startProcess());
   try {
@@ -119,8 +150,14 @@ export async function lastCheck(userId: string) {
 
 export async function checkLab(userId: string) {
   const session = await activeLab(userId);
-  if (!session?.port) return null;
-  const tests = await runHttpChecks(session.port);
+  if (!session || !labIsLive(session)) return null;
+  const tests =
+    session.runtime === "embedded"
+      ? runPizzariaBehaviorChecks()
+      : session.port
+        ? await runHttpChecks(session.port)
+        : null;
+  if (!tests) return null;
   await run("UPDATE lab_sessions SET last_check = ? WHERE id = ?", [JSON.stringify(tests), session.id]);
   return tests;
 }
@@ -137,6 +174,7 @@ async function sweepExpired() {
 
 async function stopSession(session: LabSession) {
   await run("UPDATE lab_sessions SET status = 'stopped' WHERE id = ?", [session.id]);
+  if (session.runtime === "embedded") return;
   if (session.runtime === "docker" && session.containerId) {
     await exec("docker", ["rm", "-f", session.containerId]).catch(() => undefined);
     return;
@@ -260,11 +298,12 @@ async function waitForHealth(port: number) {
 }
 
 async function runHttpChecks(port: number) {
-  const fixture = JSON.parse(readFileSync(path.join(LAB_DIR, "fixture.json"), "utf8")) as {
-    users: { email: string; password: string; name: string; orders: string[] }[];
-  };
+  const { loadPizzariaFixture } = await import("@/lib/pizzaria-lab");
+  const fixture = loadPizzariaFixture();
   const alice = fixture.users[0];
   const bruno = fixture.users[1];
+  if (!alice || !bruno) return runPizzariaBehaviorChecks();
+
   const base = `http://127.0.0.1:${port}`;
 
   const login = await fetch(`${base}/login`, {

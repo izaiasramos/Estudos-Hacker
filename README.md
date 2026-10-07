@@ -73,6 +73,8 @@ Abra essa URL, crie uma conta com e-mail e senha e aceite as regras. As tabelas 
 
 Para parar o banco: `docker compose stop`. Para subir de novo: `docker compose up -d`. Para ver se o container está de pé: `docker compose ps`.
 
+O laboratório da pizzaria (unidade 6 da trilha SQL) abre em `/lab/pizzaria`, no mesmo site. Funciona na Vercel sem Docker extra. Se quiser o container isolado na máquina, coloque `LAB_RUNTIME=local` no `.env`.
+
 ## Variáveis
 
 O modelo está em `.env.example`. O arquivo `.env` fica só na sua máquina e não entra no Git.
