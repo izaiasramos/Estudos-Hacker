@@ -1,8 +1,8 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.19  
-**Data:** 2026-10-07  
+**Versão:** 0.20  
+**Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
 
@@ -724,6 +724,8 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 #### Produto e código
 
 - [x] Laboratório da pizzaria embutido em `/lab/pizzaria` (Vercel e local). Modo Docker legado com `LAB_RUNTIME=local` (ver 12.3).
+- [x] Perfil em `/perfil`: avatar com a inicial, XP, nível, sequência, último lab, selos (fechados e pendentes) e troca do nome de exibição. Preferência de reduzir movimento ainda não entrou; o app segue o `prefers-reduced-motion` do sistema.
+- [x] Exclusão de conta no perfil: pede o e-mail da conta e, se houver, a senha atual. Encerra o lab ativo e apaga progresso, XP, selos, histórico de lab e participação no time. Se a pessoa é mentora, o time é encerrado para todos.
 - [ ] Recuperação de senha por e-mail.
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [ ] Conteúdo em MDX. O player lê `src/content`.
