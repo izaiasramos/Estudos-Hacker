@@ -1,0 +1,16 @@
+Refletido: o servidor devolve o input na resposta da mesma requisição (busca, erro, query string). Armazenado: o input fica salvo e outras pessoas veem depois (comentário, perfil, ticket). DOM-based: o script da página escreve no DOM sem passar pelo servidor. Em todos, o browser interpreta o trecho como código.
+
+<Callout tone="dev">
+
+Sintoma comum: campo de busca que ecoa o termo dentro da página sem codificar. Comentário de outro usuário que aparece formatado demais.
+
+</Callout>
+
+<Code caption={"Perigoso vs seguro (texto simples)"}>
+
+```
+painel.innerHTML = comentario;  // interpreta markup
+painel.textContent = comentario; // mostra como texto
+```
+
+</Code>

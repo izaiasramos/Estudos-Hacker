@@ -5,8 +5,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { labSlots } from "@/components/unit-lab";
 import { UnitRail } from "@/components/unit-rail";
-import type { CalloutTone, Unit } from "@/content/sql-injection";
+import type { Unit } from "@/content/sql-injection";
 import { trailBySlug } from "@/content/trails";
+import { canSeeTrail } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import {
   hasTrailSeal,
@@ -15,13 +16,6 @@ import {
   shuffleChoices,
   unitStatus,
 } from "@/lib/trail-progress";
-
-const CALLOUT: Record<CalloutTone, string> = {
-  conceito: "Conceito",
-  analogia: "Analogia",
-  armadilha: "Armadilha comum",
-  dev: "Como um dev vê isso",
-};
 
 type Params = Promise<{ trail: string; unit: string }>;
 
@@ -34,7 +28,8 @@ function locate(slug: string, unitId: string) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { trail: slug, unit: unitId } = await params;
   const { trail, unit } = locate(slug, unitId);
-  return { title: `${unit?.title ?? trail?.title ?? "Trilha"} — ShieldPath` };
+  if (!trail || trail.status === "rascunho") return { title: "Trilha — ShieldPath" };
+  return { title: `${unit?.title ?? trail.title} — ShieldPath` };
 }
 
 export default async function UnitPage({
@@ -50,7 +45,7 @@ export default async function UnitPage({
 
   const { trail: slug, unit: unitId } = await params;
   const { trail, unit } = locate(slug, unitId);
-  if (!trail || !unit) notFound();
+  if (!trail || !unit || !canSeeTrail(user, trail)) notFound();
 
   const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);
@@ -91,7 +86,7 @@ export default async function UnitPage({
             <h1 className="mt-3 text-3xl font-semibold tracking-tight">{unit.title}</h1>
             <p className="mt-3 text-sm leading-relaxed text-muted">{unit.summary}</p>
             {lab.before}
-            <Blocks unit={unit} />
+            <Blocks slug={trail.slug} unitId={unit.id} />
             {lab.afterBlocks}
             <Quiz
               unit={unit}
@@ -116,49 +111,15 @@ export default async function UnitPage({
   );
 }
 
-function Blocks({ unit }: { unit: Unit }) {
+/**
+ * Texto da unidade em MDX. O caminho sai de `TRAILS` (slug e id já validados), nunca do pedido.
+ * Uma unidade sem arquivo é erro de conteúdo: o teste `content-mdx.test.ts` pega antes do deploy.
+ */
+async function Blocks({ slug, unitId }: { slug: string; unitId: string }) {
+  const { default: Body } = await import(`@/content/${slug}/${unitId}.mdx`);
   return (
     <div className="mt-8 space-y-4 text-[15px] leading-7 text-text/90">
-      {unit.blocks.map((block, index) => {
-        if (block.type === "p") return <p key={index}>{block.text}</p>;
-        if (block.type === "code") {
-          return (
-            <figure key={index}>
-              <figcaption className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-                {block.caption}
-              </figcaption>
-              <pre className="overflow-x-auto rounded-[16px] border border-white/10 bg-ink p-4 font-mono text-[13px] leading-6 text-text">
-                <code>{block.code}</code>
-              </pre>
-            </figure>
-          );
-        }
-        if (block.type === "glossary") {
-          return (
-            <p key={index}>
-              <span className="glossary">
-                <button
-                  type="button"
-                  className="underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  {block.term}
-                </button>
-                <span className="glossary-panel" role="tooltip">
-                  {block.text}
-                </span>
-              </span>
-            </p>
-          );
-        }
-        return (
-          <aside key={index} className="rounded-[16px] border border-white/10 bg-ink/50 p-4">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">
-              {CALLOUT[block.tone]}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{block.text}</p>
-          </aside>
-        );
-      })}
+      <Body />
     </div>
   );
 }

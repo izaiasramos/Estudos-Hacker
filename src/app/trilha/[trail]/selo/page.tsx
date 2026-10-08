@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { trailAfter, trailBySlug, type Trail } from "@/content/trails";
+import { canSeeTrail } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import { hasTrailSeal, listProgress, sealDate } from "@/lib/trail-progress";
 
@@ -20,7 +21,9 @@ const TONE: Record<Trail["seal"]["tone"], { ring: string; core: string }> = {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { trail: slug } = await params;
   const trail = trailBySlug(slug);
-  return { title: trail ? `Selo de ${trail.seal.name} — ShieldPath` : "Selo — ShieldPath" };
+  return {
+    title: trail && trail.status !== "rascunho" ? `Selo de ${trail.seal.name} — ShieldPath` : "Selo — ShieldPath",
+  };
 }
 
 export default async function SealPage({ params }: { params: Params }) {
@@ -29,7 +32,7 @@ export default async function SealPage({ params }: { params: Params }) {
 
   const { trail: slug } = await params;
   const trail = trailBySlug(slug);
-  if (!trail) notFound();
+  if (!trail || !canSeeTrail(user, trail)) notFound();
 
   const progress = await listProgress(user.id);
   if (!hasTrailSeal(progress, trail.sealId)) redirect(`/trilha/${trail.slug}`);

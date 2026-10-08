@@ -1,0 +1,13 @@
+O cookie pode viajar demais. Sem marcas, um script da página consegue lê-lo, ele pode sair numa conexão sem HTTPS, e o navegador pode anexá-lo em um pedido que outro site provocou.
+
+<Glossary term={"HttpOnly"} text={"O JavaScript da página não lê o cookie. O navegador continua enviando a chave nas requisições do site."} />
+
+<Glossary term={"Secure"} text={"O navegador só envia o cookie em HTTPS. Uma rede que só vê HTTP não recebe a chave."} />
+
+<Glossary term={"SameSite"} text={"Limita o envio do cookie quando o pedido nasce em outro site. Lax ou Strict cobrem o caso comum. None deixa o cookie sair no pedido cruzado."} />
+
+<Callout tone="dev">
+
+No login, gere uma chave nova e esqueça a anterior. No logout, apague o registro no servidor. Um prazo curto encerra a sessão esquecida. As marcas não substituem isso.
+
+</Callout>

@@ -1,0 +1,23 @@
+Um app web quase sempre guarda coisas num banco: usuários, pedidos, mensagens. Quando alguém clica em entrar ou busca um pedido, o servidor monta uma consulta e o banco devolve linhas.
+
+<Callout tone="conceito">
+
+A consulta é uma instrução. O e-mail, o id e o texto da busca são dados. A segurança começa quando esses dois papéis não se misturam.
+
+</Callout>
+
+<Callout tone="analogia">
+
+No restaurante, o pedido é o dado e a receita é a instrução. Se o cliente puder reescrever a receita no meio do pedido, a cozinha deixa de fazer o prato e passa a seguir outra ordem.
+
+</Callout>
+
+O caminho comum é curto: o navegador manda o formulário, uma função no servidor lê o campo, uma consulta segue para o banco, e a resposta volta como página. O buraco mora nesse meio, quando o campo entra dentro do texto da consulta.
+
+<Glossary term={"invariante"} text={"Uma regra que o sistema precisa manter verdade. Aqui: dado continua dado, instrução continua instrução."} />
+
+<Callout tone="dev">
+
+Você vê isso numa rota, num repositório ou num serviço que abre conexão com o banco. Se a consulta é um texto montado na hora, vale parar e olhar como o valor do usuário entrou ali.
+
+</Callout>

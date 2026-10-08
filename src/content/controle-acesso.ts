@@ -15,26 +15,6 @@ export const UNITS: Unit[] = [
     summary: "Autenticação identifica. Autorização decide o alcance.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Controle de acesso quebrado é o primeiro item do OWASP Top 10. O login funciona, a sessão é válida, e mesmo assim a pessoa chega num dado que não é dela. O servidor respondeu à pergunta “quem está pedindo?” e pulou a segunda: “esse recurso pertence a quem está pedindo?”.",
-      },
-      {
-        type: "p",
-        text: "IDOR (Insecure Direct Object Reference) é o caso mais comum: a rota recebe um identificador — o número do pedido, da fatura, do perfil — e devolve o registro sem amarrar esse identificador ao dono da sessão.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "O porteiro confere o crachá na entrada do prédio e deixa você subir. Mas todas as salas abrem com qualquer crachá. Entrar no prédio não deveria abrir a sala do vizinho.",
-      },
-      {
-        type: "glossary",
-        term: "Invariante",
-        text: "Todo acesso a um recurso confere, no servidor, se a identidade da sessão tem direito àquele recurso específico. Saber o id não é permissão.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -109,27 +89,6 @@ export const UNITS: Unit[] = [
     summary: "Esconder não é proteger. UUID não é permissão.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O controle de acesso costuma sumir em quatro lugares. Checagem só na interface: o botão some para quem não é admin, mas a rota responde para qualquer sessão. Rota “escondida”: ninguém linkou o endpoint, então ninguém protegeu. Consulta pelo id puro: o banco busca o registro sem filtrar pelo dono. Campos que o cliente não devia mandar: o corpo do pedido traz `role` ou `userId` e o servidor grava o que recebeu.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Trocar o id sequencial por UUID dificulta adivinhar, mas não decide nada. Um UUID vaza em link, log ou e-mail. A checagem do dono continua obrigatória.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Negar por padrão: rota nova começa fechada e alguém libera, de propósito, quem pode. O contrário — começar aberta e lembrar de fechar — é como o buraco nasce.",
-      },
-      {
-        type: "glossary",
-        term: "Mass assignment",
-        text: "O servidor copia todos os campos do corpo para o registro. Se o modelo tem `role`, quem manda `role` no corpo muda o próprio papel.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -194,27 +153,6 @@ export const UNITS: Unit[] = [
     summary: "Ler a consulta e achar onde falta o dono.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Em code review, o sintoma aparece como uma consulta que recebe só o id vindo da URL. Compare as duas versões da rota de pedidos da Pizzaria do Lab.",
-      },
-      {
-        type: "code",
-        caption: "Rota que confia no id (vulnerável)",
-        code: "const pedido = await db.one(\n  \"SELECT * FROM pedidos WHERE id = ?\",\n  [params.id],\n);\nreturn pedido;",
-      },
-      {
-        type: "code",
-        caption: "Rota que amarra ao dono da sessão",
-        code: "const pedido = await db.one(\n  \"SELECT * FROM pedidos WHERE id = ? AND user_id = ?\",\n  [params.id, sessao.userId],\n);\nif (!pedido) return notFound();\nreturn pedido;",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "O `user_id` vem da sessão, que o servidor emitiu. Nunca do corpo, da query ou de um campo escondido no formulário.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -297,17 +235,6 @@ export const UNITS: Unit[] = [
     summary: "Configure a rota fictícia de pedidos. O checker confere a regra, não executa código seu.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "A rota `/pedidos/:id` da Pizzaria do Lab começa confiando no id. A Alice, logada, recebe também o pedido do Bruno. Cada opção abaixo endurece uma parte da regra de acesso. O painel mostra o que a Alice receberia com a configuração atual.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Conjunto que passa: filtro pelo dono da sessão, papel conferido no servidor, negar por padrão, lista permitida de campos e resposta 404 ou 403 para recurso de outra pessoa.",
-      },
-    ],
     questions: [],
   },
   {
@@ -317,12 +244,6 @@ export const UNITS: Unit[] = [
     summary: "O selo de controle de acesso espera o lab verde e este checkpoint.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Decisões de produto antes do selo.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

@@ -1,0 +1,23 @@
+Se o vazamento do banco traz senhas legíveis, o atacante testa as mesmas senhas em outros sites. Hash com algoritmo pensado para senha (bcrypt, scrypt, Argon2) torna cada tentativa cara. O salt impede que duas senhas iguais gerem o mesmo hash.
+
+<Code caption={"Forma errada (nunca faça)"}>
+
+```
+if (senhaDigitada === usuario.senhaNoBanco) { ... }
+```
+
+</Code>
+
+<Code caption={"Forma certa (conceito)"}>
+
+```
+const ok = await bcrypt.compare(senhaDigitada, usuario.password_hash);
+```
+
+</Code>
+
+<Callout tone="dev">
+
+Nesta plataforma, cadastro recusa senha curta, igual ao e-mail ou presente numa lista de senhas comuns — antes de chegar no hash. Política mínima no cadastro, hash no armazenamento.
+
+</Callout>

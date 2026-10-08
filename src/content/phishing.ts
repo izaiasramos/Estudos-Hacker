@@ -15,22 +15,6 @@ export const UNITS: Unit[] = [
     summary: "Engenharia social antes de exploit técnico.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Phishing convence alguém a fazer o que o atacante quer: clicar, abrir anexo, colar senha, autorizar app falso. Não explora SQL nem XSS primeiro — explora confiança, pressa e hábito. No trabalho, o prejuízo pode ser conta corporativa, código ou dados de cliente.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "É um criminoso com crachá falso na recepção. Não arrombou a porta; pediu que alguém abrisse.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Este produto só usa caixa de entrada fictícia do laboratório. Proibido template para atacar pessoas reais, página clone de banco/Google ou captura de senha de terceiros.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -95,17 +79,6 @@ export const UNITS: Unit[] = [
     summary: "Urgência, domínio parecido, pedido de senha, anexo estranho.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Quatro sinais comuns: tom urgente (“última chance”), domínio lookalike (shieldpath-login.com vs shieldpath.app), pedido de segredo por canal errado (senha no e-mail) e anexo que não combina com o contexto (executável no lugar de PDF).",
-      },
-      {
-        type: "glossary",
-        term: "Lookalike",
-        text: "Domínio visualmente parecido com o real. O link não leva à origem que o texto promete.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -170,12 +143,6 @@ export const UNITS: Unit[] = [
     summary: "Exercício de leitura — legítimo, suspeito ou phishing.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Antes do lab interativo, três mini-casos. Legítimo: aviso do produto sem pedir segredo. Phishing: domínio lookalike + senha. Suspeito: anexo executável inesperado.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -240,12 +207,6 @@ export const UNITS: Unit[] = [
     summary: "Classifique os três e-mails fictícios e marque as defesas de produto.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Mesmos princípios da spec 9.2: caixa fictícia, classificação e checklist de defesa. Nada sai deste ambiente.",
-      },
-    ],
     questions: [],
   },
   {
@@ -255,12 +216,6 @@ export const UNITS: Unit[] = [
     summary: "Selo de phishing espera lab e este checkpoint.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Feche a trilha com decisões de produto e processo.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

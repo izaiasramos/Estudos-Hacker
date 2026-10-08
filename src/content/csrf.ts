@@ -15,22 +15,6 @@ export const UNITS: Unit[] = [
     summary: "CSRF abusa do browser que já está logado.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Cross-Site Request Forgery (CSRF) envia, a partir de outra página, um pedido que o navegador completa com os cookies da vítima. O servidor vê sessão válida e executa a ação — transferência, mudança de e-mail, exclusão — sem que a pessoa tenha clicado de propósito no seu app.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "A vítima deixou a carteira aberta na mesa. O atacante não rouba a senha; só estica o braço e assina um papel enquanto ela olha para outro lugar.",
-      },
-      {
-        type: "glossary",
-        term: "Same-origin vs cross-origin",
-        text: "Origem = esquema + host + porta. Pedido de outro site é cross-origin, mas o cookie de sessão ainda pode ir se o navegador permitir.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -100,17 +84,6 @@ export const UNITS: Unit[] = [
     summary: "Token, SameSite, Origin e verbos corretos se somam.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Token anti-CSRF: valor secreto no form que o site malicioso não conhece. SameSite Lax/Strict: cookie não sai em muitos pedidos cross-site. Checagem de Origin/Referer: servidor recusa POST vindo de origem estranha. Por fim, nunca mutar estado em GET.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Nesta plataforma, rotas POST checam same-origin via Origin/Referer. É uma camada — não substitui token em apps com requisitos mais rígidos.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -175,17 +148,6 @@ export const UNITS: Unit[] = [
     summary: "Três cheiros em code review.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "No lab, transferência aceita GET com query string, form sem token, cookie SameSite=None e servidor ignora Origin. Qualquer combinação abre CSRF.",
-      },
-      {
-        type: "code",
-        caption: "Mutar estado via GET (anti-padrão)",
-        code: "GET /transferir?valor=100&para=atacante",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -240,17 +202,6 @@ export const UNITS: Unit[] = [
     summary: "Ligue as defesas. O checker valida a configuração do endpoint fictício.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O endpoint de transferência do lab começa permissivo. Cada caixa endurece uma camada. O servidor confere — não executa código seu.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Conjunto que passa: token, SameSite Lax ou Strict, checagem de Origin e mutação só via POST.",
-      },
-    ],
     questions: [],
   },
   {
@@ -260,12 +211,6 @@ export const UNITS: Unit[] = [
     summary: "O selo de CSRF espera lab verde e este checkpoint.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Decisões de produto antes do selo.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

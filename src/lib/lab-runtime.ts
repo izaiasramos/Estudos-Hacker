@@ -162,6 +162,32 @@ export async function checkLab(userId: string) {
   return tests;
 }
 
+/** Lab no ar há mais de 60 min: sinal de zumbi (o TTL é 75 min, então ele já devia ter saído). */
+const ZOMBIE_MS = 60 * 60 * 1000;
+
+/** Admin (seção 11.3): todos os labs no ar, com o e-mail do dono, para achar zumbi. */
+export async function listRunningLabs() {
+  await sweepExpired();
+  const rows = await many<Row & { email: string }>(
+    `SELECT s.*, u.email FROM lab_sessions s JOIN users u ON u.id = s.user_id
+     WHERE s.status = 'running' ORDER BY s.started_at ASC`,
+  );
+  const now = Date.now();
+  return rows.map((row) => ({
+    ...mapSession(row),
+    email: row.email,
+    zombie: now - Date.parse(row.started_at) > ZOMBIE_MS,
+  }));
+}
+
+/** Admin: derruba um lab pelo id da sessão. Devolve false se ele já não estava no ar. */
+export async function stopLabById(sessionId: string) {
+  const row = await one<Row>("SELECT * FROM lab_sessions WHERE id = ? AND status = 'running'", [sessionId]);
+  if (!row) return false;
+  await stopSession(mapSession(row));
+  return true;
+}
+
 async function sweepExpired() {
   const rows = await many<Row>(
     "SELECT * FROM lab_sessions WHERE status = 'running' AND expires_at <= ?",

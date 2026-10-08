@@ -1,0 +1,15 @@
+O controle de acesso costuma sumir em quatro lugares. Checagem só na interface: o botão some para quem não é admin, mas a rota responde para qualquer sessão. Rota “escondida”: ninguém linkou o endpoint, então ninguém protegeu. Consulta pelo id puro: o banco busca o registro sem filtrar pelo dono. Campos que o cliente não devia mandar: o corpo do pedido traz `role` ou `userId` e o servidor grava o que recebeu.
+
+<Callout tone="armadilha">
+
+Trocar o id sequencial por UUID dificulta adivinhar, mas não decide nada. Um UUID vaza em link, log ou e-mail. A checagem do dono continua obrigatória.
+
+</Callout>
+
+<Callout tone="dev">
+
+Negar por padrão: rota nova começa fechada e alguém libera, de propósito, quem pode. O contrário — começar aberta e lembrar de fechar — é como o buraco nasce.
+
+</Callout>
+
+<Glossary term={"Mass assignment"} text={"O servidor copia todos os campos do corpo para o registro. Se o modelo tem `role`, quem manda `role` no corpo muda o próprio papel."} />

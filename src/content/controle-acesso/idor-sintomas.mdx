@@ -1,0 +1,32 @@
+Em code review, o sintoma aparece como uma consulta que recebe só o id vindo da URL. Compare as duas versões da rota de pedidos da Pizzaria do Lab.
+
+<Code caption={"Rota que confia no id (vulnerável)"}>
+
+```
+const pedido = await db.one(
+  "SELECT * FROM pedidos WHERE id = ?",
+  [params.id],
+);
+return pedido;
+```
+
+</Code>
+
+<Code caption={"Rota que amarra ao dono da sessão"}>
+
+```
+const pedido = await db.one(
+  "SELECT * FROM pedidos WHERE id = ? AND user_id = ?",
+  [params.id, sessao.userId],
+);
+if (!pedido) return notFound();
+return pedido;
+```
+
+</Code>
+
+<Callout tone="dev">
+
+O `user_id` vem da sessão, que o servidor emitiu. Nunca do corpo, da query ou de um campo escondido no formulário.
+
+</Callout>

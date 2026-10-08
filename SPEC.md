@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.23  
+**Versão:** 0.25  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -239,7 +239,7 @@ Cada trilha futura deve caber neste contrato, para o time não improvisar.
 
 No código, todas as trilhas usam o mesmo player: `src/app/trilha/[trail]/page.tsx` (mapa), `[trail]/[unit]/page.tsx` (unidade) e `[trail]/selo/page.tsx` (selo). Uma trilha nova não cria página. Ela precisa de:
 
-1. `src/content/<slug>.ts` com `TRAIL` e `UNITS`;
+1. `src/content/<slug>.ts` com `TRAIL` e `UNITS` (metadados e quiz) e um `src/content/<slug>/<id>.mdx` com o texto de cada unidade;
 2. uma entrada em `TRAILS` (`src/content/trails.ts`) com `sealId`, `labUnitId` (o lab defensivo), `checkpointId`, `sealPending` e os dados do selo (`badge`, `name`, `text`, `tone`). O selo sai sozinho quando `labUnitId` e `checkpointId` estão concluídos; início, perfil e time leem a lista;
 3. se tiver lab, o componente do lab registrado em `src/components/unit-lab.tsx`, pelo id da unidade, e a rota do checker em `src/app/api/trilha/<slug>-lab/route.ts`. Lab de formulário usa `handleChecklistLab` (`src/lib/checklist-lab.ts`) e só escreve a função que lista as defesas que faltam.
 
@@ -597,7 +597,7 @@ O repositório não seguiu a tabela inteira. Hoje está assim:
 | UI | Tailwind CSS 4 e `motion` na landing |
 | Auth | Cookie httpOnly assinado no próprio código, bcrypt na senha, Google OAuth opcional. Não é Auth.js |
 | DB | Postgres 16 via `pg`. Sem Prisma e sem Drizzle. O schema nasce na primeira requisição |
-| Conteúdo | TypeScript em `src/content`. MDX ainda não |
+| Conteúdo | MDX em `src/content/<trilha>/` para o texto; metadados e quiz em TypeScript |
 | Labs | Docker quando existe; senão um processo Node em `127.0.0.1` |
 | Testes | O CI roda lint, tipos, Vitest (`npm test`), build e smoke E2E (`npm run test:e2e`, job `e2e` com Postgres) |
 | Host | Cada dev sobe com `npm run dev`. Não há servidor compartilhado |
@@ -683,7 +683,7 @@ Andamento em 2026-10-07. O que está marcado já roda no app.
 - [x] CI básico. Em todo pull request: `npm ci`, lint, `next typegen`, `tsc --noEmit` e `npm run build`. O ramo `main` exige pull request e esse check verde. Aprovação de outra pessoa ainda não é obrigatória.
 - [ ] Verificação de e-mail (sem SMTP ainda).
 - [x] Postgres no lugar do SQLite local. Sobe com `docker compose up -d`. `npm run db:import` copia o arquivo antigo uma vez, se o Postgres ainda estiver vazio.
-- [ ] Arquivos MDX. O conteúdo desta leva está em `src/content`, versionado no Git, no formato que o player já lê.
+- [x] Arquivos MDX em `src/content/<trilha>/<unidade>.mdx`.
 
 ### Fase 1 — Trilha SQLi sem orquestrador elástico
 
@@ -735,7 +735,8 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Limite de tentativas no login (ver 11.1): 5 por e-mail e 30 por IP em 15 minutos.
 - [ ] Recuperação de senha por e-mail.
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
-- [ ] Conteúdo em MDX. O player lê `src/content`.
+- [x] Conteúdo em MDX: o texto de cada unidade mora em `src/content/<trilha>/<unidade>.mdx` (`@next/mdx`), com os componentes `<Callout tone="...">`, `<Glossary term="..." text="..." />` e `<Code caption="...">` com bloco ``` dentro (`src/mdx-components.tsx`). Título, resumo, tipo e quiz continuam em `src/content/<trilha>.ts`, porque a nota é calculada no servidor a partir deles. `npm test` confere que toda unidade tem `.mdx`, que ele compila e que só usa componentes conhecidos.
+- [x] Admin mínimo (11.3) em `/admin`, só para `role = 'admin'`; para os outros a página e `POST /api/admin/lab/stop` respondem 404. Mostra contas, quem passou pelas regras, quem estudou em 7 dias, o funil por trilha (começaram, chegaram ao lab, lab fechado, taxa do lab e selos, só em contagem agregada) e os labs no ar, com botão para derrubar (mais de 60 min aparece como possível zumbi). Publicar é pelo Git: `status: "rascunho"` na entrada de `TRAILS` esconde a trilha de quem não é admin (páginas 404, quiz, leitura e lab recusados, e ela sai de início, perfil, time e "Próxima trilha"). Papel muda só por script: `DATABASE_URL=... node scripts/set-role.mjs <email> admin`.
 - [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
 - [x] Playwright de smoke no app (landing, cadastro, regras, trilha SQL). Comando: `npm run test:e2e` (Postgres + build).
 - [x] Cenas da seção 15.4: traço de luz na aresta até o nó atual (arestas concluídas acesas, nó atual com anel pulsando), quiz certo assenta com borda lima e quiz errado faz shake de 6px uma vez, boot do lab em três etapas ("isolando rede", "subindo app", "pronto") que avançam com marcos reais: resposta do servidor e carga do iframe. Sem JavaScript, o botão faz o POST normal.

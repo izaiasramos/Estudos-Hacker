@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { UnitRail } from "@/components/unit-rail";
 import { trailAfter, trailBySlug } from "@/content/trails";
+import { canSeeTrail } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import { hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
 
@@ -12,7 +13,8 @@ type Params = Promise<{ trail: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { trail: slug } = await params;
-  return { title: `${trailBySlug(slug)?.title ?? "Trilha"} — ShieldPath` };
+  const trail = trailBySlug(slug);
+  return { title: `${trail && trail.status !== "rascunho" ? trail.title : "Trilha"} — ShieldPath` };
 }
 
 export default async function TrailPage({ params }: { params: Params }) {
@@ -22,7 +24,7 @@ export default async function TrailPage({ params }: { params: Params }) {
 
   const { trail: slug } = await params;
   const trail = trailBySlug(slug);
-  if (!trail) notFound();
+  if (!trail || !canSeeTrail(user, trail)) notFound();
 
   const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);

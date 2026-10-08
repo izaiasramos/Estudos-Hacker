@@ -15,6 +15,11 @@ export type Trail = {
   /** O selo só sai com estas duas unidades concluídas (seção 4.3 da spec: defesa é o destino). */
   labUnitId: string;
   checkpointId: string;
+  /**
+   * Publicação via Git (seção 7.1 e 11.3): trilha em rascunho só aparece para admin.
+   * Sem o campo, a trilha está publicada.
+   */
+  status?: "rascunho";
   /** Texto da página da trilha quando todas as unidades abertas já foram, mas o selo ainda não saiu. */
   sealPending: string;
   /** Cena do selo em /trilha/[slug]/selo. */
@@ -127,14 +132,22 @@ export const TRAILS: Trail[] = [
   },
 ];
 
+export function isPublished(trail: Trail) {
+  return trail.status !== "rascunho";
+}
+
+/** Trilhas que o aluno vê: início, perfil, time e “Próxima trilha” só contam estas. */
+export const PUBLISHED_TRAILS = TRAILS.filter(isPublished);
+
 export function trailBySlug(slug: string) {
   return TRAILS.find((trail) => trail.slug === slug) ?? null;
 }
 
-/** A trilha que vem depois desta na ordem da spec (7.2), para o CTA “Próxima trilha” do selo. */
+/** A próxima trilha publicada na ordem da spec (7.2), para o CTA “Próxima trilha” do selo. */
 export function trailAfter(slug: string) {
   const index = TRAILS.findIndex((trail) => trail.slug === slug);
-  return index >= 0 ? (TRAILS[index + 1] ?? null) : null;
+  if (index < 0) return null;
+  return TRAILS.slice(index + 1).find(isPublished) ?? null;
 }
 
 export function locateUnit(id: string) {

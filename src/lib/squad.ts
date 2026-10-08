@@ -1,5 +1,5 @@
 import { randomBytes, randomUUID } from "node:crypto";
-import { TRAILS } from "@/content/trails";
+import { PUBLISHED_TRAILS as TRAILS } from "@/content/trails";
 import { many, one, run, withTx } from "@/lib/db";
 import { hasTrailSeal, listProgress, nextUnit, type ProgressRow } from "@/lib/trail-progress";
 import { currentStreak, studyDay } from "@/lib/streak";
