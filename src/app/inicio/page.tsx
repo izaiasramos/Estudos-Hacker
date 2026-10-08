@@ -20,9 +20,11 @@ export default async function InicioPage() {
   const progress = await listProgress(user.id);
   const sqlNext = nextUnit(progress, true, "sql-injection");
   const sessionNext = nextUnit(progress, true, "sessao");
+  const authNext = nextUnit(progress, true, "autenticacao");
   const sqlSeal = hasSeal(progress);
   const sessionSeal = hasTrailSeal(progress, "selo-sessao");
-  const seals = Number(sqlSeal) + Number(sessionSeal);
+  const authSeal = hasTrailSeal(progress, "selo-autenticacao");
+  const seals = Number(sqlSeal) + Number(sessionSeal) + Number(authSeal);
   const level = seals >= 2 ? "Especialista" : seals === 1 ? "Pleno defensivo" : "Jr";
   const { streak } = await readStreak(user.id);
   const squad = await squadOf(user.id);
@@ -32,12 +34,16 @@ export default async function InicioPage() {
     ? `Continuar — ${sqlNext.title}`
     : sessionNext
       ? `Continuar — ${sessionNext.title}`
-      : "As duas especialidades estão fechadas";
+      : authNext
+        ? `Continuar — ${authNext.title}`
+        : "As trilhas abertas estão fechadas";
   const primary = sqlNext
     ? { href: `/trilha/sql-injection/${sqlNext.id}`, label: "Abrir unidade" }
     : sessionNext
       ? { href: `/trilha/sessao/${sessionNext.id}`, label: "Abrir unidade" }
-      : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
+      : authNext
+        ? { href: `/trilha/autenticacao/${authNext.id}`, label: "Abrir unidade" }
+        : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
 
   return (
     <div className="relative isolate flex min-h-full flex-col">
@@ -76,10 +82,21 @@ export default async function InicioPage() {
               Selo · Sessão
             </Link>
           ) : null}
+          {authSeal ? (
+            <Link
+              href="/trilha/autenticacao/selo"
+              className="inline-flex items-center gap-3 rounded-full border border-accent/40 px-4 py-2 text-sm"
+            >
+              <span className="grid size-6 place-items-center rounded-full bg-accent text-[10px] font-semibold text-ink">
+                AUTH
+              </span>
+              Selo · Autenticação
+            </Link>
+          ) : null}
         </div>
         <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight">{headline}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
-          Duas especialidades, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
+          Três trilhas no ar, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
           depois da defesa.
         </p>
         <Link
@@ -88,7 +105,7 @@ export default async function InicioPage() {
         >
           {primary.label}
         </Link>
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             href="/trilha/sql-injection"
             className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -110,6 +127,20 @@ export default async function InicioPage() {
                 ? "Selo fechado."
                 : sessionNext
                   ? `Próxima: ${sessionNext.title}`
+                  : "Aberta."}
+            </p>
+          </Link>
+          <Link
+            href="/trilha/autenticacao"
+            className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">Trilha</p>
+            <h2 className="mt-2 text-xl font-semibold">Autenticação</h2>
+            <p className="mt-2 text-sm text-muted">
+              {authSeal
+                ? "Selo fechado."
+                : authNext
+                  ? `Próxima: ${authNext.title}`
                   : "Aberta."}
             </p>
           </Link>

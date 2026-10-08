@@ -25,7 +25,7 @@ test.describe("smoke", () => {
     await page.getByRole("button", { name: "Confirmar e continuar" }).click();
 
     await expect(page).toHaveURL(/\/inicio/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Continuar|As duas especialidades/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/Continuar|As trilhas abertas/);
 
     await page.goto("/trilha/sql-injection");
     await expect(page.getByRole("heading", { name: "SQL Injection" })).toBeVisible();

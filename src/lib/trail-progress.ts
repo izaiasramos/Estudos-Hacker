@@ -184,7 +184,13 @@ export async function gradeUnit(
   });
 
   const slug = locateUnit(unit.id)?.trail.slug;
-  const sealed = passed ? (slug === "sessao" ? await awardSessionSeal(userId) : await awardSeal(userId)) : false;
+  const sealed = passed
+    ? slug === "sessao"
+      ? await awardSessionSeal(userId)
+      : slug === "autenticacao"
+        ? await awardAuthSeal(userId)
+        : await awardSeal(userId)
+    : false;
   return { ok: true as const, passed, score, wrong, attempts, sealed };
 }
 
@@ -246,6 +252,35 @@ export async function completeSessionLab(userId: string, ethicsDone: boolean) {
   return { ok: true as const, sealed: await awardSessionSeal(userId) };
 }
 
+export async function completeAuthLab(userId: string, ethicsDone: boolean) {
+  const unit = unitById("auth-lab");
+  if (!unit) return { error: "unidade" as const };
+  const progress = await listProgress(userId);
+  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+    return { error: "bloqueada" as const };
+  }
+  const current = progress.get(unit.id);
+  const attempts = (current?.attempts ?? 0) + 1;
+  const gain = current?.status === "done" ? 0 : LAB_XP;
+  await withTx(async () => {
+    await run(
+      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
+       VALUES (?, 'auth-lab', 'done', 100, ?, ?)
+       ON CONFLICT(user_id, unit_id) DO UPDATE SET
+         status = 'done',
+         score = 100,
+         attempts = excluded.attempts,
+         xp_awarded = progress.xp_awarded + ?`,
+      [userId, attempts, gain, gain],
+    );
+    if (gain > 0) {
+      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
+      await touchStreak(userId);
+    }
+  });
+  return { ok: true as const, sealed: await awardAuthSeal(userId) };
+}
+
 async function awardSessionSeal(userId: string) {
   const progress = await listProgress(userId);
   if (progress.get("sessao-lab")?.status !== "done") return false;
@@ -268,6 +303,20 @@ async function awardSeal(userId: string) {
   await run(
     `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
      VALUES (?, 'selo', 'done', 100, 1, ?)`,
+    [userId, SEAL_XP],
+  );
+  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
+  return true;
+}
+
+async function awardAuthSeal(userId: string) {
+  const progress = await listProgress(userId);
+  if (progress.get("auth-lab")?.status !== "done") return false;
+  if (progress.get("auth-checkpoint")?.status !== "done") return false;
+  if (progress.get("selo-autenticacao")?.status === "done") return false;
+  await run(
+    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
+     VALUES (?, 'selo-autenticacao', 'done', 100, 1, ?)`,
     [userId, SEAL_XP],
   );
   await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
