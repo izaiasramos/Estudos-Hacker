@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { unitById } from "@/content/sql-injection";
+import { TRAILS } from "@/content/trails";
 import {
+  accountLevel,
   isUnlocked,
+  sealIsDue,
   nextUnit,
   scoreUnitAnswers,
   shuffleChoices,
@@ -44,6 +47,42 @@ describe("desbloqueio da trilha", () => {
     if (!banco) return;
     expect(unitStatus(banco, new Map(), true)).toBe("agora");
     expect(unitStatus(banco, progressMap({ banco: { status: "done" } }), true)).toBe("concluída");
+  });
+});
+
+describe("selo", () => {
+  it("toda trilha aponta para um lab e um checkpoint que existem nela", () => {
+    for (const trail of TRAILS) {
+      const lab = trail.units.find((unit) => unit.id === trail.labUnitId);
+      const checkpoint = trail.units.find((unit) => unit.id === trail.checkpointId);
+      expect(lab?.kind, trail.slug).toBe("lab");
+      expect(checkpoint?.kind, trail.slug).toBe("checkpoint");
+    }
+  });
+
+  it("só sai com lab defensivo e checkpoint, e uma vez só", () => {
+    const trail = TRAILS.find((item) => item.slug === "sessao");
+    expect(trail).toBeTruthy();
+    if (!trail) return;
+    const lab = { [trail.labUnitId]: { status: "done" } };
+    const both = { ...lab, [trail.checkpointId]: { status: "done" } };
+    expect(sealIsDue(progressMap({}), trail)).toBe(false);
+    expect(sealIsDue(progressMap(lab), trail)).toBe(false);
+    expect(sealIsDue(progressMap({ [trail.checkpointId]: { status: "done" } }), trail)).toBe(false);
+    expect(sealIsDue(progressMap(both), trail)).toBe(true);
+    expect(sealIsDue(progressMap({ ...both, [trail.sealId]: { status: "done" } }), trail)).toBe(false);
+  });
+
+  it("o lab ofensivo de SQL não conta como defesa", () => {
+    const sql = TRAILS.find((item) => item.slug === "sql-injection");
+    expect(sql?.labUnitId).toBe("lab-defensivo");
+  });
+
+  it("nível de conta segue a soma de selos", () => {
+    expect(accountLevel(0)).toBe("Jr");
+    expect(accountLevel(1)).toBe("Pleno defensivo");
+    expect(accountLevel(2)).toBe("Especialista");
+    expect(accountLevel(6)).toBe("Especialista");
   });
 });
 

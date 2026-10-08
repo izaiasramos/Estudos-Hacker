@@ -7,7 +7,7 @@ import { TRAILS } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
 import { squadOf } from "@/lib/squad";
 import { readStreak } from "@/lib/streak";
-import { hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
+import { accountLevel, hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
 import { lastLabStartedAt } from "@/lib/users";
 
 export const metadata: Metadata = {
@@ -65,7 +65,7 @@ export default async function PerfilPage({
     return { trail, sealed, done, total: trail.units.length, upcoming };
   });
   const seals = trails.filter((item) => item.sealed).length;
-  const level = seals >= 2 ? "Especialista" : seals === 1 ? "Pleno defensivo" : "Jr";
+  const level = accountLevel(seals);
   const streakLabel =
     streak === 0 ? "Nenhum dia fechado" : streak === 1 ? "1 dia" : `${streak} dias seguidos`;
   const initial = user.name.trim().charAt(0).toUpperCase() || "?";

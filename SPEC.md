@@ -240,9 +240,8 @@ Cada trilha futura deve caber neste contrato, para o time não improvisar.
 No código, todas as trilhas usam o mesmo player: `src/app/trilha/[trail]/page.tsx` (mapa), `[trail]/[unit]/page.tsx` (unidade) e `[trail]/selo/page.tsx` (selo). Uma trilha nova não cria página. Ela precisa de:
 
 1. `src/content/<slug>.ts` com `TRAIL` e `UNITS`;
-2. uma entrada em `TRAILS` (`src/content/trails.ts`) com `sealId`, `sealPending` e os dados do selo (`badge`, `name`, `text`, `tone`);
-3. se tiver lab, o componente do lab registrado em `src/components/unit-lab.tsx`, pelo id da unidade, e a rota do checker em `src/app/api/trilha/<slug>-lab`;
-4. por enquanto, também: `complete…Lab` e `award…Seal` em `src/lib/trail-progress.ts`, e o card da trilha em `src/app/inicio/page.tsx`. Essas duas partes ainda repetem código por trilha.
+2. uma entrada em `TRAILS` (`src/content/trails.ts`) com `sealId`, `labUnitId` (o lab defensivo), `checkpointId`, `sealPending` e os dados do selo (`badge`, `name`, `text`, `tone`). O selo sai sozinho quando `labUnitId` e `checkpointId` estão concluídos; início, perfil e time leem a lista;
+3. se tiver lab, o componente do lab registrado em `src/components/unit-lab.tsx`, pelo id da unidade, e a rota do checker em `src/app/api/trilha/<slug>-lab/route.ts`. Lab de formulário usa `handleChecklistLab` (`src/lib/checklist-lab.ts`) e só escreve a função que lista as defesas que faltam.
 
 ### 9.1 Sequestro de sessão (v1.1)
 

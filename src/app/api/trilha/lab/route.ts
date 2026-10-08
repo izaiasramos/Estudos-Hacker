@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, passed: false, tests: review.tests, sealed: false });
   }
 
-  const saved = await completeLab(user.id, true);
+  const saved = await completeLab(user.id, "lab-defensivo", true);
   if ("error" in saved) {
     return NextResponse.json({ ok: false }, { status: 403 });
   }
