@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.21  
+**Versão:** 0.22  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -743,7 +743,8 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Trilha **XSS** (`/trilha/xss`): refletido/armazenado, lab de defesa (escape, CSP, DOM seguro, sanitizar) e selo `selo-xss`.
 - [x] Trilha **CSRF** (`/trilha/csrf`): pedido forjado, lab (token, SameSite, Origin, POST) e selo `selo-csrf`.
 - [x] Trilha **Phishing interno** (`/trilha/phishing`): sinais, classificação de e-mails fictícios, defesas de produto e selo `selo-phishing` (sem clone de login nem kits de ataque).
-- [ ] Próximas trilhas, nesta ordem: controle de acesso (IDOR), headers. SSRF e upload ficam para depois.
+- [x] Trilha **Controle de acesso (IDOR)** (`/trilha/controle-acesso`): autenticação vs. autorização, onde o controle some (interface, rota escondida, UUID, mass assignment), sintomas na consulta, lab de regra de acesso dos pedidos e selo `selo-controle-acesso`. O lab mostra o que a Alice receberia; UUID sozinho não passa no checker.
+- [ ] Próximas trilhas, nesta ordem: headers de segurança. SSRF e upload ficam para depois.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).
 
 #### Decisões em aberto
@@ -790,7 +791,7 @@ Já decidido e no código:
 
 - Lab na máquina de quem roda o app, com Docker e reserva em processo Node. Não há orquestrador elástico.
 - Editor de defesa no browser. O servidor não executa o código enviado.
-- Trilhas no ar: SQL Injection, Sessão, Autenticação, XSS, CSRF, Phishing interno.
+- Trilhas no ar: SQL Injection, Sessão, Autenticação, XSS, CSRF, Phishing interno, Controle de acesso (IDOR).
 - Ranking só dentro do time, com nome, nota e tentativas.
 
 ---
