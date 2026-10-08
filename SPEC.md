@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.13  
+**Versão:** 0.14  
 **Data:** 2026-10-07  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -593,7 +593,7 @@ O repositório não seguiu a tabela inteira. Hoje está assim:
 | DB | Postgres 16 via `pg`. Sem Prisma e sem Drizzle. O schema nasce na primeira requisição |
 | Conteúdo | TypeScript em `src/content`. MDX ainda não |
 | Labs | Docker quando existe; senão um processo Node em `127.0.0.1` |
-| Testes | O CI roda lint, tipos e build. Vitest e Playwright ainda não existem |
+| Testes | O CI roda lint, tipos, `npm test` (Vitest) e build. Playwright ainda não |
 | Host | Cada dev sobe com `npm run dev`. Não há servidor compartilhado |
 
 Alternativa mais leve se o orquestrador atrasar o MVP: **labs locais via Docker Compose** que o aluno sobe na máquina, e a plataforma só marca “concluí” com um token de checker. Isso reduz risco e custo, com pior UX. A Fase 2 já sobe o lab na máquina de quem roda o app.
@@ -714,22 +714,21 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Next na Vercel, plano free, ligado ao `main`. Merge publica sozinho.
 - [x] Postgres no Supabase. Em produção, `DATABASE_URL` usa a URI do **Session pooler** (porta `5432`, host `pooler.supabase.com`, usuário `postgres.[ref]`). A conexão **Direct** (`db.[ref].supabase.co`) não funciona na Vercel. O placeholder `[YOUR-PASSWORD]` da URI deve virar a senha pura, sem colchetes.
 - [x] `AUTH_SECRET` e Google OAuth em produção. URI autorizado: `https://estudos-hacker.vercel.app/api/auth/google/callback`.
-- [x] CI no GitHub. Pull request obrigatório no `main`. Job `check`: lint, tipos, build.
+- [x] CI no GitHub. Pull request obrigatório no `main`. Job `check`: lint, tipos, Vitest, build.
 - [x] README com stack, instalação do zero, variáveis, contribuição e leitura de logs do CI.
 
 #### Operacional (time)
 
 - [ ] Convidar colaboradores no GitHub (**Settings → Collaborators**) para enviar código sem fork.
 - [ ] Comunicar ao time: trilha e lab ofensivo funcionam em https://estudos-hacker.vercel.app; Docker só se alguém ligar `LAB_RUNTIME=local` (ver 12.3).
-- [ ] Subir a spec 0.13 para o `main` via pull request (alteração local ainda não está no GitHub).
-
 #### Produto e código
 
 - [x] Laboratório da pizzaria embutido em `/lab/pizzaria` (Vercel e local). Modo Docker legado com `LAB_RUNTIME=local` (ver 12.3).
 - [ ] Recuperação de senha por e-mail.
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [ ] Conteúdo em MDX. O player lê `src/content`.
-- [ ] Vitest na lógica pura (`lab-check`, nota do quiz, `touchStreak`, desbloqueio de unidade) e, depois, Playwright de smoke.
+- [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
+- [ ] Playwright de smoke no app.
 - [ ] Cenas da seção 15.4 que ainda não estão na tela: traço de luz entre os nós, shake do quiz errado e as três etapas nomeadas no boot do lab.
 - [ ] Próximas trilhas, nesta ordem: autenticação quebrada e senhas, XSS, CSRF, phishing interno, controle de acesso, headers. SSRF e upload ficam para depois.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).

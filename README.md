@@ -109,6 +109,7 @@ Faça a mudança. Antes de enviar, rode na sua máquina:
 ```bash
 npm run lint
 npx tsc --noEmit
+npm test
 ```
 
 Depois envie a branch e abra o pull request para `main`:
@@ -131,7 +132,8 @@ O job se chama `check` e executa, nesta ordem:
 2. `npm run lint`
 3. `npx next typegen` — gera tipos do Next que não vão para o Git, como `LayoutProps`
 4. `npx tsc --noEmit`
-5. `npm run build`
+5. `npm test`
+6. `npm run build`
 
 Para ver o log:
 

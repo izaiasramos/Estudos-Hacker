@@ -18,6 +18,9 @@ jobs:
       - run: npm run lint
       - run: npx next typegen
       - run: npx tsc --noEmit
+      - run: npm test
+        env:
+          DATABASE_URL: postgres://shieldpath:shieldpath@localhost:5432/shieldpath
       - run: npm run build
         env:
           DATABASE_URL: postgres://shieldpath:shieldpath@localhost:5432/shieldpath

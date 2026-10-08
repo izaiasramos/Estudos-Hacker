@@ -142,23 +142,8 @@ export async function gradeUnit(
     return { error: "bloqueada" as const };
   }
 
-  const wrong: { id: string; choice: string; explain: string }[] = [];
-  let correct = 0;
-  for (const question of unit.questions) {
-    const given = (answers[question.id] ?? "").trim();
-    if (questionPasses(question, given)) {
-      correct += 1;
-      continue;
-    }
-    wrong.push({
-      id: question.id,
-      choice: given,
-      explain: explainFor(question, given),
-    });
-  }
-
-  const score = Math.round((correct / unit.questions.length) * 100);
-  const passed = score >= 70;
+  const graded = scoreUnitAnswers(unit.questions, answers);
+  const { score, passed, wrong } = graded;
   const current = progress.get(unit.id);
   const attempts = (current?.attempts ?? 0) + 1;
   const passXp = passed && current?.status !== "done" ? xpForPass(unit) : 0;
@@ -287,6 +272,26 @@ async function awardSeal(userId: string) {
   );
   await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
   return true;
+}
+
+export function scoreUnitAnswers(questions: Question[], answers: Record<string, string>) {
+  const wrong: { id: string; choice: string; explain: string }[] = [];
+  let correct = 0;
+  for (const question of questions) {
+    const given = (answers[question.id] ?? "").trim();
+    if (questionPasses(question, given)) {
+      correct += 1;
+      continue;
+    }
+    wrong.push({
+      id: question.id,
+      choice: given,
+      explain: explainFor(question, given),
+    });
+  }
+  const score =
+    questions.length === 0 ? 0 : Math.round((correct / questions.length) * 100);
+  return { score, passed: score >= 70, correct, wrong };
 }
 
 function questionPasses(question: Question, given: string) {
