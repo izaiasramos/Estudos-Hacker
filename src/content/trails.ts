@@ -11,6 +11,9 @@ export type Trail = {
   summary: string;
   sealId: string;
   units: Unit[];
+  /** O selo só sai com estas duas unidades concluídas (seção 4.3 da spec: defesa é o destino). */
+  labUnitId: string;
+  checkpointId: string;
   /** Texto da página da trilha quando todas as unidades abertas já foram, mas o selo ainda não saiu. */
   sealPending: string;
   /** Cena do selo em /trilha/[slug]/selo. */
@@ -26,6 +29,8 @@ export const TRAILS: Trail[] = [
   {
     ...sqlTrail,
     sealId: "selo",
+    labUnitId: "lab-defensivo",
+    checkpointId: "checkpoint",
     units: sqlUnits,
     sealPending: "O selo espera o laboratório em que a defesa passa nos testes.",
     seal: {
@@ -38,6 +43,8 @@ export const TRAILS: Trail[] = [
   {
     ...sessionTrail,
     sealId: "selo-sessao",
+    labUnitId: "sessao-lab",
+    checkpointId: "sessao-checkpoint",
     units: sessionUnits,
     sealPending: "O selo espera o lab em que a chave passa no checker e o checkpoint.",
     seal: {
@@ -50,6 +57,8 @@ export const TRAILS: Trail[] = [
   {
     ...authTrail,
     sealId: "selo-autenticacao",
+    labUnitId: "auth-lab",
+    checkpointId: "auth-checkpoint",
     units: authUnits,
     sealPending: "O selo espera o lab de login no checker e o checkpoint.",
     seal: {
@@ -62,6 +71,8 @@ export const TRAILS: Trail[] = [
   {
     ...xssTrail,
     sealId: "selo-xss",
+    labUnitId: "xss-lab",
+    checkpointId: "xss-checkpoint",
     units: xssUnits,
     sealPending: "O selo espera o lab do painel no checker e o checkpoint.",
     seal: {
@@ -74,6 +85,8 @@ export const TRAILS: Trail[] = [
   {
     ...csrfTrail,
     sealId: "selo-csrf",
+    labUnitId: "csrf-lab",
+    checkpointId: "csrf-checkpoint",
     units: csrfUnits,
     sealPending: "O selo espera o lab de transferência no checker e o checkpoint.",
     seal: {
@@ -86,6 +99,8 @@ export const TRAILS: Trail[] = [
   {
     ...phishingTrail,
     sealId: "selo-phishing",
+    labUnitId: "phishing-lab",
+    checkpointId: "phishing-checkpoint",
     units: phishingUnits,
     sealPending: "O selo espera a caixa do lab classificada e o checkpoint.",
     seal: {

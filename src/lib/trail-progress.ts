@@ -1,5 +1,5 @@
 import type { Question, Unit } from "@/content/sql-injection";
-import { locateUnit, trailBySlug } from "@/content/trails";
+import { locateUnit, trailBySlug, type Trail } from "@/content/trails";
 import { many, run, withTx } from "@/lib/db";
 import { touchStreak } from "@/lib/streak";
 
@@ -95,12 +95,15 @@ function xpForPass(unit: Unit) {
   return QUIZ_XP;
 }
 
-export function hasSeal(progress: Map<string, ProgressRow>) {
-  return progress.get("selo")?.status === "done";
-}
-
 export function hasTrailSeal(progress: Map<string, ProgressRow>, sealId: string) {
   return progress.get(sealId)?.status === "done";
+}
+
+/** Nível de conta da seção 10: Jr → Pleno defensivo (1 selo) → Especialista (2 ou mais). */
+export function accountLevel(seals: number) {
+  if (seals >= 2) return "Especialista";
+  if (seals === 1) return "Pleno defensivo";
+  return "Jr";
 }
 
 export async function markUnitRead(userId: string, unitId: string, ethicsDone: boolean) {
@@ -183,26 +186,19 @@ export async function gradeUnit(
     if (passed && current?.status !== "done") await touchStreak(userId);
   });
 
-  const slug = locateUnit(unit.id)?.trail.slug;
-  const sealed = passed
-    ? slug === "sessao"
-      ? await awardSessionSeal(userId)
-      : slug === "autenticacao"
-        ? await awardAuthSeal(userId)
-        : slug === "xss"
-          ? await awardXssSeal(userId)
-          : slug === "csrf"
-            ? await awardCsrfSeal(userId)
-            : slug === "phishing"
-              ? await awardPhishingSeal(userId)
-              : await awardSeal(userId)
-    : false;
+  const trail = locateUnit(unit.id)?.trail;
+  const sealed = passed && trail ? await awardTrailSeal(userId, trail) : false;
   return { ok: true as const, passed, score, wrong, attempts, sealed };
 }
 
-export async function completeLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("lab-defensivo");
-  if (!unit) return { error: "unidade" as const };
+/**
+ * Fecha o lab defensivo de uma trilha (o checker já passou na rota) e tenta emitir o selo.
+ * Só aceita a unidade que a trilha declara como `labUnitId`: o selo depende dela.
+ */
+export async function completeLab(userId: string, unitId: string, ethicsDone: boolean) {
+  const located = locateUnit(unitId);
+  if (!located || located.trail.labUnitId !== unitId) return { error: "unidade" as const };
+  const { trail, unit } = located;
   const progress = await listProgress(userId);
   if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
     return { error: "bloqueada" as const };
@@ -213,249 +209,44 @@ export async function completeLab(userId: string, ethicsDone: boolean) {
   await withTx(async () => {
     await run(
       `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'lab-defensivo', 'done', 100, ?, ?)
+       VALUES (?, ?, 'done', 100, ?, ?)
        ON CONFLICT(user_id, unit_id) DO UPDATE SET
          status = 'done',
          score = 100,
          attempts = excluded.attempts,
          xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
+      [userId, unit.id, attempts, gain, gain],
     );
     if (gain > 0) {
       await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
       await touchStreak(userId);
     }
   });
-  return { ok: true as const, sealed: await awardSeal(userId) };
+  return { ok: true as const, trail, sealed: await awardTrailSeal(userId, trail) };
 }
 
-export async function completeSessionLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("sessao-lab");
-  if (!unit) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
-    await run(
+/** Regra pura do selo: lab defensivo e checkpoint concluídos, selo ainda não emitido. */
+export function sealIsDue(progress: Map<string, ProgressRow>, trail: Trail) {
+  if (progress.get(trail.labUnitId)?.status !== "done") return false;
+  if (progress.get(trail.checkpointId)?.status !== "done") return false;
+  return progress.get(trail.sealId)?.status !== "done";
+}
+
+async function awardTrailSeal(userId: string, trail: Trail) {
+  if (!sealIsDue(await listProgress(userId), trail)) return false;
+  // O XP só entra se a linha do selo nasceu agora. Dois envios ao mesmo tempo não pagam duas vezes.
+  return withTx(async () => {
+    const inserted = await many<{ unit_id: string }>(
       `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'sessao-lab', 'done', 100, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
+       VALUES (?, ?, 'done', 100, 1, ?)
+       ON CONFLICT(user_id, unit_id) DO NOTHING
+       RETURNING unit_id`,
+      [userId, trail.sealId, SEAL_XP],
     );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
-      await touchStreak(userId);
-    }
+    if (inserted.length === 0) return false;
+    await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
+    return true;
   });
-  return { ok: true as const, sealed: await awardSessionSeal(userId) };
-}
-
-export async function completeAuthLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("auth-lab");
-  if (!unit) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
-    await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'auth-lab', 'done', 100, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
-    );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
-      await touchStreak(userId);
-    }
-  });
-  return { ok: true as const, sealed: await awardAuthSeal(userId) };
-}
-
-export async function completeXssLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("xss-lab");
-  if (!unit) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
-    await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'xss-lab', 'done', 100, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
-    );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
-      await touchStreak(userId);
-    }
-  });
-  return { ok: true as const, sealed: await awardXssSeal(userId) };
-}
-
-export async function completeCsrfLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("csrf-lab");
-  if (!unit) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
-    await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'csrf-lab', 'done', 100, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
-    );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
-      await touchStreak(userId);
-    }
-  });
-  return { ok: true as const, sealed: await awardCsrfSeal(userId) };
-}
-
-export async function completePhishingLab(userId: string, ethicsDone: boolean) {
-  const unit = unitById("phishing-lab");
-  if (!unit) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
-    await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, 'phishing-lab', 'done', 100, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, attempts, gain, gain],
-    );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
-      await touchStreak(userId);
-    }
-  });
-  return { ok: true as const, sealed: await awardPhishingSeal(userId) };
-}
-
-async function awardSessionSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("sessao-lab")?.status !== "done") return false;
-  if (progress.get("sessao-checkpoint")?.status !== "done") return false;
-  if (progress.get("selo-sessao")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo-sessao', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
-}
-
-async function awardSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("lab-defensivo")?.status !== "done") return false;
-  if (progress.get("checkpoint")?.status !== "done") return false;
-  if (progress.get("selo")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
-}
-
-async function awardAuthSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("auth-lab")?.status !== "done") return false;
-  if (progress.get("auth-checkpoint")?.status !== "done") return false;
-  if (progress.get("selo-autenticacao")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo-autenticacao', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
-}
-
-async function awardXssSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("xss-lab")?.status !== "done") return false;
-  if (progress.get("xss-checkpoint")?.status !== "done") return false;
-  if (progress.get("selo-xss")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo-xss', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
-}
-
-async function awardCsrfSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("csrf-lab")?.status !== "done") return false;
-  if (progress.get("csrf-checkpoint")?.status !== "done") return false;
-  if (progress.get("selo-csrf")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo-csrf', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
-}
-
-async function awardPhishingSeal(userId: string) {
-  const progress = await listProgress(userId);
-  if (progress.get("phishing-lab")?.status !== "done") return false;
-  if (progress.get("phishing-checkpoint")?.status !== "done") return false;
-  if (progress.get("selo-phishing")?.status === "done") return false;
-  await run(
-    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-     VALUES (?, 'selo-phishing', 'done', 100, 1, ?)`,
-    [userId, SEAL_XP],
-  );
-  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
-  return true;
 }
 
 export function scoreUnitAnswers(questions: Question[], answers: Record<string, string>) {
