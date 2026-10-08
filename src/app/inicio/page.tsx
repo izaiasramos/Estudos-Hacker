@@ -23,13 +23,20 @@ export default async function InicioPage() {
   const authNext = nextUnit(progress, true, "autenticacao");
   const xssNext = nextUnit(progress, true, "xss");
   const csrfNext = nextUnit(progress, true, "csrf");
+  const phishingNext = nextUnit(progress, true, "phishing");
   const sqlSeal = hasSeal(progress);
   const sessionSeal = hasTrailSeal(progress, "selo-sessao");
   const authSeal = hasTrailSeal(progress, "selo-autenticacao");
   const xssSeal = hasTrailSeal(progress, "selo-xss");
   const csrfSeal = hasTrailSeal(progress, "selo-csrf");
+  const phishingSeal = hasTrailSeal(progress, "selo-phishing");
   const seals =
-    Number(sqlSeal) + Number(sessionSeal) + Number(authSeal) + Number(xssSeal) + Number(csrfSeal);
+    Number(sqlSeal) +
+    Number(sessionSeal) +
+    Number(authSeal) +
+    Number(xssSeal) +
+    Number(csrfSeal) +
+    Number(phishingSeal);
   const level = seals >= 2 ? "Especialista" : seals === 1 ? "Pleno defensivo" : "Jr";
   const { streak } = await readStreak(user.id);
   const squad = await squadOf(user.id);
@@ -45,7 +52,9 @@ export default async function InicioPage() {
           ? `Continuar — ${xssNext.title}`
           : csrfNext
             ? `Continuar — ${csrfNext.title}`
-            : "As trilhas abertas estão fechadas";
+            : phishingNext
+              ? `Continuar — ${phishingNext.title}`
+              : "As trilhas abertas estão fechadas";
   const primary = sqlNext
     ? { href: `/trilha/sql-injection/${sqlNext.id}`, label: "Abrir unidade" }
     : sessionNext
@@ -56,7 +65,9 @@ export default async function InicioPage() {
           ? { href: `/trilha/xss/${xssNext.id}`, label: "Abrir unidade" }
           : csrfNext
             ? { href: `/trilha/csrf/${csrfNext.id}`, label: "Abrir unidade" }
-            : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
+            : phishingNext
+              ? { href: `/trilha/phishing/${phishingNext.id}`, label: "Abrir unidade" }
+              : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
 
   return (
     <div className="relative isolate flex min-h-full flex-col">
@@ -128,10 +139,21 @@ export default async function InicioPage() {
               Selo · CSRF
             </Link>
           ) : null}
+          {phishingSeal ? (
+            <Link
+              href="/trilha/phishing/selo"
+              className="inline-flex items-center gap-3 rounded-full border border-defense/40 px-4 py-2 text-sm"
+            >
+              <span className="grid size-6 place-items-center rounded-full bg-defense text-[10px] font-semibold text-ink">
+                PHI
+              </span>
+              Selo · Phishing
+            </Link>
+          ) : null}
         </div>
         <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight">{headline}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
-          Cinco trilhas no ar, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
+          Seis trilhas no ar, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
           depois da defesa.
         </p>
         <Link
@@ -197,6 +219,20 @@ export default async function InicioPage() {
             <h2 className="mt-2 text-xl font-semibold">CSRF</h2>
             <p className="mt-2 text-sm text-muted">
               {csrfSeal ? "Selo fechado." : csrfNext ? `Próxima: ${csrfNext.title}` : "Aberta."}
+            </p>
+          </Link>
+          <Link
+            href="/trilha/phishing"
+            className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Trilha</p>
+            <h2 className="mt-2 text-xl font-semibold">Phishing</h2>
+            <p className="mt-2 text-sm text-muted">
+              {phishingSeal
+                ? "Selo fechado."
+                : phishingNext
+                  ? `Próxima: ${phishingNext.title}`
+                  : "Aberta."}
             </p>
           </Link>
           <Link
