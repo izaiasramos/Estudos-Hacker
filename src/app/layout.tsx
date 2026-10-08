@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { MotionPreference } from "@/components/motion-preference";
+import { getCurrentUser } from "@/lib/current-user";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,13 +20,20 @@ export const metadata: Metadata = {
     "Trilha para devs júnior. Aprenda o ataque no laboratório, defenda no código e saia com o selo.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Preferência do perfil (seção 11.2). O CSS e o `motion` leem `data-motion="reduce"`.
+  const user = await getCurrentUser();
+  const reduce = user?.reduceMotion === true;
+
   return (
     <html
       lang="pt-BR"
+      data-motion={reduce ? "reduce" : undefined}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-ink text-text">{children}</body>
+      <body className="min-h-full bg-ink text-text">
+        <MotionPreference reduce={reduce}>{children}</MotionPreference>
+      </body>
     </html>
   );
 }

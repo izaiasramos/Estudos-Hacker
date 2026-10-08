@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS squad_members (
   FOREIGN KEY (squad_id) REFERENCES squads(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+ALTER TABLE users ADD COLUMN IF NOT EXISTS reduce_motion BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE progress ADD COLUMN IF NOT EXISTS completed_at TEXT;
 CREATE TABLE IF NOT EXISTS login_failures (
   id BIGSERIAL PRIMARY KEY,
   key_hash TEXT NOT NULL,

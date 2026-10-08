@@ -5,9 +5,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { trailAfter, trailBySlug, type Trail } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
-import { hasTrailSeal, listProgress } from "@/lib/trail-progress";
+import { hasTrailSeal, listProgress, sealDate } from "@/lib/trail-progress";
 
 type Params = Promise<{ trail: string }>;
+
+const DATE = new Intl.DateTimeFormat("pt-BR", { dateStyle: "long", timeZone: "America/Sao_Paulo" });
 
 // Classes literais para o Tailwind enxergar no build.
 const TONE: Record<Trail["seal"]["tone"], { ring: string; core: string }> = {
@@ -33,6 +35,7 @@ export default async function SealPage({ params }: { params: Params }) {
   if (!hasTrailSeal(progress, trail.sealId)) redirect(`/trilha/${trail.slug}`);
 
   const tone = TONE[trail.seal.tone];
+  const earnedAt = sealDate(progress, trail.sealId);
   const after = trailAfter(trail.slug);
 
   return (
@@ -50,6 +53,11 @@ export default async function SealPage({ params }: { params: Params }) {
           </span>
         </div>
         <h1 className="seal-name mt-8 text-3xl font-semibold tracking-tight">{trail.seal.name}</h1>
+        {earnedAt ? (
+          <p className="mt-2 font-mono text-[12px] uppercase tracking-[0.16em] text-muted">
+            Emitido em <time dateTime={earnedAt}>{DATE.format(new Date(earnedAt))}</time>
+          </p>
+        ) : null}
         <p className="mt-3 text-sm leading-relaxed text-muted">{trail.seal.text}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link

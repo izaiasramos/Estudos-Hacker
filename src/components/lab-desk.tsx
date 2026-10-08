@@ -1,3 +1,4 @@
+import { LabBootButton, LabFrame } from "@/components/lab-boot";
 import { activeLab, labIsLive, labRuntimeLabel, lastCheck, minutesLeft } from "@/lib/lab-runtime";
 
 export async function LabDesk({ userId }: { userId: string }) {
@@ -17,14 +18,8 @@ export async function LabDesk({ userId }: { userId: string }) {
           <p className="text-sm text-text">
             No ar · {labRuntimeLabel(session)} · {minutesLeft(session)} min
           </p>
-          <iframe
-            title="Pizzaria do Lab"
-            src={
-              session.runtime === "embedded"
-                ? "/lab/pizzaria"
-                : `http://127.0.0.1:${session.port}/`
-            }
-            className="h-80 w-full rounded-[16px] border border-white/10 bg-ink"
+          <LabFrame
+            src={session.runtime === "embedded" ? "/lab/pizzaria" : `http://127.0.0.1:${session.port}/`}
           />
           <form action="/api/lab/session/check" method="post">
             <button
@@ -36,14 +31,7 @@ export async function LabDesk({ userId }: { userId: string }) {
           </form>
         </div>
       ) : (
-        <form action="/api/lab/session" method="post" className="mt-4">
-          <button
-            type="submit"
-            className="inline-flex h-11 items-center rounded-full bg-accent px-5 text-sm font-semibold text-ink"
-          >
-            Iniciar ambiente
-          </button>
-        </form>
+        <LabBootButton />
       )}
       {checks ? (
         <ul className="mt-4 space-y-2">

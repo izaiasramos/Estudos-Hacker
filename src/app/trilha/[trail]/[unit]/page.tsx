@@ -193,7 +193,12 @@ function Quiz({
 }) {
   if (unit.questions.length === 0) return null;
   return (
-    <section id="quiz" className="mt-10 scroll-mt-24 border-t border-white/10 pt-8">
+    <section
+      id="quiz"
+      className={`mt-10 scroll-mt-24 border-t border-white/10 pt-8 ${
+        passedNow ? "quiz-settle" : wrong.size > 0 ? "quiz-shake" : ""
+      }`}
+    >
       <h2 className="text-lg font-semibold tracking-tight">{quizHeading(unit)}</h2>
       {passedNow ? (
         <p className="mt-3 text-sm leading-relaxed text-defense" role="status">

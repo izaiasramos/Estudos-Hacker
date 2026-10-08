@@ -146,6 +146,119 @@ body {
   }
 }
 
+/* 15.4 · Aresta do mapa de nós. Horizontal no celular, vertical a partir de lg. */
+.rail-edge {
+  position: relative;
+  width: 14px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.rail-edge[data-state="lit"] {
+  background: rgba(62, 224, 176, 0.55);
+}
+
+/* A luz corre pela aresta até o nó atual, uma vez, e fica acesa. */
+.rail-edge[data-state="trace"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(214, 255, 74, 0.8);
+  transform-origin: left center;
+  animation: edge-trace-x 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.15s both;
+}
+
+@media (min-width: 64rem) {
+  .rail-edge {
+    width: 2px;
+    height: 12px;
+  }
+
+  .rail-edge[data-state="trace"]::after {
+    transform-origin: center top;
+    animation-name: edge-trace-y;
+  }
+}
+
+@keyframes edge-trace-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes edge-trace-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* 15.4 · Quiz certo: o card assenta e a borda vira lima. Quiz errado: shake de 6px, uma vez. */
+.quiz-settle {
+  border-color: rgba(214, 255, 74, 0.6);
+  animation: quiz-settle 0.42s ease both;
+}
+
+.quiz-shake {
+  animation: quiz-shake 0.42s ease both;
+}
+
+@keyframes quiz-settle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(0.99);
+  }
+}
+
+@keyframes quiz-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+/* 15.4 · Boot do lab: a barra avança com os marcos reais, não com um timer falso. */
+.boot-bar {
+  transition: width 0.45s ease;
+}
+
+.boot-step-active {
+  animation: boot-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes boot-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/*
+ * Menos movimento: vale para o sistema (prefers-reduced-motion) e para a preferência do perfil
+ * (data-motion="reduce" no <html>). O estado continua visível por cor, ícone e texto.
+ */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -156,12 +269,46 @@ body {
   .pulse-ring,
   .seal-ring,
   .seal-core,
-  .seal-name {
+  .seal-name,
+  .quiz-settle,
+  .quiz-shake,
+  .boot-step-active,
+  .rail-edge[data-state="trace"]::after {
     animation: none;
+  }
+
+  .boot-bar {
+    transition: none;
   }
 
   .rise {
     opacity: 1;
     transform: none;
   }
+}
+
+html[data-motion="reduce"] {
+  scroll-behavior: auto;
+}
+
+html[data-motion="reduce"] .mesh,
+html[data-motion="reduce"] .rise,
+html[data-motion="reduce"] .pulse-ring,
+html[data-motion="reduce"] .seal-ring,
+html[data-motion="reduce"] .seal-core,
+html[data-motion="reduce"] .seal-name,
+html[data-motion="reduce"] .quiz-settle,
+html[data-motion="reduce"] .quiz-shake,
+html[data-motion="reduce"] .boot-step-active,
+html[data-motion="reduce"] .rail-edge[data-state="trace"]::after {
+  animation: none;
+}
+
+html[data-motion="reduce"] .boot-bar {
+  transition: none;
+}
+
+html[data-motion="reduce"] .rise {
+  opacity: 1;
+  transform: none;
 }
