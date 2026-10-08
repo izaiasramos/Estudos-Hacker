@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { SessionFlagLab } from "@/components/session-flag-lab";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { labSlots } from "@/components/unit-lab";
 import { UnitRail } from "@/components/unit-rail";
-import { UNITS } from "@/content/sessao";
 import type { CalloutTone, Unit } from "@/content/sql-injection";
+import { trailBySlug } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
-import { listProgress, nextUnit, shuffleChoices, unitStatus } from "@/lib/trail-progress";
+import {
+  hasTrailSeal,
+  listProgress,
+  nextUnit,
+  shuffleChoices,
+  unitStatus,
+} from "@/lib/trail-progress";
 
 const CALLOUT: Record<CalloutTone, string> = {
   conceito: "Conceito",
@@ -17,40 +23,50 @@ const CALLOUT: Record<CalloutTone, string> = {
   dev: "Como um dev vê isso",
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ unit: string }>;
-}): Promise<Metadata> {
-  const { unit: unitId } = await params;
-  const unit = UNITS.find((item) => item.id === unitId);
-  return { title: unit ? `${unit.title} — ShieldPath` : "Sessão — ShieldPath" };
+type Params = Promise<{ trail: string; unit: string }>;
+
+function locate(slug: string, unitId: string) {
+  const trail = trailBySlug(slug);
+  const unit = trail?.units.find((item) => item.id === unitId) ?? null;
+  return { trail, unit };
 }
 
-export default async function SessionUnitPage({
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { trail: slug, unit: unitId } = await params;
+  const { trail, unit } = locate(slug, unitId);
+  return { title: `${unit?.title ?? trail?.title ?? "Trilha"} — ShieldPath` };
+}
+
+export default async function UnitPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ unit: string }>;
+  params: Params;
   searchParams: Promise<{ ok?: string; resp?: string; falta?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/entrar");
   if (!user.ethicsAcceptedAt) redirect("/regras");
 
-  const { unit: unitId } = await params;
-  const unit = UNITS.find((item) => item.id === unitId);
-  if (!unit) notFound();
+  const { trail: slug, unit: unitId } = await params;
+  const { trail, unit } = locate(slug, unitId);
+  if (!trail || !unit) notFound();
 
+  const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);
   const status = unitStatus(unit, progress, true);
-  if (status === "bloqueada") redirect("/trilha/sessao");
+  if (status === "bloqueada") redirect(basePath);
 
   const query = await searchParams;
+  const done = status === "concluída";
   const wrong = readResponses(query.resp);
-  const passedNow = query.ok !== undefined && status === "concluída";
-  const following = nextUnit(progress, true, "sessao");
-  const missing = (query.falta ?? "").split(",").filter(Boolean);
+  const passedNow = query.ok !== undefined && done;
+  const following = nextUnit(progress, true, trail.slug);
+  const lab = labSlots(unit.id, {
+    userId: user.id,
+    done,
+    missing: (query.falta ?? "").split(",").filter(Boolean),
+  });
 
   return (
     <div className="relative isolate flex min-h-full flex-col">
@@ -58,32 +74,40 @@ export default async function SessionUnitPage({
       <SiteHeader />
       <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-6 sm:px-8">
         <div className="mb-6 flex gap-2 overflow-x-auto lg:hidden">
-          <UnitRail currentId={unit.id} progress={progress} ethicsDone units={UNITS} basePath="/trilha/sessao" />
+          <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
         </div>
         <div className="grid flex-1 gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="sticky top-6 hidden self-start lg:block">
-            <UnitRail currentId={unit.id} progress={progress} ethicsDone units={UNITS} basePath="/trilha/sessao" />
+            <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
           </aside>
-          <article className="mx-auto w-full max-w-[68ch] rounded-[16px] border border-white/10 bg-surface/80 px-5 py-8 sm:px-8">
+          <article
+            className={`mx-auto w-full rounded-[16px] border border-white/10 bg-surface/80 px-5 py-8 sm:px-8 ${
+              lab.wide ? "max-w-3xl" : "max-w-[68ch]"
+            }`}
+          >
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
               Unidade {unit.order} · {status}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight">{unit.title}</h1>
             <p className="mt-3 text-sm leading-relaxed text-muted">{unit.summary}</p>
+            {lab.before}
             <Blocks unit={unit} />
-            {unit.id === "sessao-lab" ? (
-              <SessionFlagLab done={status === "concluída"} missing={missing} />
-            ) : null}
+            {lab.afterBlocks}
             <Quiz
               unit={unit}
               wrong={wrong}
               passedNow={passedNow}
               score={query.ok}
-              followingHref={following ? `/trilha/sessao/${following.id}` : "/trilha/sessao"}
-              followingLabel={following?.title ?? "Ver a trilha"}
+              sealPending={unit.kind === "checkpoint" && !hasTrailSeal(progress, trail.sealId)}
+              followingHref={following ? `${basePath}/${following.id}` : basePath}
+              followingLabel={following?.title ?? null}
               attempts={progress.get(unit.id)?.attempts ?? 0}
-              done={status === "concluída"}
+              done={done}
             />
+            {unit.kind !== "lab" && !done ? (
+              <ReadBar unitId={unit.id} hasQuiz={unit.questions.length > 0} />
+            ) : null}
+            {lab.end}
           </article>
         </div>
       </div>
@@ -139,11 +163,19 @@ function Blocks({ unit }: { unit: Unit }) {
   );
 }
 
+function quizHeading(unit: Unit) {
+  if (unit.kind === "exercise") return "Exercício";
+  if (unit.kind === "checkpoint") return "Checkpoint";
+  if (unit.kind === "lab") return "O achado";
+  return "Quiz";
+}
+
 function Quiz({
   unit,
   wrong,
   passedNow,
   score,
+  sealPending,
   followingHref,
   followingLabel,
   attempts,
@@ -153,20 +185,20 @@ function Quiz({
   wrong: Map<string, string>;
   passedNow: boolean;
   score?: string;
+  sealPending: boolean;
   followingHref: string;
-  followingLabel: string;
+  followingLabel: string | null;
   attempts: number;
   done: boolean;
 }) {
   if (unit.questions.length === 0) return null;
   return (
     <section id="quiz" className="mt-10 scroll-mt-24 border-t border-white/10 pt-8">
-      <h2 className="text-lg font-semibold tracking-tight">
-        {unit.kind === "exercise" ? "Exercício" : unit.kind === "checkpoint" ? "Checkpoint" : "Quiz"}
-      </h2>
+      <h2 className="text-lg font-semibold tracking-tight">{quizHeading(unit)}</h2>
       {passedNow ? (
         <p className="mt-3 text-sm leading-relaxed text-defense" role="status">
           {score}% — esta unidade ficou para trás.
+          {sealPending ? " O selo continua esperando o laboratório defensivo." : ""}
         </p>
       ) : null}
       {wrong.size > 0 ? (
@@ -222,7 +254,8 @@ function Quiz({
                 ))}
                 {picked !== undefined ? (
                   <p className="text-sm leading-relaxed text-danger">
-                    {question.choices.find((choice) => choice.id === picked)?.explain}
+                    {question.choices.find((choice) => choice.id === picked)?.explain ??
+                      question.choices.find((choice) => !choice.correct)?.explain}
                   </p>
                 ) : null}
               </fieldset>
@@ -241,21 +274,37 @@ function Quiz({
           href={followingHref}
           className="mt-6 inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink"
         >
-          {followingLabel === "Ver a trilha" ? followingLabel : `Seguir — ${followingLabel}`}
+          {followingLabel ? `Seguir — ${followingLabel}` : "Ver a trilha"}
         </Link>
       ) : null}
-      {unit.kind !== "lab" && !done ? (
-        <form action="/api/trilha/ler" method="post" className="mt-8">
-          <input type="hidden" name="unit" value={unit.id} />
-          <button
-            type="submit"
-            className="inline-flex h-10 items-center rounded-full px-4 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Marcar como lida
-          </button>
-        </form>
-      ) : null}
     </section>
+  );
+}
+
+/** Barra persistente da seção 15.7: “Marcar como lida” / “Ir ao quiz”, sempre alcançável. */
+function ReadBar({ unitId, hasQuiz }: { unitId: string; hasQuiz: boolean }) {
+  return (
+    <form
+      action="/api/trilha/ler"
+      method="post"
+      className="sticky bottom-4 mt-8 flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-ink/90 px-3 py-2 backdrop-blur"
+    >
+      <input type="hidden" name="unit" value={unitId} />
+      <button
+        type="submit"
+        className="inline-flex h-10 items-center rounded-full px-4 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Marcar como lida
+      </button>
+      {hasQuiz ? (
+        <a
+          href="#quiz"
+          className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+        >
+          Ir ao quiz
+        </a>
+      ) : null}
+    </form>
   );
 }
 
