@@ -24,3 +24,33 @@ jobs:
       - run: npm run build
         env:
           DATABASE_URL: postgres://shieldpath:shieldpath@localhost:5432/shieldpath
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: shieldpath
+          POSTGRES_PASSWORD: shieldpath
+          POSTGRES_DB: shieldpath
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shieldpath -d shieldpath"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://shieldpath:shieldpath@localhost:5432/shieldpath
+      AUTH_SECRET: ci-playwright-shieldpath-secret-not-for-production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:e2e
