@@ -191,7 +191,9 @@ export async function gradeUnit(
         ? await awardAuthSeal(userId)
         : slug === "xss"
           ? await awardXssSeal(userId)
-          : await awardSeal(userId)
+          : slug === "csrf"
+            ? await awardCsrfSeal(userId)
+            : await awardSeal(userId)
     : false;
   return { ok: true as const, passed, score, wrong, attempts, sealed };
 }
@@ -312,6 +314,35 @@ export async function completeXssLab(userId: string, ethicsDone: boolean) {
   return { ok: true as const, sealed: await awardXssSeal(userId) };
 }
 
+export async function completeCsrfLab(userId: string, ethicsDone: boolean) {
+  const unit = unitById("csrf-lab");
+  if (!unit) return { error: "unidade" as const };
+  const progress = await listProgress(userId);
+  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+    return { error: "bloqueada" as const };
+  }
+  const current = progress.get(unit.id);
+  const attempts = (current?.attempts ?? 0) + 1;
+  const gain = current?.status === "done" ? 0 : LAB_XP;
+  await withTx(async () => {
+    await run(
+      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
+       VALUES (?, 'csrf-lab', 'done', 100, ?, ?)
+       ON CONFLICT(user_id, unit_id) DO UPDATE SET
+         status = 'done',
+         score = 100,
+         attempts = excluded.attempts,
+         xp_awarded = progress.xp_awarded + ?`,
+      [userId, attempts, gain, gain],
+    );
+    if (gain > 0) {
+      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
+      await touchStreak(userId);
+    }
+  });
+  return { ok: true as const, sealed: await awardCsrfSeal(userId) };
+}
+
 async function awardSessionSeal(userId: string) {
   const progress = await listProgress(userId);
   if (progress.get("sessao-lab")?.status !== "done") return false;
@@ -362,6 +393,20 @@ async function awardXssSeal(userId: string) {
   await run(
     `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
      VALUES (?, 'selo-xss', 'done', 100, 1, ?)`,
+    [userId, SEAL_XP],
+  );
+  await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
+  return true;
+}
+
+async function awardCsrfSeal(userId: string) {
+  const progress = await listProgress(userId);
+  if (progress.get("csrf-lab")?.status !== "done") return false;
+  if (progress.get("csrf-checkpoint")?.status !== "done") return false;
+  if (progress.get("selo-csrf")?.status === "done") return false;
+  await run(
+    `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
+     VALUES (?, 'selo-csrf', 'done', 100, 1, ?)`,
     [userId, SEAL_XP],
   );
   await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
