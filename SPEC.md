@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.22  
+**Versão:** 0.23  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -730,7 +730,7 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 #### Produto e código
 
 - [x] Laboratório da pizzaria embutido em `/lab/pizzaria` (Vercel e local). Modo Docker legado com `LAB_RUNTIME=local` (ver 12.3).
-- [x] Perfil em `/perfil`: avatar com a inicial, XP, nível, sequência, último lab, selos (fechados e pendentes) e troca do nome de exibição. Preferência de reduzir movimento ainda não entrou; o app segue o `prefers-reduced-motion` do sistema.
+- [x] Perfil em `/perfil`: avatar com a inicial, XP, nível, sequência, último lab, selos (fechados e pendentes) e troca do nome de exibição. Preferência "Reduzir movimento" salva na conta: liga `data-motion="reduce"` no `<html>` e o `MotionConfig` do `motion`, somando ao `prefers-reduced-motion` do sistema. Selos mostram a data de emissão (`progress.completed_at`); selos emitidos antes da coluna ficam sem data.
 - [x] Exclusão de conta no perfil: pede o e-mail da conta e, se houver, a senha atual. Encerra o lab ativo e apaga progresso, XP, selos, histórico de lab e participação no time. Se a pessoa é mentora, o time é encerrado para todos.
 - [x] Limite de tentativas no login (ver 11.1): 5 por e-mail e 30 por IP em 15 minutos.
 - [ ] Recuperação de senha por e-mail.
@@ -738,7 +738,8 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [ ] Conteúdo em MDX. O player lê `src/content`.
 - [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
 - [x] Playwright de smoke no app (landing, cadastro, regras, trilha SQL). Comando: `npm run test:e2e` (Postgres + build).
-- [ ] Cenas da seção 15.4 que ainda não estão na tela: traço de luz entre os nós, shake do quiz errado e as três etapas nomeadas no boot do lab.
+- [x] Cenas da seção 15.4: traço de luz na aresta até o nó atual (arestas concluídas acesas, nó atual com anel pulsando), quiz certo assenta com borda lima e quiz errado faz shake de 6px uma vez, boot do lab em três etapas ("isolando rede", "subindo app", "pronto") que avançam com marcos reais: resposta do servidor e carga do iframe. Sem JavaScript, o botão faz o POST normal.
+- [x] E2E de smoke também cobre a trilha de controle de acesso até o selo e o perfil (nome, reduzir movimento, exclusão).
 - [x] Trilha **Autenticação quebrada e senhas** (`/trilha/autenticacao`): teoria, quiz, lab de endurecimento de login e selo `selo-autenticacao`.
 - [x] Trilha **XSS** (`/trilha/xss`): refletido/armazenado, lab de defesa (escape, CSP, DOM seguro, sanitizar) e selo `selo-xss`.
 - [x] Trilha **CSRF** (`/trilha/csrf`): pedido forjado, lab (token, SameSite, Origin, POST) e selo `selo-csrf`.
