@@ -22,7 +22,12 @@ const STEPS = [
   },
 ];
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ conta?: string }>;
+}) {
+  const { conta } = await searchParams;
   return (
     <div className="relative isolate min-h-full overflow-x-hidden">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[920px]" />
@@ -35,6 +40,14 @@ export default function Home() {
       </a>
       <SiteHeader />
       <main id="conteudo">
+        {conta === "excluida" ? (
+          <p
+            role="status"
+            className="relative mx-auto w-full max-w-6xl px-5 pb-4 text-sm text-defense sm:px-8"
+          >
+            Conta excluída. Progresso, selos e histórico de laboratório foram apagados.
+          </p>
+        ) : null}
         <section className="relative mx-auto grid w-full max-w-6xl items-center gap-10 px-5 pb-20 pt-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)] lg:gap-6 lg:pt-10">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">

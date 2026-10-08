@@ -175,3 +175,40 @@ export async function recordEthicsAttempt(userId: string) {
     [userId],
   );
 }
+
+export function cleanDisplayName(value: string) {
+  const clean = value.trim().replace(/\s+/g, " ");
+  if (clean.length < 2 || clean.length > 60) return null;
+  return clean;
+}
+
+export async function updateUserName(userId: string, name: string) {
+  await run("UPDATE users SET name = ? WHERE id = ?", [name, userId]);
+}
+
+export async function lastLabStartedAt(userId: string) {
+  const row = await one<{ started_at: string | null }>(
+    "SELECT MAX(started_at) AS started_at FROM lab_sessions WHERE user_id = ?",
+    [userId],
+  );
+  return row?.started_at ?? null;
+}
+
+/**
+ * Apaga a conta e tudo que pertence a ela (LGPD, seção 16 da spec).
+ * O lab ativo deve ser encerrado antes, fora da transação, porque derruba container/processo.
+ * Se a pessoa é mentora de um time, o time é encerrado junto: só ela podia fechá-lo.
+ */
+export async function deleteUserAccount(userId: string) {
+  await withTx(async () => {
+    await run(
+      "DELETE FROM squad_members WHERE squad_id IN (SELECT id FROM squads WHERE mentor_id = ?)",
+      [userId],
+    );
+    await run("DELETE FROM squads WHERE mentor_id = ?", [userId]);
+    await run("DELETE FROM squad_members WHERE user_id = ?", [userId]);
+    await run("DELETE FROM lab_sessions WHERE user_id = ?", [userId]);
+    await run("DELETE FROM progress WHERE user_id = ?", [userId]);
+    await run("DELETE FROM users WHERE id = ?", [userId]);
+  });
+}

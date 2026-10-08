@@ -34,7 +34,13 @@ export async function SiteHeader() {
       <nav className="flex items-center gap-1 sm:gap-2" aria-label="Conta">
         {user ? (
           <>
-            <span className="hidden text-sm text-muted sm:inline">{user.name}</span>
+            <Link
+              href="/perfil"
+              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+            >
+              <span className="sm:hidden">Perfil</span>
+              <span className="hidden sm:inline">{user.name}</span>
+            </Link>
             <Link
               href="/inicio"
               className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
