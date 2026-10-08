@@ -1,4 +1,5 @@
 import { TRAIL as authTrail, UNITS as authUnits } from "@/content/autenticacao";
+import { TRAIL as accessTrail, UNITS as accessUnits } from "@/content/controle-acesso";
 import { TRAIL as sqlTrail, UNITS as sqlUnits, type Unit } from "@/content/sql-injection";
 import { TRAIL as sessionTrail, UNITS as sessionUnits } from "@/content/sessao";
 import { TRAIL as csrfTrail, UNITS as csrfUnits } from "@/content/csrf";
@@ -108,6 +109,20 @@ export const TRAILS: Trail[] = [
       name: "Phishing interno",
       text: "Você classificou a caixa fictícia e fechou políticas: sem senha por e-mail, aviso de login, 2FA e treino simulado para o time.",
       tone: "defense",
+    },
+  },
+  {
+    ...accessTrail,
+    sealId: "selo-controle-acesso",
+    units: accessUnits,
+    labUnitId: "idor-lab",
+    checkpointId: "idor-checkpoint",
+    sealPending: "O selo espera a rota de pedidos fechada no checker e o checkpoint.",
+    seal: {
+      badge: "IDOR",
+      name: "Controle de acesso",
+      text: "A rota de pedidos filtra pelo dono da sessão, confere o papel no servidor, nasce fechada, ignora campos fora da lista e não devolve o pedido do Bruno.",
+      tone: "accent",
     },
   },
 ];
