@@ -15,22 +15,6 @@ export const UNITS: Unit[] = [
     summary: "XSS quebra a fronteira entre conteúdo e comportamento no browser.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Cross-Site Scripting (XSS) acontece quando entrada não confiável entra na página e o navegador executa ou interpreta como HTML/JavaScript no contexto do seu site. O atacante passa a agir com os privilégios da vítima naquela origem: ler o DOM, disparar ações, às vezes roubar sessão se a chave estiver exposta ao script.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "A página é um quadro de avisos. XSS é colar um bilhete que o quadro obedece como ordem, não como texto.",
-      },
-      {
-        type: "glossary",
-        term: "Contexto de saída",
-        text: "O mesmo dado precisa de regra diferente em HTML, atributo, URL ou JavaScript. Escapar no lugar errado não protege.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -110,22 +94,6 @@ export const UNITS: Unit[] = [
     summary: "Onde o dado entra define o nome — a invariante quebrada é a mesma.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Refletido: o servidor devolve o input na resposta da mesma requisição (busca, erro, query string). Armazenado: o input fica salvo e outras pessoas veem depois (comentário, perfil, ticket). DOM-based: o script da página escreve no DOM sem passar pelo servidor. Em todos, o browser interpreta o trecho como código.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Sintoma comum: campo de busca que ecoa o termo dentro da página sem codificar. Comentário de outro usuário que aparece formatado demais.",
-      },
-      {
-        type: "code",
-        caption: "Perigoso vs seguro (texto simples)",
-        code: "painel.innerHTML = comentario;  // interpreta markup\npainel.textContent = comentario; // mostra como texto",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -190,17 +158,6 @@ export const UNITS: Unit[] = [
     summary: "Três cheiros antes de abrir o ticket de segurança.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "No lab, o painel de comentários ainda usa innerHTML, não há CSP, a busca ecoa HTML e o editor aceita tags arbitrárias. Qualquer um desses abre XSS.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Confiar só no “React escapa por padrão” falha no momento em que alguém usa dangerouslySetInnerHTML, concatena string ou passa URL sem validar.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -280,17 +237,6 @@ export const UNITS: Unit[] = [
     summary: "Ligue as camadas. O checker só aceita quando o comentário deixa de ser código.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O mini painel do lab começa ecoando HTML, sem CSP, com innerHTML e editor cru. Cada caixa liga uma defesa. O servidor confere — não executa código seu.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Conjunto que passa: codificar saída, CSP, DOM seguro para texto e sanitizador quando HTML é permitido.",
-      },
-    ],
     questions: [],
   },
   {
@@ -300,12 +246,6 @@ export const UNITS: Unit[] = [
     summary: "O selo de XSS espera este checkpoint e o lab verde.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Três decisões. O selo inclui o lab conferido.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

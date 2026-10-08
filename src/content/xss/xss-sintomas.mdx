@@ -1,0 +1,7 @@
+No lab, o painel de comentários ainda usa innerHTML, não há CSP, a busca ecoa HTML e o editor aceita tags arbitrárias. Qualquer um desses abre XSS.
+
+<Callout tone="armadilha">
+
+Confiar só no “React escapa por padrão” falha no momento em que alguém usa dangerouslySetInnerHTML, concatena string ou passa URL sem validar.
+
+</Callout>

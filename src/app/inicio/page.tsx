@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { TRAILS, type Trail } from "@/content/trails";
+import { PUBLISHED_TRAILS as TRAILS, type Trail } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
 import { readStreak } from "@/lib/streak";
 import { squadOf } from "@/lib/squad";

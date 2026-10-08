@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { locateUnit } from "@/content/trails";
+import { canSeeTrail } from "@/lib/access";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
 import { completeLab } from "@/lib/trail-progress";
@@ -25,7 +26,7 @@ export async function handleChecklistLab(
   if (!user.ethicsAcceptedAt) return redirectTo(request, "/regras");
 
   const located = locateUnit(unitId);
-  if (!located) return redirectTo(request, "/inicio");
+  if (!located || !canSeeTrail(user, located.trail)) return redirectTo(request, "/inicio");
   const basePath = `/trilha/${located.trail.slug}`;
 
   const missing = missingDefenses(await request.formData());

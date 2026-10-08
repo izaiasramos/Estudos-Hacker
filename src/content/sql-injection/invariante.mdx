@@ -1,0 +1,17 @@
+Uma consulta concatenada é uma frase só. O banco tem um leitor dessa frase: ele decide onde acaba um texto e onde começa um comando. Se o valor do usuário contém o caractere que fecha esse texto, o leitor pode passar a tratar o resto como instrução.
+
+<Callout tone="analogia">
+
+É a diferença entre uma carta dentro do envelope e uma ordem escrita do lado de fora. Concatenar é deixar a pessoa escrever no lado de fora.
+
+</Callout>
+
+O servidor pode achar que mandou “busque este e-mail”. O banco recebe uma frase e obedece a frase inteira. Não há uma segunda leitura para adivinhar o que o programador queria.
+
+<Callout tone="dev">
+
+Quando revisar um pull request, procure consulta montada com +, template string ou formato equivalente, com variável que veio de request, query string, cabeçalho ou corpo. Esse é o lugar da invariante.
+
+</Callout>
+
+<Glossary term={"consulta parametrizada"} text={"A instrução fica fixa e os valores entram por um canal separado, como um ?. O banco não reinterpreta o valor como comando."} />

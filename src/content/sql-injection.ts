@@ -1,11 +1,3 @@
-export type CalloutTone = "conceito" | "analogia" | "armadilha" | "dev";
-
-export type Block =
-  | { type: "p"; text: string }
-  | { type: "callout"; tone: CalloutTone; text: string }
-  | { type: "code"; caption: string; code: string }
-  | { type: "glossary"; term: string; text: string };
-
 export type Choice = {
   id: string;
   label: string;
@@ -31,6 +23,7 @@ export type Question =
 
 export type UnitKind = "theory" | "exercise" | "checkpoint" | "lab";
 
+/** Metadados e quiz da unidade. O texto mora em `src/content/<trilha>/<id>.mdx`. */
 export type Unit = {
   id: string;
   order: number;
@@ -38,7 +31,6 @@ export type Unit = {
   summary: string;
   kind: UnitKind;
   gate: boolean;
-  blocks: Block[];
   questions: Question[];
 };
 
@@ -56,36 +48,6 @@ export const UNITS: Unit[] = [
     summary: "O que o aplicativo pede e o que o banco executa.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Um app web quase sempre guarda coisas num banco: usuários, pedidos, mensagens. Quando alguém clica em entrar ou busca um pedido, o servidor monta uma consulta e o banco devolve linhas.",
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "A consulta é uma instrução. O e-mail, o id e o texto da busca são dados. A segurança começa quando esses dois papéis não se misturam.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "No restaurante, o pedido é o dado e a receita é a instrução. Se o cliente puder reescrever a receita no meio do pedido, a cozinha deixa de fazer o prato e passa a seguir outra ordem.",
-      },
-      {
-        type: "p",
-        text: "O caminho comum é curto: o navegador manda o formulário, uma função no servidor lê o campo, uma consulta segue para o banco, e a resposta volta como página. O buraco mora nesse meio, quando o campo entra dentro do texto da consulta.",
-      },
-      {
-        type: "glossary",
-        term: "invariante",
-        text: "Uma regra que o sistema precisa manter verdade. Aqui: dado continua dado, instrução continua instrução.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Você vê isso numa rota, num repositório ou num serviço que abre conexão com o banco. Se a consulta é um texto montado na hora, vale parar e olhar como o valor do usuário entrou ali.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -160,34 +122,6 @@ export const UNITS: Unit[] = [
     summary: "Achar a linha em que o campo deixa de ser só um valor.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O campo do formulário é só texto quando chega. Ele vira problema na linha em que esse texto é costurado na consulta. Antes disso, é um valor. Depois disso, o banco pode lê-lo como parte do comando.",
-      },
-      {
-        type: "code",
-        caption: "O encontro perigoso",
-        code: `const email = body.email
-db.query("SELECT id FROM usuarios WHERE email = '" + email + "'")`,
-      },
-      {
-        type: "code",
-        caption: "O mesmo pedido, com o valor separado",
-        code: `const email = body.email
-db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "A primeira versão mistura o campo com a instrução. A segunda manda a instrução e o valor por caminhos diferentes. O banco continua buscando um e-mail. O que muda é quem controla a forma da consulta.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Trocar aspas ou filtrar um caractere famoso não é a correção. A correção é o valor não entrar no texto do comando.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -262,31 +196,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Por que colar texto muda o que o banco entende.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Uma consulta concatenada é uma frase só. O banco tem um leitor dessa frase: ele decide onde acaba um texto e onde começa um comando. Se o valor do usuário contém o caractere que fecha esse texto, o leitor pode passar a tratar o resto como instrução.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "É a diferença entre uma carta dentro do envelope e uma ordem escrita do lado de fora. Concatenar é deixar a pessoa escrever no lado de fora.",
-      },
-      {
-        type: "p",
-        text: "O servidor pode achar que mandou “busque este e-mail”. O banco recebe uma frase e obedece a frase inteira. Não há uma segunda leitura para adivinhar o que o programador queria.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Quando revisar um pull request, procure consulta montada com +, template string ou formato equivalente, com variável que veio de request, query string, cabeçalho ou corpo. Esse é o lugar da invariante.",
-      },
-      {
-        type: "glossary",
-        term: "consulta parametrizada",
-        text: "A instrução fica fixa e os valores entram por um canal separado, como um ?. O banco não reinterpreta o valor como comando.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -361,26 +270,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Sintomas no laboratório, e qual hipótese eles sustentam.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "No laboratório, o app de pedidos usa dados fictícios. Alice tem as pizzas dela. Bruno tem as dele. Quando a fronteira entre dado e instrução quebra, o sintoma aparece no comportamento, não num discurso.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Três sinais cabem nesta hipótese: um erro 500 que menciona a consulta, uma busca que passa a listar pedido de outra pessoa, ou um login do lab que entra sem ser a conta dona da senha. Fora do lab, esses sinais pedem correção e incidente, não um teste por conta própria.",
-      },
-      {
-        type: "p",
-        text: "O erro de sintaxe da consulta diz que o banco não conseguiu ler a frase. A listagem a mais diz que a frase foi lida e devolveu linhas que o filtro não deveria incluir. Os dois apontam para a mesma invariante, com evidências diferentes.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Um 500 genérico, sem relação com a consulta, pode ser outra coisa: arquivo ausente, serviço fora, bug de tipo. A hipótese de consulta quebrada precisa da evidência, não só do susto.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -455,26 +344,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Nomes que você vai ouvir, e o que cada um muda para quem defende.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O mecanismo de fundo é um só: dado virou instrução. O que muda é como o efeito volta para quem observa. Saber o nome ajuda a ler um relatório. Não muda a defesa principal.",
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "Na forma direta, a resposta da própria página traz o que não deveria. Na forma cega, a página não mostra o dado, mas o comportamento muda: erro, resultado vazio, ou uma diferença que denuncia a frase. Na forma de segunda ordem, o valor é guardado agora e só entra numa consulta concatenada mais tarde.",
-      },
-      {
-        type: "p",
-        text: "Para quem programa, a segunda ordem é a que mais escapa no review. O campo foi salvo “só como texto”. Outra função, em outro dia, cola esse texto numa consulta. O buraco não está na tela que gravou. Está na consulta que confiou no que estava guardado.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Defender os três é a mesma invariante em todos os pontos que montam consulta, inclusive nos que leem dado já salvo. Não existe uma defesa por nome e outra por nome.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -549,17 +418,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "O app fictício de pedidos, e o que o checker já registrou.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O alvo é a Pizzaria do Lab. Só existem a Alice e o Bruno, com pedidos inventados. Nada aqui sai da plataforma. O trabalho desta unidade é ler o sintoma e apontar onde a fronteira quebrou. O fechamento fica no laboratório seguinte.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "O checker olhou as duas funções que montam consulta. As duas colam o email no texto. Na listagem, o filtro não segurou: apareceu pedido de outra pessoa. Não há um segundo passo escondido. O sintoma e a linha já estão na mesa.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -634,21 +492,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Reconstituir a cena sem romancear o que aconteceu.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Depois do sintoma, a reconstituição é seca. O servidor montou uma frase. O banco leu essa frase como uma instrução. Executou o que a frase dizia. Não houve um modo secreto. Houve uma frase diferente da que a pessoa que programou tinha na cabeça.",
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "Se a frase fechou o texto cedo e continuou com outra ordem, o banco tratou essa ordem como parte legítima da consulta. Ele não “escolheu o lado” de ninguém. Ele obedeceu a instrução recebida.",
-      },
-      {
-        type: "p",
-        text: "Por isso o debrief olha para a consulta que saiu do servidor, não para a fama do problema. A pergunta útil é: em que ponto o valor deixou de viajar separado?",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -692,36 +535,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Consulta parametrizada, menor privilégio, e o que não substitui isso.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "A defesa que segura o problema é a consulta em que a instrução fica fixa e o valor entra por um canal separado. No SQL isso aparece como parâmetro. Num ORM, como método que recebe o valor fora da string. Se o time voltar a concatenar, a defesa some.",
-      },
-      {
-        type: "glossary",
-        term: "menor privilégio",
-        text: "A conta do banco que o app usa só pode o que o app precisa. Ler e gravar as tabelas da feature. Não derrubar o banco, não ler o que outra parte do sistema guarda.",
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "Menor privilégio não conserta a consulta concatenada. Ele reduz o estrago se a fronteira falhar. As duas camadas contam. Nenhuma substitui a outra.",
-      },
-      {
-        type: "p",
-        text: "Validar formato — um e-mail parece e-mail, um id é número — ajuda a feature a falhar cedo. Não é a muralha. Um valor válido ainda pode ser colado numa consulta se alguém concatenar.",
-      },
-      {
-        type: "glossary",
-        term: "WAF",
-        text: "Um filtro na frente do app que tenta reconhecer pedidos suspeitos. É uma rede. Consulta concatenada continua quebrada se o pedido passar, ou se o dado já estiver salvo.",
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Tratar o WAF como correção única deixa o código do mesmo jeito. A rede observa. A fronteira se fecha na consulta.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -791,17 +604,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Separe o valor da instrução e deixe os testes verdes.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "As duas funções abaixo são o app do lab. Hoje elas colam o email na frase. A busca tem de continuar a mesma: achar a pessoa pelo email, listar só os pedidos dela. O que muda é o caminho do valor.",
-      },
-      {
-        type: "callout",
-        tone: "conceito",
-        text: "A instrução fica fixa, com um lugar marcado. O email segue como dado, num argumento separado. O servidor não executa o que você escrever: ele confere a forma da consulta e, se a fronteira fechou, roda os testes do app corrigido.",
-      },
-    ],
     questions: [],
   },
   {
@@ -811,12 +613,6 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])`,
     summary: "Quatro perguntas. O selo continua esperando o laboratório.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Este checkpoint olha se a história ficou de pé: o que quebra, onde quebra, o que o banco faz e o que fecha a fronteira. O selo da especialidade só sai quando o laboratório defensivo existir e os testes passarem. Aqui você confirma a teoria.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

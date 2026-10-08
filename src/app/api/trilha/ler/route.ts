@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { locateUnit } from "@/content/trails";
+import { canSeeTrail } from "@/lib/access";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
 import { markUnitRead } from "@/lib/trail-progress";
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const unitId = String(form.get("unit") ?? "");
   const located = locateUnit(unitId);
+  if (!located || !canSeeTrail(user, located.trail)) return redirectTo(request, "/inicio");
   const result = await markUnitRead(user.id, unitId, true);
   if ("error" in result || !located) {
     return redirectTo(request, located ? `/trilha/${located.trail.slug}` : "/inicio");

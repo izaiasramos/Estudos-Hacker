@@ -1,0 +1,9 @@
+No lab, transferência aceita GET com query string, form sem token, cookie SameSite=None e servidor ignora Origin. Qualquer combinação abre CSRF.
+
+<Code caption={"Mutar estado via GET (anti-padrão)"}>
+
+```
+GET /transferir?valor=100&para=atacante
+```
+
+</Code>

@@ -1,0 +1,11 @@
+Controle de acesso quebrado é o primeiro item do OWASP Top 10. O login funciona, a sessão é válida, e mesmo assim a pessoa chega num dado que não é dela. O servidor respondeu à pergunta “quem está pedindo?” e pulou a segunda: “esse recurso pertence a quem está pedindo?”.
+
+IDOR (Insecure Direct Object Reference) é o caso mais comum: a rota recebe um identificador — o número do pedido, da fatura, do perfil — e devolve o registro sem amarrar esse identificador ao dono da sessão.
+
+<Callout tone="analogia">
+
+O porteiro confere o crachá na entrada do prédio e deixa você subir. Mas todas as salas abrem com qualquer crachá. Entrar no prédio não deveria abrir a sala do vizinho.
+
+</Callout>
+
+<Glossary term={"Invariante"} text={"Todo acesso a um recurso confere, no servidor, se a identidade da sessão tem direito àquele recurso específico. Saber o id não é permissão."} />

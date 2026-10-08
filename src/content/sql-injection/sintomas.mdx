@@ -1,0 +1,15 @@
+No laboratório, o app de pedidos usa dados fictícios. Alice tem as pizzas dela. Bruno tem as dele. Quando a fronteira entre dado e instrução quebra, o sintoma aparece no comportamento, não num discurso.
+
+<Callout tone="dev">
+
+Três sinais cabem nesta hipótese: um erro 500 que menciona a consulta, uma busca que passa a listar pedido de outra pessoa, ou um login do lab que entra sem ser a conta dona da senha. Fora do lab, esses sinais pedem correção e incidente, não um teste por conta própria.
+
+</Callout>
+
+O erro de sintaxe da consulta diz que o banco não conseguiu ler a frase. A listagem a mais diz que a frase foi lida e devolveu linhas que o filtro não deveria incluir. Os dois apontam para a mesma invariante, com evidências diferentes.
+
+<Callout tone="armadilha">
+
+Um 500 genérico, sem relação com a consulta, pode ser outra coisa: arquivo ausente, serviço fora, bug de tipo. A hipótese de consulta quebrada precisa da evidência, não só do susto.
+
+</Callout>

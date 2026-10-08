@@ -1,0 +1,31 @@
+O campo do formulário é só texto quando chega. Ele vira problema na linha em que esse texto é costurado na consulta. Antes disso, é um valor. Depois disso, o banco pode lê-lo como parte do comando.
+
+<Code caption={"O encontro perigoso"}>
+
+```
+const email = body.email
+db.query("SELECT id FROM usuarios WHERE email = '" + email + "'")
+```
+
+</Code>
+
+<Code caption={"O mesmo pedido, com o valor separado"}>
+
+```
+const email = body.email
+db.query("SELECT id FROM usuarios WHERE email = ?", [email])
+```
+
+</Code>
+
+<Callout tone="conceito">
+
+A primeira versão mistura o campo com a instrução. A segunda manda a instrução e o valor por caminhos diferentes. O banco continua buscando um e-mail. O que muda é quem controla a forma da consulta.
+
+</Callout>
+
+<Callout tone="armadilha">
+
+Trocar aspas ou filtrar um caractere famoso não é a correção. A correção é o valor não entrar no texto do comando.
+
+</Callout>

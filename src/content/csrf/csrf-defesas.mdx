@@ -1,0 +1,7 @@
+Token anti-CSRF: valor secreto no form que o site malicioso não conhece. SameSite Lax/Strict: cookie não sai em muitos pedidos cross-site. Checagem de Origin/Referer: servidor recusa POST vindo de origem estranha. Por fim, nunca mutar estado em GET.
+
+<Callout tone="dev">
+
+Nesta plataforma, rotas POST checam same-origin via Origin/Referer. É uma camada — não substitui token em apps com requisitos mais rígidos.
+
+</Callout>

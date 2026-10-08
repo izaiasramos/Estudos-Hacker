@@ -1,0 +1,19 @@
+A defesa que segura o problema é a consulta em que a instrução fica fixa e o valor entra por um canal separado. No SQL isso aparece como parâmetro. Num ORM, como método que recebe o valor fora da string. Se o time voltar a concatenar, a defesa some.
+
+<Glossary term={"menor privilégio"} text={"A conta do banco que o app usa só pode o que o app precisa. Ler e gravar as tabelas da feature. Não derrubar o banco, não ler o que outra parte do sistema guarda."} />
+
+<Callout tone="conceito">
+
+Menor privilégio não conserta a consulta concatenada. Ele reduz o estrago se a fronteira falhar. As duas camadas contam. Nenhuma substitui a outra.
+
+</Callout>
+
+Validar formato — um e-mail parece e-mail, um id é número — ajuda a feature a falhar cedo. Não é a muralha. Um valor válido ainda pode ser colado numa consulta se alguém concatenar.
+
+<Glossary term={"WAF"} text={"Um filtro na frente do app que tenta reconhecer pedidos suspeitos. É uma rede. Consulta concatenada continua quebrada se o pedido passar, ou se o dado já estiver salvo."} />
+
+<Callout tone="armadilha">
+
+Tratar o WAF como correção única deixa o código do mesmo jeito. A rede observa. A fronteira se fecha na consulta.
+
+</Callout>

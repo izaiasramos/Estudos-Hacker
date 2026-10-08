@@ -15,22 +15,6 @@ export const UNITS: Unit[] = [
     summary: "Autenticação responde “quem é você?”. Autorização responde “o que pode fazer?”.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "No app web, login compara o que a pessoa sabe (senha), tem (dispositivo) ou prova (OAuth) com o que o sistema guarda. Se bater, o servidor cria uma sessão — outra trilha cuida da chave temporária. Aqui o foco é não quebrar a prova da senha.",
-      },
-      {
-        type: "callout",
-        tone: "analogia",
-        text: "A senha não é o crachá. É o segredo que troca por um crachá. Quem guarda o segredo em papel colado na porta entregou o prédio inteiro.",
-      },
-      {
-        type: "glossary",
-        term: "Autenticação quebrada",
-        text: "Falhas em login, cadastro ou recuperação que deixam entrar sem prova válida, vazam se um usuário existe ou mantêm senha fraca aceita.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -110,27 +94,6 @@ export const UNITS: Unit[] = [
     summary: "Nunca texto puro. Hash lento, sal automático e comparação constante.",
     kind: "theory",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Se o vazamento do banco traz senhas legíveis, o atacante testa as mesmas senhas em outros sites. Hash com algoritmo pensado para senha (bcrypt, scrypt, Argon2) torna cada tentativa cara. O salt impede que duas senhas iguais gerem o mesmo hash.",
-      },
-      {
-        type: "code",
-        caption: "Forma errada (nunca faça)",
-        code: "if (senhaDigitada === usuario.senhaNoBanco) { ... }",
-      },
-      {
-        type: "code",
-        caption: "Forma certa (conceito)",
-        code: "const ok = await bcrypt.compare(senhaDigitada, usuario.password_hash);",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Nesta plataforma, cadastro recusa senha curta, igual ao e-mail ou presente numa lista de senhas comuns — antes de chegar no hash. Política mínima no cadastro, hash no armazenamento.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -195,22 +158,6 @@ export const UNITS: Unit[] = [
     summary: "Três sinais de login frágil antes de abrir o chamado de segurança.",
     kind: "exercise",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "No laboratório fictício abaixo, o endpoint `/login` ainda aceita `admin` / `admin`, responde “Usuário não encontrado” ou “Senha incorreta”, e não limita tentativas. Nenhum desses comportamentos é aceitável em produção.",
-      },
-      {
-        type: "code",
-        caption: "Respostas que vazam enumeração",
-        code: '404 → "E-mail não cadastrado"\n401 → "Senha incorreta para este e-mail"',
-      },
-      {
-        type: "callout",
-        tone: "armadilha",
-        text: "Credencial padrão de demo esquecida no deploy vira porta dos fundos. Rate limit não substitui senha forte, mas impede tentar milhões de senhas por minuto.",
-      },
-    ],
     questions: [
       {
         kind: "choice",
@@ -290,17 +237,6 @@ export const UNITS: Unit[] = [
     summary: "Marque as defesas. O checker só aceita quando o login fictício fica defensável.",
     kind: "lab",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "O mini-serviço de login do lab começa vulnerável: senha em claro, mensagens que enumeram usuário, cadastro sem política e tentativas ilimitadas. Cada caixa liga uma defesa. O servidor confere a configuração — não executa código seu.",
-      },
-      {
-        type: "callout",
-        tone: "dev",
-        text: "Conjunto que passa: hash no armazenamento, resposta genérica, política mínima no cadastro e limite de tentativas falhas.",
-      },
-    ],
     questions: [],
   },
   {
@@ -310,12 +246,6 @@ export const UNITS: Unit[] = [
     summary: "O selo de autenticação espera este checkpoint e o lab com checker verde.",
     kind: "checkpoint",
     gate: true,
-    blocks: [
-      {
-        type: "p",
-        text: "Quatro decisões de produto. O selo não sai só da leitura: o lab de login precisa estar verde.",
-      },
-    ],
     questions: [
       {
         kind: "choice",

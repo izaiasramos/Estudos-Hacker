@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isAdmin } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import { activeLab, minutesLeft } from "@/lib/lab-runtime";
 
@@ -53,6 +54,15 @@ export async function SiteHeader() {
             >
               Time
             </Link>
+            {/* Só atalho visual. Quem protege /admin é a checagem no servidor da própria página. */}
+            {isAdmin(user) ? (
+              <Link
+                href="/admin"
+                className="inline-flex h-10 items-center rounded-full px-3 text-sm text-accent transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              >
+                Admin
+              </Link>
+            ) : null}
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"

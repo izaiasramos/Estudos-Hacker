@@ -1,0 +1,15 @@
+No laboratório, a área logada da Pizzaria mostra o cookie da sessão sem marcas. Três sinais bastam para abrir o chamado: o script da página lê a chave, ela aparece numa visita sem HTTPS, e o identificador de antes do login continua igual depois.
+
+<Callout tone="conceito">
+
+O nome disso, em alto nível, é sessão vazada ou fixada. O efeito é o mesmo: o servidor aceita a chave e atende como se fosse o usuário. A correção são as marcas, a troca no login e o apagar no logout.
+
+</Callout>
+
+<Code caption={"O que o inspetor mostra, ainda sem defesa"}>
+
+```
+sessao=chave-da-alice
+```
+
+</Code>

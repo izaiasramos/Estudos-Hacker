@@ -1,0 +1,15 @@
+Depois do login, o servidor cria uma sessão: um registro do lado dele, com o usuário e a hora. Para o navegador, sobra um identificador, quase sempre num cookie. Nas próximas requisições o navegador devolve essa chave, e o servidor trata quem a apresenta como aquele usuário.
+
+<Callout tone="analogia">
+
+A chave do quarto de hotel não é a pessoa. Quem chega com a chave certa entra. Por isso a chave tem prazo, não fica escrita no corredor e é trocada quando o hóspede faz um novo check-in.
+
+</Callout>
+
+<Glossary term={"Cookie de sessão"} text={"Pequeno valor que o navegador guarda e reenvia ao mesmo site. No produto, ele aponta para a sessão no servidor. Não é a senha."} />
+
+<Callout tone="armadilha">
+
+Guardar essa chave onde o JavaScript da página lê com facilidade, como o localStorage, aumenta o estrago se um script indesejado rodar na mesma página. O cookie pode ser marcado para o script não ler.
+
+</Callout>

@@ -1,0 +1,16 @@
+No laboratório fictício abaixo, o endpoint `/login` ainda aceita `admin` / `admin`, responde “Usuário não encontrado” ou “Senha incorreta”, e não limita tentativas. Nenhum desses comportamentos é aceitável em produção.
+
+<Code caption={"Respostas que vazam enumeração"}>
+
+```
+404 → "E-mail não cadastrado"
+401 → "Senha incorreta para este e-mail"
+```
+
+</Code>
+
+<Callout tone="armadilha">
+
+Credencial padrão de demo esquecida no deploy vira porta dos fundos. Rate limit não substitui senha forte, mas impede tentar milhões de senhas por minuto.
+
+</Callout>
