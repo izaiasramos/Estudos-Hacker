@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.14  
+**Versão:** 0.15  
 **Data:** 2026-10-07  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -593,7 +593,7 @@ O repositório não seguiu a tabela inteira. Hoje está assim:
 | DB | Postgres 16 via `pg`. Sem Prisma e sem Drizzle. O schema nasce na primeira requisição |
 | Conteúdo | TypeScript em `src/content`. MDX ainda não |
 | Labs | Docker quando existe; senão um processo Node em `127.0.0.1` |
-| Testes | O CI roda lint, tipos, `npm test` (Vitest) e build. Playwright ainda não |
+| Testes | O CI roda lint, tipos, Vitest (`npm test`), build e smoke E2E (`npm run test:e2e`, job `e2e` com Postgres) |
 | Host | Cada dev sobe com `npm run dev`. Não há servidor compartilhado |
 
 Alternativa mais leve se o orquestrador atrasar o MVP: **labs locais via Docker Compose** que o aluno sobe na máquina, e a plataforma só marca “concluí” com um token de checker. Isso reduz risco e custo, com pior UX. A Fase 2 já sobe o lab na máquina de quem roda o app.
@@ -714,7 +714,7 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Next na Vercel, plano free, ligado ao `main`. Merge publica sozinho.
 - [x] Postgres no Supabase. Em produção, `DATABASE_URL` usa a URI do **Session pooler** (porta `5432`, host `pooler.supabase.com`, usuário `postgres.[ref]`). A conexão **Direct** (`db.[ref].supabase.co`) não funciona na Vercel. O placeholder `[YOUR-PASSWORD]` da URI deve virar a senha pura, sem colchetes.
 - [x] `AUTH_SECRET` e Google OAuth em produção. URI autorizado: `https://estudos-hacker.vercel.app/api/auth/google/callback`.
-- [x] CI no GitHub. Pull request obrigatório no `main`. Job `check`: lint, tipos, Vitest, build.
+- [x] CI no GitHub. Pull request obrigatório no `main`. Jobs `check` (lint, tipos, Vitest, build) e `e2e` (Playwright + Postgres).
 - [x] README com stack, instalação do zero, variáveis, contribuição e leitura de logs do CI.
 
 #### Operacional (time)
@@ -728,7 +728,7 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [ ] Conteúdo em MDX. O player lê `src/content`.
 - [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
-- [ ] Playwright de smoke no app.
+- [x] Playwright de smoke no app (landing, cadastro, regras, trilha SQL). Comando: `npm run test:e2e` (Postgres + build).
 - [ ] Cenas da seção 15.4 que ainda não estão na tela: traço de luz entre os nós, shake do quiz errado e as três etapas nomeadas no boot do lab.
 - [ ] Próximas trilhas, nesta ordem: autenticação quebrada e senhas, XSS, CSRF, phishing interno, controle de acesso, headers. SSRF e upload ficam para depois.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).

@@ -112,6 +112,12 @@ npx tsc --noEmit
 npm test
 ```
 
+Smoke E2E (opcional antes do PR; exige Postgres, por exemplo `docker compose up -d`, e um `npm run build`):
+
+```bash
+npm run test:e2e
+```
+
 Depois envie a branch e abra o pull request para `main`:
 
 ```bash
@@ -134,6 +140,8 @@ O job se chama `check` e executa, nesta ordem:
 4. `npx tsc --noEmit`
 5. `npm test`
 6. `npm run build`
+
+Job **`e2e`** (só em pull request e no `main`): sobe Postgres, faz build e roda `npm run test:e2e` (Playwright).
 
 Para ver o log:
 
