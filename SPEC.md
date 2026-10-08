@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.25  
+**Versão:** 0.26  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -156,7 +156,7 @@ Não faz parte do MVP: varrer IPs, phishing de pessoas reais, keyloggers, malwar
 
 - Layout responsivo (desktop-first, usável no notebook).
 - Idioma: pt-BR.
-- Admin mínimo: marcar conteúdo publicado / rascunho (pode ser arquivo versionado no repo no MVP, sem CMS).
+- Admin mínimo: marcar conteúdo publicado / rascunho (pode ser arquivo versionado no repo no MVP, sem CMS). **No código:** `status: "rascunho"` em `TRAILS` e painel em `/admin` (ver 11.3 e 22).
 
 **Fora do MVP**
 
@@ -314,6 +314,8 @@ Copy da UI: profissional, direto, sem “você é um hacker elite”. Preferir �
 | `admin` | publicar conteúdo, ver métricas agregadas, derrubar lab zumbi |
 | `mentor` (v1.1) | abre e encerra o time. O ranking, a nota e as tentativas são os mesmos para todo o grupo |
 
+**No código:** `users.role` guarda `learner` ou `admin`. Mentor não é papel na tabela: é quem abriu o time (`squads.mentor_id`). Não existe tela para dar papel; muda só por `scripts/set-role.mjs`. Toda checagem de papel acontece no servidor (`src/lib/access.ts`).
+
 ---
 
 ## 12. Arquitetura (visão)
@@ -407,6 +409,18 @@ Regras:
 
 - uma unidade `available` só se a anterior da mesma trilha está `done` (exceto revisão pós-selo);
 - selo exige `lab_defense` + `checkpoint` `done`.
+
+**No código (Postgres, schema criado em `src/lib/db.ts` na primeira requisição):**
+
+| Tabela | O que guarda |
+|---|---|
+| `users` | conta, `role`, XP, sequência, aceite da ética, `reduce_motion` |
+| `progress` | uma linha por unidade concluída ou tentada: `status`, nota, tentativas, XP pago, `completed_at`. Selo também é uma linha (`unit_id` = `sealId` da trilha) |
+| `lab_sessions` | ambiente do lab: runtime, status, início, expiração, último checker |
+| `squads` / `squad_members` | times e participação |
+| `login_failures` | falhas de login em hash (e-mail e IP), só da janela de 15 min |
+
+Trilha, unidade e quiz não ficam no banco: moram no Git (`src/content`), com o texto em MDX. Não há `Badge`, `UserBadge` nem `XpEvent` separados; selo e XP saem de `progress` e `users.xp`.
 
 ---
 
@@ -600,7 +614,7 @@ O repositório não seguiu a tabela inteira. Hoje está assim:
 | Conteúdo | MDX em `src/content/<trilha>/` para o texto; metadados e quiz em TypeScript |
 | Labs | Docker quando existe; senão um processo Node em `127.0.0.1` |
 | Testes | O CI roda lint, tipos, Vitest (`npm test`), build e smoke E2E (`npm run test:e2e`, job `e2e` com Postgres) |
-| Host | Cada dev sobe com `npm run dev`. Não há servidor compartilhado |
+| Host | Vercel (plano free, deploy a cada merge no `main`) e Postgres no Supabase. Localmente, `npm run dev` com o Postgres do `docker compose` |
 
 Alternativa mais leve se o orquestrador atrasar o MVP: **labs locais via Docker Compose** que o aluno sobe na máquina, e a plataforma só marca “concluí” com um token de checker. Isso reduz risco e custo, com pior UX. A Fase 2 já sobe o lab na máquina de quem roda o app.
 
@@ -668,7 +682,7 @@ Checklist de review de conteúdo (todo PR de aula):
 
 ## 22. Fases de entrega
 
-Andamento em 2026-10-07. O que está marcado já roda no app.
+Andamento em 2026-10-08. O que está marcado já roda no app.
 
 ### Fase 0 — Fundação (1–2 semanas)
 
@@ -715,7 +729,7 @@ Andamento em 2026-10-07. O que está marcado já roda no app.
 
 Quem chega no repositório encontra instalação, variáveis e o fluxo de pull request no `README.md`.
 
-#### Já no ar (2026-10-07)
+#### Já no ar (2026-10-08)
 
 - [x] Next na Vercel, plano free, ligado ao `main`. Merge publica sozinho.
 - [x] Postgres no Supabase. Em produção, `DATABASE_URL` usa a URI do **Session pooler** (porta `5432`, host `pooler.supabase.com`, usuário `postgres.[ref]`). A conexão **Direct** (`db.[ref].supabase.co`) não funciona na Vercel. O placeholder `[YOUR-PASSWORD]` da URI deve virar a senha pura, sem colchetes.
@@ -737,16 +751,18 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [x] Conteúdo em MDX: o texto de cada unidade mora em `src/content/<trilha>/<unidade>.mdx` (`@next/mdx`), com os componentes `<Callout tone="...">`, `<Glossary term="..." text="..." />` e `<Code caption="...">` com bloco ``` dentro (`src/mdx-components.tsx`). Título, resumo, tipo e quiz continuam em `src/content/<trilha>.ts`, porque a nota é calculada no servidor a partir deles. `npm test` confere que toda unidade tem `.mdx`, que ele compila e que só usa componentes conhecidos.
 - [x] Admin mínimo (11.3) em `/admin`, só para `role = 'admin'`; para os outros a página e `POST /api/admin/lab/stop` respondem 404. Mostra contas, quem passou pelas regras, quem estudou em 7 dias, o funil por trilha (começaram, chegaram ao lab, lab fechado, taxa do lab e selos, só em contagem agregada) e os labs no ar, com botão para derrubar (mais de 60 min aparece como possível zumbi). Publicar é pelo Git: `status: "rascunho"` na entrada de `TRAILS` esconde a trilha de quem não é admin (páginas 404, quiz, leitura e lab recusados, e ela sai de início, perfil, time e "Próxima trilha"). Papel muda só por script: `DATABASE_URL=... node scripts/set-role.mjs <email> admin`.
-- [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
-- [x] Playwright de smoke no app (landing, cadastro, regras, trilha SQL). Comando: `npm run test:e2e` (Postgres + build).
+- [x] Vitest na lógica pura: checkers dos labs, nota do quiz, streak, desbloqueio, regra do selo, nível, limite de login, acesso de admin/rascunho, funil e o conteúdo MDX de todas as unidades. Comando: `npm test`.
+- [x] Playwright no app: landing, cadastro, regras, trilha SQL, trilha de controle de acesso até o selo e perfil (nome, reduzir movimento, exclusão). Comando: `npm run test:e2e` (Postgres + build).
 - [x] Cenas da seção 15.4: traço de luz na aresta até o nó atual (arestas concluídas acesas, nó atual com anel pulsando), quiz certo assenta com borda lima e quiz errado faz shake de 6px uma vez, boot do lab em três etapas ("isolando rede", "subindo app", "pronto") que avançam com marcos reais: resposta do servidor e carga do iframe. Sem JavaScript, o botão faz o POST normal.
-- [x] E2E de smoke também cobre a trilha de controle de acesso até o selo e o perfil (nome, reduzir movimento, exclusão).
 - [x] Trilha **Autenticação quebrada e senhas** (`/trilha/autenticacao`): teoria, quiz, lab de endurecimento de login e selo `selo-autenticacao`.
 - [x] Trilha **XSS** (`/trilha/xss`): refletido/armazenado, lab de defesa (escape, CSP, DOM seguro, sanitizar) e selo `selo-xss`.
 - [x] Trilha **CSRF** (`/trilha/csrf`): pedido forjado, lab (token, SameSite, Origin, POST) e selo `selo-csrf`.
 - [x] Trilha **Phishing interno** (`/trilha/phishing`): sinais, classificação de e-mails fictícios, defesas de produto e selo `selo-phishing` (sem clone de login nem kits de ataque).
 - [x] Trilha **Controle de acesso (IDOR)** (`/trilha/controle-acesso`): autenticação vs. autorização, onde o controle some (interface, rota escondida, UUID, mass assignment), sintomas na consulta, lab de regra de acesso dos pedidos e selo `selo-controle-acesso`. O lab mostra o que a Alice receberia; UUID sozinho não passa no checker.
-- [ ] Próximas trilhas, nesta ordem: headers de segurança. SSRF e upload ficam para depois.
+- [ ] Próximas trilhas, nesta ordem: exposição de dados e headers de segurança (7.2, item 8). SSRF e upload ficam para depois.
+- [ ] A plataforma ainda não manda headers de segurança próprios (CSP, HSTS, `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`). A seção 21 pede que ela aplique o que ensina; entra junto com a trilha de headers.
+- [ ] Barra fixa “Marcar como lida / Ir ao quiz” cobre o fim do conteúdo em unidades curtas (vista em `controle-acesso/idor-sintomas`). Precisa de espaço no fim do artigo ou de deixar de ser fixa perto do quiz.
+- [ ] E2E não apagam as contas `e2e-…@shieldpath.test` que criam. No CI o banco é descartado; no Postgres local elas acumulam.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).
 
 #### Decisões em aberto
@@ -767,7 +783,7 @@ O MVP está pronto quando um colega que **não escreveu o conteúdo** consegue, 
 5. ver o badge na home;
 6. não encontrar na UI nenhum incentivo a testar site de terceiros.
 
-**Andamento (2026-10-07):** itens 1–3, 4–6 funcionam na Vercel com o lab embutido (seção 12.3). A trilha de sessão inteira também funciona na Vercel.
+**Andamento (2026-10-08):** os seis itens funcionam na Vercel com o lab embutido (seção 12.3). As outras seis trilhas também vão até o selo na Vercel. Falta a rodada com um colega que não escreveu o conteúdo, que é o que fecha o critério.
 
 ---
 
@@ -791,10 +807,11 @@ Ainda em aberto:
 
 Já decidido e no código:
 
-- Lab na máquina de quem roda o app, com Docker e reserva em processo Node. Não há orquestrador elástico.
+- Lab embutido no próprio app (`/lab/pizzaria`), que roda na Vercel. Docker ou processo Node em `127.0.0.1` só com `LAB_RUNTIME=local`. Não há orquestrador elástico.
 - Editor de defesa no browser. O servidor não executa o código enviado.
 - Trilhas no ar: SQL Injection, Sessão, Autenticação, XSS, CSRF, Phishing interno, Controle de acesso (IDOR).
 - Ranking só dentro do time, com nome, nota e tentativas.
+- Conteúdo: texto em MDX no Git; metadados e quiz em TypeScript. Publicar é PR.
 
 ---
 
