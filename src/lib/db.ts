@@ -62,6 +62,12 @@ CREATE TABLE IF NOT EXISTS squad_members (
   FOREIGN KEY (squad_id) REFERENCES squads(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+CREATE TABLE IF NOT EXISTS login_failures (
+  id BIGSERIAL PRIMARY KEY,
+  key_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS login_failures_key_created ON login_failures (key_hash, created_at);
 `;
 
 function pool() {

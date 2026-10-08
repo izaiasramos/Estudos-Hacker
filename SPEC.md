@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.20  
+**Versão:** 0.21  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -292,7 +292,7 @@ Copy da UI: profissional, direto, sem “você é um hacker elite”. Preferir �
 - Sessão: cookie httpOnly + secure + sameSite; CSRF protection nas rotas de mutação.
 - A própria plataforma deve ser vitrine das defesas que ensina.
 
-**Andamento:** e-mail e senha já entram com bcrypt e cookie httpOnly. O Google está no código e só liga quando `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` existem; sem isso o botão avisa. Se o e-mail do Google já tiver conta local, as contas não se fundem sozinhas. Verificação de e-mail espera um SMTP.
+**Andamento:** e-mail e senha já entram com bcrypt e cookie httpOnly. O Google está no código e só liga quando `AUTH_GOOGLE_ID` e `AUTH_GOOGLE_SECRET` existem; sem isso o botão avisa. Se o e-mail do Google já tiver conta local, as contas não se fundem sozinhas. Verificação de e-mail espera um SMTP. O login com senha tem limite de tentativas: 5 falhas por e-mail ou 30 por IP em 15 minutos pausam o login. Vale também para e-mail que não existe, para a resposta não revelar contas. As falhas ficam no Postgres (`login_failures`), com e-mail e IP só em hash. A senha pedida na exclusão de conta usa o mesmo limite.
 
 ### 11.2 Perfil
 
@@ -726,6 +726,7 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Laboratório da pizzaria embutido em `/lab/pizzaria` (Vercel e local). Modo Docker legado com `LAB_RUNTIME=local` (ver 12.3).
 - [x] Perfil em `/perfil`: avatar com a inicial, XP, nível, sequência, último lab, selos (fechados e pendentes) e troca do nome de exibição. Preferência de reduzir movimento ainda não entrou; o app segue o `prefers-reduced-motion` do sistema.
 - [x] Exclusão de conta no perfil: pede o e-mail da conta e, se houver, a senha atual. Encerra o lab ativo e apaga progresso, XP, selos, histórico de lab e participação no time. Se a pessoa é mentora, o time é encerrado para todos.
+- [x] Limite de tentativas no login (ver 11.1): 5 por e-mail e 30 por IP em 15 minutos.
 - [ ] Recuperação de senha por e-mail.
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [ ] Conteúdo em MDX. O player lê `src/content`.

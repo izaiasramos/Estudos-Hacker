@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { stopLab } from "@/lib/lab-runtime";
+import { clientIp, loginBlockedUntil, recordLoginFailure } from "@/lib/login-throttle";
 import { verifyPassword } from "@/lib/password";
 import { clearPizzariaCookie } from "@/lib/pizzaria-lab";
 import { SESSION_COOKIE, clearSessionCookie, readSessionToken } from "@/lib/session";
@@ -21,8 +22,14 @@ export async function POST(request: Request) {
   if (email !== user.email) return redirectTo(request, "/perfil?erro=confirmar#excluir");
 
   // Conta com senha pede a senha de novo. Conta só do Google não tem senha para conferir.
+  // Usa o mesmo limite do login: a senha aqui é o mesmo segredo.
   if (user.passwordHash) {
+    const ip = clientIp(request);
+    if (await loginBlockedUntil(user.email, ip)) {
+      return redirectTo(request, "/perfil?erro=bloqueado#excluir");
+    }
     if (!password || !(await verifyPassword(password, user.passwordHash))) {
+      await recordLoginFailure(user.email, ip);
       return redirectTo(request, "/perfil?erro=senha#excluir");
     }
   }

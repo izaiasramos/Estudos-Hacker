@@ -19,6 +19,7 @@ const ERRORS: Record<string, string> = {
   origem: "Não foi possível confirmar a origem do pedido.",
   confirmar: "O e-mail digitado não é o desta conta. Nada foi apagado.",
   senha: "A senha não confere. Nada foi apagado.",
+  bloqueado: "Muitas tentativas de senha seguidas. Espere até 15 minutos. Nada foi apagado.",
 };
 
 const DATE = new Intl.DateTimeFormat("pt-BR", {
