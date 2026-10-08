@@ -21,10 +21,12 @@ export default async function InicioPage() {
   const sqlNext = nextUnit(progress, true, "sql-injection");
   const sessionNext = nextUnit(progress, true, "sessao");
   const authNext = nextUnit(progress, true, "autenticacao");
+  const xssNext = nextUnit(progress, true, "xss");
   const sqlSeal = hasSeal(progress);
   const sessionSeal = hasTrailSeal(progress, "selo-sessao");
   const authSeal = hasTrailSeal(progress, "selo-autenticacao");
-  const seals = Number(sqlSeal) + Number(sessionSeal) + Number(authSeal);
+  const xssSeal = hasTrailSeal(progress, "selo-xss");
+  const seals = Number(sqlSeal) + Number(sessionSeal) + Number(authSeal) + Number(xssSeal);
   const level = seals >= 2 ? "Especialista" : seals === 1 ? "Pleno defensivo" : "Jr";
   const { streak } = await readStreak(user.id);
   const squad = await squadOf(user.id);
@@ -36,14 +38,18 @@ export default async function InicioPage() {
       ? `Continuar — ${sessionNext.title}`
       : authNext
         ? `Continuar — ${authNext.title}`
-        : "As trilhas abertas estão fechadas";
+        : xssNext
+          ? `Continuar — ${xssNext.title}`
+          : "As trilhas abertas estão fechadas";
   const primary = sqlNext
     ? { href: `/trilha/sql-injection/${sqlNext.id}`, label: "Abrir unidade" }
     : sessionNext
       ? { href: `/trilha/sessao/${sessionNext.id}`, label: "Abrir unidade" }
       : authNext
         ? { href: `/trilha/autenticacao/${authNext.id}`, label: "Abrir unidade" }
-        : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
+        : xssNext
+          ? { href: `/trilha/xss/${xssNext.id}`, label: "Abrir unidade" }
+          : { href: "/trilha/sql-injection", label: "Ver as trilhas" };
 
   return (
     <div className="relative isolate flex min-h-full flex-col">
@@ -93,10 +99,21 @@ export default async function InicioPage() {
               Selo · Autenticação
             </Link>
           ) : null}
+          {xssSeal ? (
+            <Link
+              href="/trilha/xss/selo"
+              className="inline-flex items-center gap-3 rounded-full border border-defense/40 px-4 py-2 text-sm"
+            >
+              <span className="grid size-6 place-items-center rounded-full bg-defense text-[10px] font-semibold text-ink">
+                XSS
+              </span>
+              Selo · XSS
+            </Link>
+          ) : null}
         </div>
         <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight">{headline}</h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
-          Três trilhas no ar, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
+          Quatro trilhas no ar, a mesma regra: a unidade abre quando a anterior fecha, e o selo sai
           depois da defesa.
         </p>
         <Link
@@ -105,7 +122,7 @@ export default async function InicioPage() {
         >
           {primary.label}
         </Link>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/trilha/sql-injection"
             className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -145,8 +162,18 @@ export default async function InicioPage() {
             </p>
           </Link>
           <Link
-            href="/squad"
+            href="/trilha/xss"
             className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Trilha</p>
+            <h2 className="mt-2 text-xl font-semibold">XSS</h2>
+            <p className="mt-2 text-sm text-muted">
+              {xssSeal ? "Selo fechado." : xssNext ? `Próxima: ${xssNext.title}` : "Aberta."}
+            </p>
+          </Link>
+          <Link
+            href="/squad"
+            className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:col-span-2 lg:col-span-1"
           >
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">Time</p>
             <h2 className="mt-2 text-xl font-semibold">{squad ? squad.name : "Montar o time"}</h2>

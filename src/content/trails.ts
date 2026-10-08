@@ -1,6 +1,7 @@
 import { TRAIL as authTrail, UNITS as authUnits } from "@/content/autenticacao";
 import { TRAIL as sqlTrail, UNITS as sqlUnits, type Unit } from "@/content/sql-injection";
 import { TRAIL as sessionTrail, UNITS as sessionUnits } from "@/content/sessao";
+import { TRAIL as xssTrail, UNITS as xssUnits } from "@/content/xss";
 
 export type Trail = {
   slug: string;
@@ -14,6 +15,7 @@ export const TRAILS: Trail[] = [
   { ...sqlTrail, sealId: "selo", units: sqlUnits },
   { ...sessionTrail, sealId: "selo-sessao", units: sessionUnits },
   { ...authTrail, sealId: "selo-autenticacao", units: authUnits },
+  { ...xssTrail, sealId: "selo-xss", units: xssUnits },
 ];
 
 export function trailBySlug(slug: string) {
