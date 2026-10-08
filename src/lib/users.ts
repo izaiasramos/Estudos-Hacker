@@ -13,6 +13,8 @@ export type UserRecord = {
   ethicsAcceptedAt: string | null;
   xp: number;
   createdAt: string;
+  /** Preferência do perfil: menos movimento, além do prefers-reduced-motion do sistema. */
+  reduceMotion: boolean;
 };
 
 type UserRow = {
@@ -26,6 +28,7 @@ type UserRow = {
   ethics_accepted_at: string | null;
   xp: number;
   created_at: string;
+  reduce_motion?: boolean;
 };
 
 function mapUser(row: UserRow): UserRecord {
@@ -40,6 +43,7 @@ function mapUser(row: UserRow): UserRecord {
     ethicsAcceptedAt: row.ethics_accepted_at,
     xp: row.xp,
     createdAt: row.created_at,
+    reduceMotion: row.reduce_motion === true,
   };
 }
 
@@ -184,6 +188,10 @@ export function cleanDisplayName(value: string) {
 
 export async function updateUserName(userId: string, name: string) {
   await run("UPDATE users SET name = ? WHERE id = ?", [name, userId]);
+}
+
+export async function updateReduceMotion(userId: string, reduce: boolean) {
+  await run("UPDATE users SET reduce_motion = ? WHERE id = ?", [reduce, userId]);
 }
 
 export async function lastLabStartedAt(userId: string) {

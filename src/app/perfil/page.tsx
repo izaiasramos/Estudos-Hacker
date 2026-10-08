@@ -7,7 +7,7 @@ import { TRAILS } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
 import { squadOf } from "@/lib/squad";
 import { readStreak } from "@/lib/streak";
-import { accountLevel, hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
+import { accountLevel, hasTrailSeal, listProgress, nextUnit, sealDate } from "@/lib/trail-progress";
 import { lastLabStartedAt } from "@/lib/users";
 
 export const metadata: Metadata = {
@@ -49,7 +49,7 @@ export default async function PerfilPage({
 
   const query = await searchParams;
   const error = query.erro ? (ERRORS[query.erro] ?? null) : null;
-  const saved = query.ok === "nome";
+  const saved = query.ok === "nome" ? "Nome atualizado." : query.ok === "movimento" ? "Preferência de movimento salva." : null;
 
   const [progress, { streak }, squad, lastLab] = await Promise.all([
     listProgress(user.id),
@@ -62,7 +62,8 @@ export default async function PerfilPage({
     const sealed = hasTrailSeal(progress, trail.sealId);
     const done = trail.units.filter((unit) => progress.get(unit.id)?.status === "done").length;
     const upcoming = sealed ? null : nextUnit(progress, true, trail.slug);
-    return { trail, sealed, done, total: trail.units.length, upcoming };
+    const earnedAt = sealDate(progress, trail.sealId);
+    return { trail, sealed, done, total: trail.units.length, upcoming, earnedAt };
   });
   const seals = trails.filter((item) => item.sealed).length;
   const level = accountLevel(seals);
@@ -102,7 +103,7 @@ export default async function PerfilPage({
         ) : null}
         {saved ? (
           <p className="mt-6 text-sm text-defense" role="status">
-            Nome atualizado.
+            {saved}
           </p>
         ) : null}
 
@@ -125,7 +126,7 @@ export default async function PerfilPage({
             Selos · {seals} de {TRAILS.length}
           </h2>
           <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {trails.map(({ trail, sealed, done, total, upcoming }) => (
+            {trails.map(({ trail, sealed, done, total, upcoming, earnedAt }) => (
               <li key={trail.slug}>
                 <Link
                   href={sealed ? `/trilha/${trail.slug}/selo` : `/trilha/${trail.slug}`}
@@ -138,7 +139,11 @@ export default async function PerfilPage({
                       sealed ? "text-accent" : "text-muted"
                     }`}
                   >
-                    {sealed ? "Selo fechado" : "Selo pendente"}
+                    {sealed
+                      ? earnedAt
+                        ? `Selo fechado · ${DATE.format(new Date(earnedAt))}`
+                        : "Selo fechado"
+                      : "Selo pendente"}
                   </p>
                   <h3 className="mt-2 text-lg font-semibold">{trail.title}</h3>
                   <p className="mt-2 text-sm text-muted">
@@ -178,6 +183,35 @@ export default async function PerfilPage({
               className={`mt-4 inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink ${FOCUS}`}
             >
               Salvar nome
+            </button>
+          </form>
+        </section>
+
+        <section id="movimento" aria-labelledby="movimento-titulo" className="mt-12 max-w-xl">
+          <h2 id="movimento-titulo" className="text-xl font-semibold">
+            Movimento
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Desliga o traço da trilha, o pulso do nó atual, o shake do quiz e a cena do selo. O
+            estado continua escrito em cada tela. Se o sistema já pede menos movimento, o app segue o
+            sistema mesmo com esta opção desligada.
+          </p>
+          <form action="/api/perfil/movimento" method="post" className="mt-4 space-y-4">
+            <label className="flex items-start gap-3 text-sm">
+              <input
+                type="checkbox"
+                name="reduce"
+                value="on"
+                defaultChecked={user.reduceMotion}
+                className="mt-1 accent-[#d6ff4a]"
+              />
+              Reduzir movimento
+            </label>
+            <button
+              type="submit"
+              className={`inline-flex h-12 items-center rounded-full border border-white/15 px-6 text-sm text-text ${FOCUS}`}
+            >
+              Salvar preferência
             </button>
           </form>
         </section>

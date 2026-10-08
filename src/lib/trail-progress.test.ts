@@ -4,6 +4,7 @@ import { TRAILS } from "@/content/trails";
 import {
   accountLevel,
   isUnlocked,
+  sealDate,
   sealIsDue,
   nextUnit,
   scoreUnitAnswers,
@@ -21,6 +22,7 @@ function progressMap(entries: Record<string, Partial<ProgressRow>>) {
       score: row.score ?? null,
       attempts: row.attempts ?? 0,
       xpAwarded: row.xpAwarded ?? 0,
+      completedAt: row.completedAt ?? null,
     });
   }
   return map;
@@ -76,6 +78,13 @@ describe("selo", () => {
   it("o lab ofensivo de SQL não conta como defesa", () => {
     const sql = TRAILS.find((item) => item.slug === "sql-injection");
     expect(sql?.labUnitId).toBe("lab-defensivo");
+  });
+
+  it("data do selo só aparece para selo concluído e com data gravada", () => {
+    const at = "2026-10-08T15:00:00.000Z";
+    expect(sealDate(progressMap({ selo: { status: "done", completedAt: at } }), "selo")).toBe(at);
+    expect(sealDate(progressMap({ selo: { status: "done" } }), "selo")).toBeNull();
+    expect(sealDate(progressMap({}), "selo")).toBeNull();
   });
 
   it("nível de conta segue a soma de selos", () => {

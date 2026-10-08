@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotionConfig } from "motion/react";
 
 const PATH =
   "M 18 16 C 40 14, 58 20, 74 28 C 96 39, 46 44, 28 58 C 12 71, 46 76, 72 84";
@@ -45,7 +45,8 @@ const NODES = [
 ];
 
 export function TrailMap() {
-  const reduce = useReducedMotion();
+  // Respeita o MotionConfig do layout (preferência do perfil) e o prefers-reduced-motion do sistema.
+  const reduce = useReducedMotionConfig();
   const still = reduce === true;
 
   return (

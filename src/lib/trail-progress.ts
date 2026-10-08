@@ -9,6 +9,8 @@ export type ProgressRow = {
   score: number | null;
   attempts: number;
   xpAwarded: number;
+  /** Hora em que a linha virou concluída. Hoje só os selos gravam; linhas antigas ficam null. */
+  completedAt: string | null;
 };
 
 type StoredProgress = {
@@ -17,6 +19,7 @@ type StoredProgress = {
   score: number | null;
   attempts: number;
   xp_awarded: number;
+  completed_at: string | null;
 };
 
 const READ_XP = 10;
@@ -27,7 +30,7 @@ const SEAL_XP = 60;
 
 export async function listProgress(userId: string) {
   const rows = await many<StoredProgress>(
-    "SELECT unit_id, status, score, attempts, xp_awarded FROM progress WHERE user_id = ?",
+    "SELECT unit_id, status, score, attempts, xp_awarded, completed_at FROM progress WHERE user_id = ?",
     [userId],
   );
   const map = new Map<string, ProgressRow>();
@@ -38,6 +41,7 @@ export async function listProgress(userId: string) {
       score: row.score,
       attempts: row.attempts,
       xpAwarded: row.xp_awarded,
+      completedAt: row.completed_at,
     });
   }
   return map;
@@ -97,6 +101,12 @@ function xpForPass(unit: Unit) {
 
 export function hasTrailSeal(progress: Map<string, ProgressRow>, sealId: string) {
   return progress.get(sealId)?.status === "done";
+}
+
+/** Data do selo para exibir. Selos emitidos antes da coluna existir não têm data. */
+export function sealDate(progress: Map<string, ProgressRow>, sealId: string) {
+  const row = progress.get(sealId);
+  return row?.status === "done" ? row.completedAt : null;
 }
 
 /** Nível de conta da seção 10: Jr → Pleno defensivo (1 selo) → Especialista (2 ou mais). */
@@ -237,11 +247,11 @@ async function awardTrailSeal(userId: string, trail: Trail) {
   // O XP só entra se a linha do selo nasceu agora. Dois envios ao mesmo tempo não pagam duas vezes.
   return withTx(async () => {
     const inserted = await many<{ unit_id: string }>(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, ?, 'done', 100, 1, ?)
+      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded, completed_at)
+       VALUES (?, ?, 'done', 100, 1, ?, ?)
        ON CONFLICT(user_id, unit_id) DO NOTHING
        RETURNING unit_id`,
-      [userId, trail.sealId, SEAL_XP],
+      [userId, trail.sealId, SEAL_XP, new Date().toISOString()],
     );
     if (inserted.length === 0) return false;
     await run("UPDATE users SET xp = xp + ? WHERE id = ?", [SEAL_XP, userId]);
