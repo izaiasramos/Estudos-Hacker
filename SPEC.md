@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.15  
+**Versão:** 0.16  
 **Data:** 2026-10-07  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -730,7 +730,8 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Vitest na lógica pura (`lab-check`, nota do quiz, streak, desbloqueio de unidade). Comando: `npm test`.
 - [x] Playwright de smoke no app (landing, cadastro, regras, trilha SQL). Comando: `npm run test:e2e` (Postgres + build).
 - [ ] Cenas da seção 15.4 que ainda não estão na tela: traço de luz entre os nós, shake do quiz errado e as três etapas nomeadas no boot do lab.
-- [ ] Próximas trilhas, nesta ordem: autenticação quebrada e senhas, XSS, CSRF, phishing interno, controle de acesso, headers. SSRF e upload ficam para depois.
+- [x] Trilha **Autenticação quebrada e senhas** (`/trilha/autenticacao`): teoria, quiz, lab de endurecimento de login e selo `selo-autenticacao`.
+- [ ] Próximas trilhas, nesta ordem: XSS, CSRF, phishing interno, controle de acesso, headers. SSRF e upload ficam para depois.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).
 
 #### Decisões em aberto
@@ -777,7 +778,7 @@ Já decidido e no código:
 
 - Lab na máquina de quem roda o app, com Docker e reserva em processo Node. Não há orquestrador elástico.
 - Editor de defesa no browser. O servidor não executa o código enviado.
-- Segunda trilha: sessão. Autenticação quebrada fica para uma trilha futura.
+- Trilhas no ar: SQL Injection, Sessão, Autenticação quebrada e senhas.
 - Ranking só dentro do time, com nome, nota e tentativas.
 
 ---
