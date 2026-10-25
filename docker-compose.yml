@@ -9,6 +9,13 @@ services:
       - "5432:5432"
     volumes:
       - shieldpath-pg:/var/lib/postgresql/data
-
+    # Volta sozinho quando o Docker reinicia (boot da máquina). Só fica parado depois de `npm run db:stop`.
+    restart: unless-stopped
+    # `docker compose up --wait` (usado pelo `npm run dev`) espera este check antes de liberar o app.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shieldpath -d shieldpath"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
 volumes:
   shieldpath-pg:

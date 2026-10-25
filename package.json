@@ -3,13 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/db-up.mjs",
     "dev": "next dev",
+    "db:up": "node scripts/db-up.mjs",
+    "db:stop": "docker compose stop",
+    "db:logs": "docker compose logs -f postgres",
     "db:import": "node scripts/import-sqlite.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest:e2e": "node scripts/db-up.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

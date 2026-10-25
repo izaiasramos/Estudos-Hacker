@@ -1,0 +1,38 @@
+Em code review e na aba Network, o sintoma é uma resposta que traz o que a tela não usa e não traz o que o navegador precisa. Compare a resposta do perfil da Alice na Pizzaria do Lab antes e depois.
+
+<Code caption="Resposta que fala demais (vulnerável)">
+
+```
+HTTP/1.1 200 OK
+X-Powered-By: Express 4.17.1
+Content-Security-Policy: script-src 'self' 'unsafe-inline'
+
+{
+  "id": 7,
+  "name": "Alice",
+  "email": "alice@lab.local",
+  "password_hash": "$2b$12$…",
+  "reset_token": "9f2c…"
+}
+```
+
+</Code>
+
+<Code caption="Resposta fechada">
+
+```
+HTTP/1.1 200 OK
+Content-Security-Policy: script-src 'self' 'nonce-…' 'strict-dynamic'; frame-ancestors 'self'
+Strict-Transport-Security: max-age=63072000; includeSubDomains
+X-Content-Type-Options: nosniff
+
+{ "id": 7, "name": "Alice", "email": "alice@lab.local" }
+```
+
+</Code>
+
+<Callout tone="dev">
+
+A lista de campos mora no servidor, como uma lista permitida: a rota escolhe o que sai, em vez de devolver o registro e torcer para a tela ignorar o resto.
+
+</Callout>

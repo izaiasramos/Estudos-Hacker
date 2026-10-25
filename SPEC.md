@@ -1,7 +1,7 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.26  
+**Versão:** 0.27  
 **Data:** 2026-10-08  
 **Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
@@ -752,17 +752,18 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [x] Conteúdo em MDX: o texto de cada unidade mora em `src/content/<trilha>/<unidade>.mdx` (`@next/mdx`), com os componentes `<Callout tone="...">`, `<Glossary term="..." text="..." />` e `<Code caption="...">` com bloco ``` dentro (`src/mdx-components.tsx`). Título, resumo, tipo e quiz continuam em `src/content/<trilha>.ts`, porque a nota é calculada no servidor a partir deles. `npm test` confere que toda unidade tem `.mdx`, que ele compila e que só usa componentes conhecidos.
 - [x] Admin mínimo (11.3) em `/admin`, só para `role = 'admin'`; para os outros a página e `POST /api/admin/lab/stop` respondem 404. Mostra contas, quem passou pelas regras, quem estudou em 7 dias, o funil por trilha (começaram, chegaram ao lab, lab fechado, taxa do lab e selos, só em contagem agregada) e os labs no ar, com botão para derrubar (mais de 60 min aparece como possível zumbi). Publicar é pelo Git: `status: "rascunho"` na entrada de `TRAILS` esconde a trilha de quem não é admin (páginas 404, quiz, leitura e lab recusados, e ela sai de início, perfil, time e "Próxima trilha"). Papel muda só por script: `DATABASE_URL=... node scripts/set-role.mjs <email> admin`.
 - [x] Vitest na lógica pura: checkers dos labs, nota do quiz, streak, desbloqueio, regra do selo, nível, limite de login, acesso de admin/rascunho, funil e o conteúdo MDX de todas as unidades. Comando: `npm test`.
-- [x] Playwright no app: landing, cadastro, regras, trilha SQL, trilha de controle de acesso até o selo e perfil (nome, reduzir movimento, exclusão). Comando: `npm run test:e2e` (Postgres + build).
+- [x] Playwright no app: landing, cadastro, regras, trilha SQL, trilhas de controle de acesso e de headers até o selo e perfil (nome, reduzir movimento, exclusão). Comando: `npm run test:e2e` (sobe o Postgres; app na porta 3100). Cada teste apaga a conta que criou, pelo próprio app.
 - [x] Cenas da seção 15.4: traço de luz na aresta até o nó atual (arestas concluídas acesas, nó atual com anel pulsando), quiz certo assenta com borda lima e quiz errado faz shake de 6px uma vez, boot do lab em três etapas ("isolando rede", "subindo app", "pronto") que avançam com marcos reais: resposta do servidor e carga do iframe. Sem JavaScript, o botão faz o POST normal.
 - [x] Trilha **Autenticação quebrada e senhas** (`/trilha/autenticacao`): teoria, quiz, lab de endurecimento de login e selo `selo-autenticacao`.
 - [x] Trilha **XSS** (`/trilha/xss`): refletido/armazenado, lab de defesa (escape, CSP, DOM seguro, sanitizar) e selo `selo-xss`.
 - [x] Trilha **CSRF** (`/trilha/csrf`): pedido forjado, lab (token, SameSite, Origin, POST) e selo `selo-csrf`.
 - [x] Trilha **Phishing interno** (`/trilha/phishing`): sinais, classificação de e-mails fictícios, defesas de produto e selo `selo-phishing` (sem clone de login nem kits de ataque).
 - [x] Trilha **Controle de acesso (IDOR)** (`/trilha/controle-acesso`): autenticação vs. autorização, onde o controle some (interface, rota escondida, UUID, mass assignment), sintomas na consulta, lab de regra de acesso dos pedidos e selo `selo-controle-acesso`. O lab mostra o que a Alice receberia; UUID sozinho não passa no checker.
-- [ ] Próximas trilhas, nesta ordem: exposição de dados e headers de segurança (7.2, item 8). SSRF e upload ficam para depois.
-- [ ] A plataforma ainda não manda headers de segurança próprios (CSP, HSTS, `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`). A seção 21 pede que ela aplique o que ensina; entra junto com a trilha de headers.
-- [ ] Barra fixa “Marcar como lida / Ir ao quiz” cobre o fim do conteúdo em unidades curtas (vista em `controle-acesso/idor-sintomas`). Precisa de espaço no fim do artigo ou de deixar de ser fixa perto do quiz.
-- [ ] E2E não apagam as contas `e2e-…@shieldpath.test` que criam. No CI o banco é descartado; no Postgres local elas acumulam.
+- [x] Trilha **Exposição de dados e headers** (`/trilha/headers`): resposta que fala demais (campos sobrando, pilha de erro, `X-Powered-By`), CSP com nonce, HSTS, `frame-ancestors`, nosniff, lab da resposta do perfil (painel mostra o que a Alice recebe; `'unsafe-inline'` e headers sem tirar os campos não passam) e selo `selo-headers`.
+- [ ] Próximas trilhas: SSRF e upload inseguro (7.2, item 9).
+- [x] Headers de segurança na própria plataforma (seção 21): `src/proxy.ts` manda CSP com nonce novo por resposta (`script-src` só com nonce e `strict-dynamic`, `frame-ancestors 'self'`, `object-src 'none'`) e HSTS sobre HTTPS; `next.config.ts` manda `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` e COOP em toda resposta e desliga `X-Powered-By`. Conferido no navegador: nenhuma violação de CSP em landing, início, unidades, quiz, lab no iframe, perfil e time.
+- [x] Barra “Marcar como lida / Ir ao quiz” fica entre o texto e o quiz: fixa durante a leitura, sem cobrir o fim do conteúdo. Crases em título, pergunta e alternativa do quiz viram código inline.
+- [x] Ambiente local num comando: `npm run dev` sobe o Postgres do Compose (se o `DATABASE_URL` for local), espera o healthcheck e então o app. O container tem `restart: unless-stopped`. Stacks e fluxos documentados em `docs/stacks.md`.
 - [ ] Aprovação obrigatória de outra pessoa no pull request (opcional; hoje só o check verde é exigido).
 
 #### Decisões em aberto
@@ -809,7 +810,7 @@ Já decidido e no código:
 
 - Lab embutido no próprio app (`/lab/pizzaria`), que roda na Vercel. Docker ou processo Node em `127.0.0.1` só com `LAB_RUNTIME=local`. Não há orquestrador elástico.
 - Editor de defesa no browser. O servidor não executa o código enviado.
-- Trilhas no ar: SQL Injection, Sessão, Autenticação, XSS, CSRF, Phishing interno, Controle de acesso (IDOR).
+- Trilhas no ar: SQL Injection, Sessão, Autenticação, XSS, CSRF, Phishing interno, Controle de acesso (IDOR), Exposição de dados e headers.
 - Ranking só dentro do time, com nome, nota e tentativas.
 - Conteúdo: texto em MDX no Git; metadados e quiz em TypeScript. Publicar é PR.
 

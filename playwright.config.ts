@@ -1,10 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = 3000;
+// Porta própria dos E2E, para não reaproveitar outro app (ou o npm run dev) aberto na 3000.
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
 
 export default defineConfig({
   testDir: "e2e",
+  // Uma trilha inteira leva ~10 s numa máquina folgada; em máquina carregada passa de 30 s.
+  timeout: 60_000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

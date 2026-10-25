@@ -1,6 +1,6 @@
 # ShieldPath
 
-Trilha gamificada de segurança para devs júnior. A spec do produto está em `SPEC.md`.
+Trilha gamificada de segurança para devs júnior. A spec do produto está em `SPEC.md`. Cada stack, onde ela roda e o fluxo para ela funcionar estão em [`docs/stacks.md`](docs/stacks.md).
 
 ## Stack
 
@@ -56,7 +56,6 @@ Dentro da pasta:
 cd Estudos-Hacker
 cp .env.example .env
 npm install
-docker compose up -d
 npm run dev
 ```
 
@@ -64,14 +63,15 @@ O que cada comando faz:
 
 1. `cp .env.example .env` cria o arquivo local de configuração. O Next lê o `.env`. Ele não lê o `.env.example`.
 2. `npm install` baixa Next, React e o resto para `node_modules`, nas versões do `package-lock.json`.
-3. `docker compose up -d` sobe o Postgres em segundo plano, na porta `5432`, com usuário, senha e banco `shieldpath`. Os dados ficam no volume Docker `shieldpath-pg`.
-4. `npm run dev` sobe o app. O terminal mostra a URL. Em geral é `http://localhost:3000`. Se essa porta estiver ocupada, o Next escolhe outra e escreve o número na saída.
+3. `npm run dev` sobe tudo. Primeiro o Postgres, pelo Docker Compose, na porta `5432`, com usuário, senha e banco `shieldpath`, e espera o banco responder. Depois o app. O terminal mostra a URL. Em geral é `http://localhost:3000`. Se essa porta estiver ocupada, o Next escolhe outra e escreve o número na saída.
+
+Os dados ficam no volume Docker `shieldpath-pg`. O container volta sozinho quando o Docker reinicia. Se o `DATABASE_URL` apontar para um banco fora da máquina, o `npm run dev` não sobe container nenhum.
 
 Abra essa URL, crie uma conta com e-mail e senha e aceite as regras. As tabelas nascem sozinhas na primeira requisição que usa o banco.
 
 `npm run db:import` não faz parte da instalação de quem clona. Esse comando só copia um SQLite antigo (`data/shieldpath.db`) quando esse arquivo existe e o Postgres ainda está vazio.
 
-Para parar o banco: `docker compose stop`. Para subir de novo: `docker compose up -d`. Para ver se o container está de pé: `docker compose ps`.
+Para parar o banco: `npm run db:stop`. Para subir só o banco: `npm run db:up`. Para ver o log: `npm run db:logs`. Para ver se o container está de pé: `docker compose ps`.
 
 O laboratório da pizzaria (unidade 6 da trilha SQL) abre em `/lab/pizzaria`, no mesmo site. Funciona na Vercel sem Docker extra. Se quiser o container isolado na máquina, coloque `LAB_RUNTIME=local` no `.env`.
 
@@ -112,9 +112,10 @@ npx tsc --noEmit
 npm test
 ```
 
-Smoke E2E (opcional antes do PR; exige Postgres, por exemplo `docker compose up -d`, e um `npm run build`):
+E2E (opcional antes do PR). O comando sobe o Postgres sozinho e o app na porta 3100. Na primeira vez, instale o navegador com `npx playwright install chromium`:
 
 ```bash
+npm run build
 npm run test:e2e
 ```
 
@@ -160,6 +161,7 @@ O primeiro commit de um pull request pode ficar vermelho no histórico. O que im
 | `docker: command not found` ou daemon desligado | Instale o Docker e deixe o serviço rodando. Teste de novo com `docker compose version`. |
 | `DATABASE_URL ausente` | Falta o `.env`. Rode `cp .env.example .env` na raiz do repo. |
 | Porta `5432` ocupada | Já existe outro Postgres nessa porta. Pare o outro serviço ou mude a porta no `docker-compose.yml` e no `DATABASE_URL`. |
+| Login ou página com erro 500, e `ECONNREFUSED 127.0.0.1:5432` no terminal | O Postgres está parado. Rode `npm run db:up` (o `npm run dev` já faz isso ao iniciar). |
 | `Permission denied (publickey)` no clone SSH | Use o clone HTTPS, ou cadastre uma chave SSH na sua conta GitHub. |
 | Push no `main` recusado | Crie uma branch a partir do `main` e abra o pull request. |
 | Check do CI vermelho | Abra **Details**, leia o passo vermelho, corrija e envie outro commit na mesma branch. |
@@ -170,7 +172,10 @@ O primeiro commit de um pull request pode ficar vermelho no histórico. O que im
 | --- | --- |
 | `src/app` | Páginas e rotas de API |
 | `src/components` | Interface |
-| `src/content` | Texto e questões das trilhas |
+| `src/content` | Trilhas: metadados e quiz em `.ts`, texto em `<trilha>/*.mdx` |
+| `src/proxy.ts` | CSP com nonce e HSTS em toda página |
+| `scripts` | Subir o banco, mudar papel de conta, importar SQLite antigo |
+| `docs/stacks.md` | Stacks e fluxos |
 | `src/lib` | Sessão, banco, progresso, time e laboratório |
 | `labs/pizzaria` | App fictício do laboratório |
 | `.github/workflows/ci.yml` | O check que o pull request dispara |

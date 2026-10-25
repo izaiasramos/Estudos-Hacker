@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AuthHardeningLab } from "@/components/auth-hardening-lab";
 import { CsrfDefenseLab } from "@/components/csrf-defense-lab";
 import { DefenseEditor } from "@/components/defense-editor";
+import { HeadersDefenseLab } from "@/components/headers-defense-lab";
 import { IdorDefenseLab } from "@/components/idor-defense-lab";
 import { LabDesk } from "@/components/lab-desk";
 import { OrdersPreview } from "@/components/orders-preview";
@@ -48,6 +49,7 @@ const LABS: Record<string, (ctx: LabContext) => LabSlots> = {
     afterBlocks: <PhishingInboxLab done={ctx.done} missing={ctx.missing} />,
   }),
   "idor-lab": (ctx) => ({ afterBlocks: <IdorDefenseLab done={ctx.done} missing={ctx.missing} /> }),
+  "headers-lab": (ctx) => ({ afterBlocks: <HeadersDefenseLab done={ctx.done} missing={ctx.missing} /> }),
 };
 
 export function labSlots(unitId: string, ctx: LabContext): LabSlots {

@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test";
-import { PASSWORD, signUpAndAcceptRules } from "./helpers";
+import { expect } from "@playwright/test";
+import { PASSWORD, test } from "./helpers";
 
-test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page }) => {
-  const email = await signUpAndAcceptRules(page, "e2e-perfil");
+test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page, account }) => {
+  const { email } = account;
 
   await page.goto("/perfil");
-  await expect(page.getByRole("heading", { name: "Selos · 0 de 7" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Selos · 0 de 8" })).toBeVisible();
 
   await page.getByLabel("Nome", { exact: true }).fill("Ana Teste");
   await page.getByRole("button", { name: "Salvar nome" }).click();
@@ -34,6 +34,7 @@ test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page }) =>
   await expect(page).toHaveURL(/\/\?conta=excluida/);
   await expect(page.getByRole("status").filter({ hasText: "Conta excluída" })).toBeVisible();
 
+  account.email = ""; // já apagada pelo próprio teste
   await page.goto("/perfil");
   await expect(page).toHaveURL(/\/entrar/);
 });

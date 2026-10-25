@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 
 export const PASSWORD = "SenhaE2eShield1!";
 
@@ -11,6 +11,7 @@ export async function signUpAndAcceptRules(page: Page, prefix = "e2e") {
   await page.getByLabel("Senha").fill(PASSWORD);
   await page.getByRole("button", { name: "Criar conta" }).click();
   await expect(page).toHaveURL(/\/regras/);
+  await expect(page.getByRole("heading", { name: "Regras do jogo" })).toBeVisible();
 
   await page.getByRole("radio", { name: "Só no laboratório da plataforma" }).check();
   await page.getByRole("radio", { name: "Depois de fechar o buraco na defesa" }).check();
@@ -31,3 +32,28 @@ export async function answerQuiz(page: Page, choices: (string | RegExp)[], texts
   }
   await page.getByRole("button", { name: "Enviar respostas" }).click();
 }
+
+/**
+ * Apaga a conta pelo próprio app (POST /api/perfil/excluir), com a sessão da página.
+ * Assim o teste não precisa de acesso ao banco e o Postgres local não acumula contas `e2e-…`.
+ */
+export async function deleteAccount(page: Page, email: string) {
+  const origin = new URL(page.url() || "http://localhost:3000").origin;
+  const response = await page.request.post("/api/perfil/excluir", {
+    form: { email, password: PASSWORD },
+    headers: { Origin: origin },
+    maxRedirects: 0,
+  });
+  return response.status() === 303 && (response.headers().location ?? "").includes("conta=excluida");
+}
+
+/** `test` com uma conta nova já nas regras aceitas, apagada no fim mesmo se o teste falhar. */
+export const test = base.extend<{ account: { email: string } }>({
+  account: async ({ page }, provide) => {
+    const email = await signUpAndAcceptRules(page);
+    const account = { email };
+    await provide(account);
+    // Se o próprio teste já apagou a conta (perfil), não sobra nada para limpar.
+    if (account.email) await deleteAccount(page, account.email);
+  },
+});
