@@ -26,7 +26,7 @@ test("trilha de SSRF até o selo", async ({ page, account }) => {
   await expect(page.getByRole("alert").filter({ hasText: "Recuse IP interno" })).toBeVisible();
 
   await page.getByRole("checkbox", { name: /Lista permitida de esquema/ }).check();
-  await page.getByRole("checkbox", { name: /Resolver o nome e recusar IP interno/ }).check();
+  await page.getByRole("checkbox", { name: /Resolver o nome pelo sistema de nomes de domínio/ }).check();
   await page.getByRole("checkbox", { name: /Não seguir redirect/ }).check();
   await page.getByRole("checkbox", { name: /Devolver só o resumo/ }).check();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
@@ -34,7 +34,7 @@ test("trilha de SSRF até o selo", async ({ page, account }) => {
 
   const rail = page.getByRole("navigation", { name: "Unidades da trilha" }).first();
   await rail.getByRole("link", { name: /Checkpoint\s*agora/ }).click();
-  await answerQuiz(page, [/Esquema permitido, IP resolvido/, /Rodar quem busca URLs/, "Depois do lab e deste checkpoint"]);
+  await answerQuiz(page, [/todos os IPs resolvidos validados.*conexão no IP aprovado.*redirect rechecado/, /Rodar quem busca URLs/, "Depois do lab e deste checkpoint"]);
   await expect(page).toHaveURL(/\/trilha\/ssrf\/selo/);
   await expect(page.getByText(/Emitido em/)).toBeVisible();
 });
@@ -46,7 +46,7 @@ test("trilha de upload inseguro até o selo", async ({ page, account }) => {
   await page.getByRole("link", { name: "Continuar — Arquivo não é só arquivo" }).click();
   await answerQuiz(page, [/O servidor guardar ou servir o arquivo/, /Não\. Esse valor é escrito pelo cliente/, /Ao abrir o link/]);
   await page.getByRole("link", { name: "Seguir — Nome, conteúdo e entrega" }).click();
-  await answerQuiz(page, [/Nome do usuário pode trazer/, /Não\. Extensão é texto do cliente/, /De outro domínio/]);
+  await answerQuiz(page, [/Nome do usuário pode trazer/, /Não\. Extensão é texto do cliente/, /De uma origem separada/]);
   await page.getByRole("link", { name: "Seguir — Sintomas no código" }).click();
   await answerQuiz(page, [/path\.join\("public\/uploads", file\.name\)/, /Sem limite, um arquivo gigante/, /Recusar SVG ou convertê-lo/], {
     "Em uma frase: por que nome, tipo e tamanho são decididos pelo servidor?":
@@ -58,7 +58,7 @@ test("trilha de upload inseguro até o selo", async ({ page, account }) => {
   await page.getByRole("checkbox", { name: /Aceitar só se o Content-Type/ }).check();
   await page.getByRole("checkbox", { name: /Gerar o nome no servidor/ }).check();
   await page.getByRole("checkbox", { name: /Limite de tamanho/ }).check();
-  await page.getByRole("checkbox", { name: /Servir de outro domínio/ }).check();
+  await page.getByRole("checkbox", { name: /Servir por uma origem separada/ }).check();
   await page.getByRole("radio", { name: "Recusar SVG" }).check();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Confira a assinatura do conteúdo" })).toBeVisible();
@@ -66,7 +66,7 @@ test("trilha de upload inseguro até o selo", async ({ page, account }) => {
   await page.getByRole("checkbox", { name: /Conferir a assinatura do conteúdo/ }).check();
   await page.getByRole("checkbox", { name: /Gerar o nome no servidor/ }).check();
   await page.getByRole("checkbox", { name: /Limite de tamanho/ }).check();
-  await page.getByRole("checkbox", { name: /Servir de outro domínio/ }).check();
+  await page.getByRole("checkbox", { name: /Servir por uma origem separada/ }).check();
   await page.getByRole("radio", { name: "Converter SVG para PNG no servidor" }).check();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
   await expect(page.getByText("O nome salvo é gerado no servidor.")).toBeVisible();
