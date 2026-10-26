@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { InlineCode } from "@/components/inline-code";
+import { OrderActivity } from "@/components/learning-activity";
 import { labSlots } from "@/components/unit-lab";
 import { UnitRail } from "@/components/unit-rail";
 import { UnitScene } from "@/components/unit-scenes";
@@ -69,27 +70,27 @@ export default async function UnitPage({
   });
 
   return (
-    <div className="relative isolate flex min-h-full flex-col">
+    <div className="relative isolate flex min-h-full max-w-full flex-col overflow-x-clip">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[520px]" />
       <SiteHeader />
-      <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-6 sm:px-8">
-        <div className="mb-6 flex gap-2 overflow-x-auto lg:hidden">
+      <div className="relative mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col px-4 py-6 sm:px-8">
+        <div className="mb-6 w-full min-w-0 max-w-full lg:hidden">
           <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
         </div>
-        <div className="grid flex-1 gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="grid min-w-0 flex-1 gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="sticky top-6 hidden self-start lg:block">
             <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
           </aside>
           <article
-            className={`mx-auto w-full rounded-[16px] border border-white/10 bg-surface/80 px-5 py-8 sm:px-8 ${
+            className={`mx-auto min-w-0 w-full overflow-hidden rounded-[20px] border border-line bg-surface/90 px-5 py-8 shadow-[0_24px_70px_rgba(0,0,0,0.2)] sm:px-9 sm:py-10 ${
               lab.wide ? "max-w-3xl" : "max-w-[68ch]"
             }`}
           >
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+            <p className="text-sm font-semibold text-accent">
               Unidade {unit.order} · {status}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight"><InlineCode text={unit.title} /></h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted"><InlineCode text={unit.summary} /></p>
+            <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl"><InlineCode text={unit.title} /></h1>
+            <p className="mt-4 text-base leading-7 text-muted"><InlineCode text={unit.summary} /></p>
             {learningPath ? (
               <div className="mt-5 rounded-[16px] border border-white/10 bg-ink/40 p-4">
                 <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">Jornada {LEARNING_LEVEL_LABELS[learningPath.level].name}</p>
@@ -150,7 +151,7 @@ async function Blocks({
 
   return (
     <>
-      <div className="mt-8 space-y-4 text-[15px] leading-7 text-text/90">
+      <div className="mt-8 space-y-5 text-base leading-8 text-text">
         <Body />
       </div>
       <UnitScene scene={scene} />
@@ -192,11 +193,18 @@ function Quiz({
   return (
     <section
       id="quiz"
-      className={`mt-10 scroll-mt-24 border-t border-white/10 pt-8 ${
-        passedNow ? "quiz-settle" : wrong.size > 0 ? "quiz-shake" : ""
+      className={`quiz-shell mt-12 scroll-mt-24 rounded-[24px] border border-line-strong bg-ink/55 p-5 sm:p-7 ${
+        passedNow ? "quiz-settle" : wrong.size > 0 ? "border-danger/50" : ""
       }`}
     >
-      <h2 className="text-lg font-semibold tracking-tight">{quizHeading(unit)}</h2>
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="grid size-11 place-items-center rounded-2xl bg-accent/10 text-xl text-accent">⌁</span>
+        <div>
+          <p className="text-sm font-semibold text-accent">Central de treinamento</p>
+          <h2 className="mt-0.5 text-2xl font-semibold tracking-tight">{quizHeading(unit)}</h2>
+        </div>
+      </div>
+      {!passedNow && wrong.size === 0 && !done ? <p className="mt-4 text-base leading-7 text-muted">Complete as atividades para confirmar o que aprendeu. Você pode revisar e tentar novamente.</p> : null}
       {passedNow ? (
         <p className="mt-3 text-sm leading-relaxed text-defense" role="status">
           {practice ? `${score}% — prática concluída. Seu XP, status e nota oficial não mudaram.` : `${score}% — esta unidade ficou para trás.`}
@@ -221,12 +229,21 @@ function Quiz({
         <form action="/api/trilha/quiz" method="post" className="mt-6 space-y-8">
           <input type="hidden" name="unit" value={unit.id} />
           {practice ? <input type="hidden" name="practice" value="1" /> : null}
-          {unit.questions.map((question) => {
+          {unit.questions.map((question, questionIndex) => {
             const picked = wrong.get(question.id);
+            if (question.kind === "order") {
+              return (
+                <div key={question.id} className="quiz-question rise" style={{ animationDelay: `${questionIndex * 70}ms` }}>
+                  <p className="mb-3 text-sm font-semibold text-info">Atividade {questionIndex + 1} de {unit.questions.length} · Organizar</p>
+                  <OrderActivity question={question} feedback={picked !== undefined ? question.explain : undefined} />
+                </div>
+              );
+            }
             if (question.kind === "text") {
               return (
-                <div key={question.id}>
-                  <label htmlFor={question.id} className="text-sm font-medium">
+                <div key={question.id} className="quiz-question rise rounded-[20px] border border-line bg-surface/70 p-4 sm:p-5" style={{ animationDelay: `${questionIndex * 70}ms` }}>
+                  <p className="mb-3 text-sm font-semibold text-info">Atividade {questionIndex + 1} de {unit.questions.length} · Resposta curta</p>
+                  <label htmlFor={question.id} className="text-base font-semibold leading-6">
                     <InlineCode text={question.prompt} />
                   </label>
                   <textarea
@@ -235,7 +252,7 @@ function Quiz({
                     required
                     minLength={question.min}
                     rows={4}
-                    className="mt-3 w-full rounded-[16px] border border-white/10 bg-ink px-4 py-3 text-sm outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+                    className="mt-3 w-full rounded-[16px] border border-line-strong bg-ink px-4 py-3 text-base leading-7 outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
                   />
                   {picked !== undefined ? (
                     <p className="mt-2 text-sm leading-relaxed text-danger"><InlineCode text={question.explain} /></p>
@@ -245,19 +262,19 @@ function Quiz({
             }
             const choices = shuffleChoices(question.choices, attempts + 1);
             return (
-              <fieldset key={question.id} className="space-y-3">
-                <legend className="text-sm font-medium"><InlineCode text={question.prompt} /></legend>
+              <fieldset key={question.id} className="quiz-question rise space-y-3 rounded-[20px] border border-line bg-surface/70 p-4 sm:p-5" style={{ animationDelay: `${questionIndex * 70}ms` }}>
+                <legend className="px-2 text-base font-semibold leading-6"><span className="mb-2 block text-sm font-semibold text-info">Atividade {questionIndex + 1} de {unit.questions.length} · Escolher</span><InlineCode text={question.prompt} /></legend>
                 {choices.map((choice) => (
                   <label
                     key={choice.id}
-                    className="flex items-start gap-3 rounded-[16px] border border-white/10 bg-ink/40 px-4 py-3 text-sm"
+                    className="quiz-choice flex min-h-14 cursor-pointer items-start gap-3 rounded-[16px] border border-line-strong bg-ink/70 px-4 py-3 text-base leading-6 transition hover:border-accent/50 hover:bg-accent/[0.04] has-[:checked]:border-accent has-[:checked]:bg-accent/10"
                   >
                     <input
                       type="radio"
                       name={question.id}
                       value={choice.id}
                       required
-                      className="mt-1 accent-[#d6ff4a]"
+                      className="mt-1 size-5 shrink-0 accent-[#d6ff4a]"
                     />
                     <span><InlineCode text={choice.label} /></span>
                   </label>
@@ -302,19 +319,19 @@ function ReadBar({ unitId, hasQuiz }: { unitId: string; hasQuiz: boolean }) {
     <form
       action="/api/trilha/ler"
       method="post"
-      className="sticky bottom-4 z-10 mt-8 flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-ink px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
+      className="sticky bottom-3 z-10 mt-8 grid w-full gap-2 rounded-[20px] border border-line-strong bg-ink/95 p-3 shadow-[0_8px_30px_rgba(0,0,0,0.55)] backdrop-blur sm:flex sm:items-center sm:rounded-full"
     >
       <input type="hidden" name="unit" value={unitId} />
       <button
         type="submit"
-        className="inline-flex h-10 items-center rounded-full px-4 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="inline-flex h-11 items-center justify-center rounded-full px-4 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         Marcar como lida
       </button>
       {hasQuiz ? (
         <a
           href="#quiz"
-          className="inline-flex h-10 items-center rounded-full bg-accent px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+          className="inline-flex h-11 items-center justify-center rounded-full bg-accent px-4 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
         >
           Ir ao quiz
         </a>

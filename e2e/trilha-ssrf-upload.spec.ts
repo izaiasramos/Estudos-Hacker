@@ -44,7 +44,16 @@ test("trilha de upload inseguro até o selo", async ({ page, account }) => {
 
   await page.goto("/trilha/upload");
   await page.getByRole("link", { name: "Continuar — Arquivo não é só arquivo" }).click();
-  await answerQuiz(page, [/O servidor guardar ou servir o arquivo/, /Não\. Esse valor é escrito pelo cliente/, /Ao abrir o link/]);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await expect(page.getByRole("navigation", { name: "Unidades da trilha" }).first()).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const deliverDown = page.getByRole("button", { name: /Mover Entregar por uma origem isolada para baixo/ });
+  await deliverDown.click();
+  await deliverDown.click();
+  await deliverDown.click();
+  await page.getByRole("button", { name: /Mover Validar tamanho, tipo e conteúdo para cima/ }).click();
+  await answerQuiz(page, [/Não\. Esse valor é escrito pelo cliente/, /Ao abrir o link/]);
   await page.getByRole("link", { name: "Seguir — Nome, conteúdo e entrega" }).click();
   await answerQuiz(page, [/Nome do usuário pode trazer/, /Não\. Extensão é texto do cliente/, /De uma origem separada/]);
   await page.getByRole("link", { name: "Seguir — Sintomas no código" }).click();

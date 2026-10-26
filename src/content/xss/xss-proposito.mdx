@@ -10,6 +10,8 @@ Imagine um mural que deveria apenas exibir bilhetes. XSS acontece quando o mural
 
 Mesmo um cookie `HttpOnly`, que não pode ser lido diretamente por JavaScript, não encerra o problema. Um script na página ainda pode alterar a interface, ler dados visíveis e disparar ações que o navegador autoriza para a sessão atual.
 
+<InlineMission id="xss-caca-codigo" />
+
 <Glossary term={"Contexto de saída"} text={"O lugar onde um valor será inserido: texto HTML, atributo, URL ou JavaScript. Cada contexto exige tratamento próprio; escapar para um contexto não protege automaticamente os outros."} />
 
 A pergunta que guiará a investigação é simples: **em que ponto o aplicativo deixou de tratar a entrada como dado e passou a tratá-la como código?**

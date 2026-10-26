@@ -19,6 +19,14 @@ export type Question =
       min: number;
       stems: string[];
       explain: string;
+    }
+  | {
+      kind: "order";
+      id: string;
+      prompt: string;
+      items: { id: string; label: string }[];
+      correctOrder: string[];
+      explain: string;
     };
 
 export type UnitKind = "theory" | "exercise" | "checkpoint" | "lab";

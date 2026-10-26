@@ -2,172 +2,58 @@
 
 import { motion, useReducedMotionConfig } from "motion/react";
 
-const PATH =
-  "M 18 16 C 40 14, 58 20, 74 28 C 96 39, 46 44, 28 58 C 12 71, 46 76, 72 84";
-
-const NODES = [
-  {
-    id: "etica",
-    label: "Ética",
-    status: "agora",
-    state: "now" as const,
-    x: 18,
-    y: 16,
-    flip: false,
-  },
-  {
-    id: "sqli",
-    label: "SQL Injection",
-    status: "bloqueada",
-    state: "locked" as const,
-    x: 74,
-    y: 28,
-    flip: true,
-  },
-  {
-    id: "defesa",
-    label: "Defesa",
-    status: "bloqueada",
-    state: "locked" as const,
-    x: 28,
-    y: 58,
-    flip: false,
-  },
-  {
-    id: "selo",
-    label: "Selo",
-    status: "bloqueada",
-    state: "goal" as const,
-    x: 72,
-    y: 84,
-    flip: true,
-  },
-];
+const STEPS = [
+  { index: "01", title: "Compreenda", detail: "Conceito e contexto", tone: "accent" },
+  { index: "02", title: "Experimente", detail: "Laboratório seguro", tone: "info" },
+  { index: "03", title: "Corrija", detail: "Código e testes", tone: "defense" },
+  { index: "04", title: "Evolua", detail: "Progresso reconhecido", tone: "accent" },
+] as const;
 
 export function TrailMap() {
-  // Respeita o MotionConfig do layout (preferência do perfil) e o prefers-reduced-motion do sistema.
-  const reduce = useReducedMotionConfig();
-  const still = reduce === true;
+  const reduce = useReducedMotionConfig() === true;
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[520px]">
-      <svg
-        viewBox="0 0 100 100"
-        className="absolute inset-0 h-full w-full overflow-visible"
-        aria-hidden
-      >
-        <defs>
-          <linearGradient id="trail-stroke" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#d6ff4a" />
-            <stop offset="100%" stopColor="#3ee0b0" />
-          </linearGradient>
-          <filter id="trail-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.2" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        <motion.path
-          d={PATH}
-          fill="none"
-          stroke="rgba(244,241,234,0.16)"
-          strokeWidth="0.7"
-          strokeLinecap="round"
-          initial={{ pathLength: still ? 1 : 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: still ? 0 : 1.05, ease: "easeInOut" }}
-        />
-        <motion.path
-          d={PATH}
-          fill="none"
-          stroke="url(#trail-stroke)"
-          strokeWidth="0.9"
-          strokeLinecap="round"
-          filter="url(#trail-glow)"
-          initial={{ pathLength: still ? 1 : 0, opacity: still ? 0.95 : 0.2 }}
-          animate={{ pathLength: 1, opacity: 0.95 }}
-          transition={{ duration: still ? 0 : 1.05, ease: "easeInOut" }}
-        />
-      </svg>
+    <figure className="relative mx-auto w-full max-w-[520px] overflow-hidden rounded-[28px] border border-line-strong bg-[linear-gradient(145deg,rgba(26,29,40,0.96),rgba(12,14,21,0.96))] p-5 shadow-[0_32px_90px_rgba(0,0,0,0.38)] sm:p-7">
+      <div aria-hidden className="absolute -right-20 -top-20 size-56 rounded-full bg-info/10 blur-3xl" />
+      <div aria-hidden className="absolute -bottom-20 -left-20 size-56 rounded-full bg-accent/10 blur-3xl" />
+      <figcaption className="relative flex items-start justify-between gap-4 border-b border-line pb-5">
+        <div>
+          <p className="text-sm font-semibold text-info">Uma trilha completa</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight">Você aprende fazendo</h2>
+        </div>
+        <span className="rounded-full border border-defense/25 bg-defense/10 px-3 py-1 text-xs font-semibold text-defense">Ambiente seguro</span>
+      </figcaption>
 
-      <ol className="absolute inset-0">
-        {NODES.map((node) => (
-          <li
-            key={node.id}
-            className="absolute"
-            style={{ left: `${node.x}%`, top: `${node.y}%` }}
+      <ol className="relative mt-6 space-y-3" aria-label="Etapas da experiência de aprendizagem">
+        {STEPS.map((step, index) => (
+          <motion.li
+            key={step.index}
+            initial={reduce ? false : { opacity: 0, x: 14 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: reduce ? 0 : 0.42, delay: reduce ? 0 : index * 0.1 }}
+            className="group relative flex items-center gap-4 rounded-2xl border border-line bg-ink/55 p-4"
           >
-            <div className="-translate-x-1/2 -translate-y-1/2">
-              <NodeMark
-                state={node.state}
-                label={node.label}
-                status={node.status}
-                flip={node.flip}
-              />
-            </div>
-          </li>
+            {index < STEPS.length - 1 ? <span aria-hidden className="absolute left-[2.05rem] top-[3.55rem] h-6 w-px bg-gradient-to-b from-line-strong to-transparent" /> : null}
+            <span className={`grid size-10 shrink-0 place-items-center rounded-xl border font-mono text-sm font-bold ${toneClasses[step.tone]}`}>{step.index}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold text-text">{step.title}</span>
+              <span className="mt-0.5 block text-sm text-muted">{step.detail}</span>
+            </span>
+            <span aria-hidden className="text-lg text-muted">→</span>
+          </motion.li>
         ))}
       </ol>
-    </div>
+
+      <div className="relative mt-5 flex items-center gap-3 rounded-2xl border border-accent/25 bg-accent/[0.07] p-4">
+        <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-accent font-bold text-ink">✓</span>
+        <p className="text-sm leading-5 text-text"><strong className="font-semibold">Resultado:</strong> você entende o risco e sabe aplicar a proteção.</p>
+      </div>
+    </figure>
   );
 }
 
-function NodeMark({
-  state,
-  label,
-  status,
-  flip,
-}: {
-  state: "now" | "locked" | "goal";
-  label: string;
-  status: string;
-  flip: boolean;
-}) {
-  const ring =
-    state === "now"
-      ? "border-accent bg-accent text-ink shadow-[0_0_24px_rgba(214,255,74,0.45)]"
-      : state === "goal"
-        ? "border-defense/70 bg-ink text-defense"
-        : "border-white/15 bg-surface text-muted";
-
-  return (
-    <div className={`flex items-center gap-3 ${flip ? "flex-row-reverse text-right" : ""}`}>
-      <span className="relative grid size-11 shrink-0 place-items-center">
-        {state === "now" ? (
-          <span
-            aria-hidden
-            className="pulse-ring absolute inset-0 rounded-full border border-accent"
-          />
-        ) : null}
-        <span
-          className={`relative grid size-11 place-items-center rounded-full border ${state === "goal" ? "border-dashed" : ""} ${ring}`}
-        >
-          {state === "now" ? (
-            <span className="size-2 rounded-full bg-ink" />
-          ) : (
-            <LockIcon />
-          )}
-        </span>
-      </span>
-      <span className="min-w-0 rounded-2xl border border-white/10 bg-ink/80 px-3 py-1.5 backdrop-blur-md">
-        <span className="block whitespace-nowrap text-sm font-medium tracking-tight text-text">
-          {label}
-        </span>
-        <span className="block font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
-          {status}
-        </span>
-      </span>
-    </div>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
-      <rect x="2.5" y="6" width="9" height="6.5" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M4.5 6V4.4a2.5 2.5 0 0 1 5 0V6" fill="none" stroke="currentColor" strokeWidth="1.2" />
-    </svg>
-  );
-}
+const toneClasses = {
+  accent: "border-accent/35 bg-accent/10 text-accent",
+  info: "border-info/35 bg-info/10 text-info",
+  defense: "border-defense/35 bg-defense/10 text-defense",
+};

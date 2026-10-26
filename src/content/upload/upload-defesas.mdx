@@ -4,6 +4,8 @@ Primeiro, imponha limite antes de carregar o arquivo inteiro. Depois, compare a 
 
 O nome salvo é gerado pelo servidor; o original, se necessário, fica apenas como texto. A entrega usa uma origem separada que não recebe cookies nem outras credenciais da aplicação — por exemplo, um armazenamento publicado por esse domínio isolado. Para conteúdo destinado a download, `Content-Disposition: attachment` pede ao navegador que baixe em vez de abrir. `X-Content-Type-Options: nosniff` ordena que o navegador respeite o Content-Type declarado, sem tentar adivinhar outro formato.
 
+<InlineMission id="upload-pipeline" />
+
 <Callout tone="armadilha">
 
 `accept="image/*"` ajuda a interface, e a extensão ajuda a orientar. Quem envia uma requisição direta pode alterar ambos; por isso não são critérios de segurança.

@@ -1,11 +1,13 @@
 import type { MDXComponents } from "mdx/types";
 import { Callout, Code, Glossary } from "@/components/content-blocks";
+import { InlineMission } from "@/components/inline-mission";
 
 // Componentes e estilos de todo .mdx do app (exigido pelo @next/mdx no App Router).
 const components = {
   Callout,
   Code,
   Glossary,
+  InlineMission,
   pre: (props) => (
     <pre
       {...props}

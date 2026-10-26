@@ -18,22 +18,17 @@ export const UNITS: Unit[] = [
     gate: true,
     questions: [
       {
-        kind: "choice",
-        id: "risco",
-        prompt: "Qual é o risco central de um upload inseguro?",
-        choices: [
-          {
-            id: "uso",
-            label: "O servidor guardar ou servir o arquivo de um jeito que o faz executar ou sobrescrever algo",
-            correct: true,
-            explain: "O arquivo só vira problema pelo que acontece depois: onde é salvo, com que nome e como é entregue.",
-          },
-          {
-            id: "espaco",
-            label: "Ocupar espaço no disco",
-            explain: "Espaço importa (por isso há limite de tamanho), mas o risco grave é o arquivo virar código ou página.",
-          },
+        kind: "order",
+        id: "caminho-seguro",
+        prompt: "Missão: coloque o caminho de um upload seguro na ordem",
+        items: [
+          { id: "entregar", label: "Entregar por uma origem isolada" },
+          { id: "receber", label: "Receber o arquivo em uma área temporária" },
+          { id: "salvar", label: "Salvar com um nome criado pelo servidor" },
+          { id: "validar", label: "Validar tamanho, tipo e conteúdo" },
         ],
+        correctOrder: ["receber", "validar", "salvar", "entregar"],
+        explain: "Primeiro isole o recebimento, depois valide o conteúdo. Só então salve com um nome seguro e entregue por uma origem separada.",
       },
       {
         kind: "choice",
