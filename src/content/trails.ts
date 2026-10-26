@@ -1,6 +1,8 @@
 import { TRAIL as authTrail, UNITS as authUnits } from "@/content/autenticacao";
 import { TRAIL as accessTrail, UNITS as accessUnits } from "@/content/controle-acesso";
 import { TRAIL as headersTrail, UNITS as headersUnits } from "@/content/headers";
+import { TRAIL as ssrfTrail, UNITS as ssrfUnits } from "@/content/ssrf";
+import { TRAIL as uploadTrail, UNITS as uploadUnits } from "@/content/upload";
 import { TRAIL as sqlTrail, UNITS as sqlUnits, type Unit } from "@/content/sql-injection";
 import { TRAIL as sessionTrail, UNITS as sessionUnits } from "@/content/sessao";
 import { TRAIL as csrfTrail, UNITS as csrfUnits } from "@/content/csrf";
@@ -142,6 +144,34 @@ export const TRAILS: Trail[] = [
       badge: "HDR",
       name: "Exposição de dados e headers",
       text: "A resposta do perfil só traz o que a tela usa, o erro sai genérico, a versão não aparece e o navegador recebe CSP com nonce, HSTS, nosniff e frame-ancestors.",
+      tone: "defense",
+    },
+  },
+  {
+    ...ssrfTrail,
+    sealId: "selo-ssrf",
+    units: ssrfUnits,
+    labUnitId: "ssrf-lab",
+    checkpointId: "ssrf-checkpoint",
+    sealPending: "O selo espera a prévia de link fechada no checker e o checkpoint.",
+    seal: {
+      badge: "SSRF",
+      name: "SSRF",
+      text: "A prévia de link só aceita HTTPS, confere o IP resolvido, não segue redirect sem checar e devolve só o resumo da página.",
+      tone: "accent",
+    },
+  },
+  {
+    ...uploadTrail,
+    sealId: "selo-upload",
+    units: uploadUnits,
+    labUnitId: "upload-lab",
+    checkpointId: "upload-checkpoint",
+    sealPending: "O selo espera o upload de avatar fechado no checker e o checkpoint.",
+    seal: {
+      badge: "UPL",
+      name: "Upload inseguro",
+      text: "O avatar tem o conteúdo conferido e reprocessado, nome gerado no servidor, limite de tamanho e entrega fora do domínio do app.",
       tone: "defense",
     },
   },

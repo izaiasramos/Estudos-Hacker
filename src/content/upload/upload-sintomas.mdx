@@ -1,0 +1,35 @@
+Em code review, o sintoma é uma rota que usa o que veio no pedido para decidir caminho, tipo e entrega. Compare a rota de avatar da Pizzaria do Lab antes e depois.
+
+<Code caption="Upload que confia no cliente (vulnerável)">
+
+```
+const file = form.get("avatar");
+const destino = path.join("public/uploads", file.name);
+await fs.writeFile(destino, Buffer.from(await file.arrayBuffer()));
+return Response.json({ url: `/uploads/${file.name}` });
+```
+
+</Code>
+
+<Code caption="Upload com as decisões no servidor">
+
+```
+const file = form.get("avatar");
+if (file.size > 2_000_000) return erro("tamanho");
+
+const bytes = Buffer.from(await file.arrayBuffer());
+if (!ehPngOuJpeg(bytes)) return erro("tipo");
+
+const png = await reprocessarImagem(bytes);
+const id = crypto.randomUUID();
+await storage.put(`avatars/${id}.png`, png, { contentType: "image/png" });
+return Response.json({ url: `https://arquivos.exemplo.com/avatars/${id}.png` });
+```
+
+</Code>
+
+<Callout tone="dev">
+
+O nome original, se a tela precisar, vai para o banco como texto. Ele nunca vira caminho.
+
+</Callout>

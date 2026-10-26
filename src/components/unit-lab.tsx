@@ -3,6 +3,8 @@ import { AuthHardeningLab } from "@/components/auth-hardening-lab";
 import { CsrfDefenseLab } from "@/components/csrf-defense-lab";
 import { DefenseEditor } from "@/components/defense-editor";
 import { HeadersDefenseLab } from "@/components/headers-defense-lab";
+import { SsrfDefenseLab } from "@/components/ssrf-defense-lab";
+import { UploadDefenseLab } from "@/components/upload-defense-lab";
 import { IdorDefenseLab } from "@/components/idor-defense-lab";
 import { LabDesk } from "@/components/lab-desk";
 import { OrdersPreview } from "@/components/orders-preview";
@@ -50,6 +52,8 @@ const LABS: Record<string, (ctx: LabContext) => LabSlots> = {
   }),
   "idor-lab": (ctx) => ({ afterBlocks: <IdorDefenseLab done={ctx.done} missing={ctx.missing} /> }),
   "headers-lab": (ctx) => ({ afterBlocks: <HeadersDefenseLab done={ctx.done} missing={ctx.missing} /> }),
+  "ssrf-lab": (ctx) => ({ afterBlocks: <SsrfDefenseLab done={ctx.done} missing={ctx.missing} /> }),
+  "upload-lab": (ctx) => ({ afterBlocks: <UploadDefenseLab done={ctx.done} missing={ctx.missing} /> }),
 };
 
 export function labSlots(unitId: string, ctx: LabContext): LabSlots {
