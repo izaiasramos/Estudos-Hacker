@@ -8,6 +8,29 @@ const globalForDb = globalThis as unknown as {
   shieldpathReady?: Promise<void>;
 };
 
+const AUTH_SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  password_hash TEXT,
+  provider TEXT NOT NULL,
+  google_sub TEXT UNIQUE,
+  role TEXT NOT NULL DEFAULT 'learner',
+  ethics_accepted_at TEXT,
+  xp INTEGER NOT NULL DEFAULT 0,
+  streak INTEGER NOT NULL DEFAULT 0,
+  last_study_on TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS login_failures (
+  id BIGSERIAL PRIMARY KEY,
+  key_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS login_failures_key_created ON login_failures (key_hash, created_at);
+`;
+
 const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
@@ -216,13 +239,34 @@ function placeholders(sql: string) {
 
 async function ensureSchema() {
   if (!globalForDb.shieldpathReady) {
-    globalForDb.shieldpathReady = pool()
-      .query(SCHEMA_SQL)
-      .then(() => undefined)
-      .catch((error: unknown) => {
-        globalForDb.shieldpathReady = undefined;
-        throw error;
-      });
+    globalForDb.shieldpathReady = (async () => {
+      // Autenticação não pode depender da migração de recursos como squads e competições.
+      // Este núcleo é pequeno, idempotente e obrigatório para cadastro, login e throttle.
+      await pool().query(AUTH_SCHEMA_SQL);
+
+      try {
+        await pool().query(SCHEMA_SQL);
+      } catch (error) {
+        // Bancos persistentes podem ter uma migração secundária parcialmente aplicada ou dados
+        // que conflitam com um índice novo. As tabelas já disponíveis continuam utilizáveis;
+        // a operação específica que depender de uma estrutura ausente falhará de forma localizada.
+        const detail = error as {
+          message?: string;
+          code?: string;
+          table?: string;
+          constraint?: string;
+        };
+        console.error("[db] migração complementar não concluída", {
+          message: detail.message ?? "erro desconhecido",
+          code: detail.code,
+          table: detail.table,
+          constraint: detail.constraint,
+        });
+      }
+    })().catch((error: unknown) => {
+      globalForDb.shieldpathReady = undefined;
+      throw error;
+    });
   }
   await globalForDb.shieldpathReady;
 }
