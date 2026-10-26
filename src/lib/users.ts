@@ -209,12 +209,48 @@ export async function lastLabStartedAt(userId: string) {
  */
 export async function deleteUserAccount(userId: string) {
   await withTx(async () => {
+    // Competições pertencentes à pessoa podem conter pontuações e participantes de terceiros.
+    // Removemos os resultados compartilhados, mas preservamos as tentativas de aprendizagem deles.
+    const ownedCompetitions = `
+      SELECT id FROM competitions
+      WHERE created_by = ?
+         OR squad_id IN (SELECT id FROM squads WHERE mentor_id = ?)
+    `;
+    await run(
+      `DELETE FROM competition_scores
+       WHERE user_id = ? OR competition_id IN (${ownedCompetitions})`,
+      [userId, userId, userId],
+    );
+    await run(
+      `DELETE FROM awards
+       WHERE user_id = ? OR competition_id IN (${ownedCompetitions})`,
+      [userId, userId, userId],
+    );
+    await run(`DELETE FROM competition_units WHERE competition_id IN (${ownedCompetitions})`, [userId, userId]);
+    await run(
+      `UPDATE attempts SET competition_id = NULL
+       WHERE user_id <> ? AND competition_id IN (${ownedCompetitions})`,
+      [userId, userId, userId],
+    );
+    await run("DELETE FROM attempts WHERE user_id = ?", [userId]);
+    await run(
+      `DELETE FROM competition_participants
+       WHERE user_id = ? OR competition_id IN (${ownedCompetitions})`,
+      [userId, userId, userId],
+    );
+    await run(
+      `DELETE FROM competitions
+       WHERE created_by = ? OR squad_id IN (SELECT id FROM squads WHERE mentor_id = ?)`,
+      [userId, userId],
+    );
+
     await run(
       "DELETE FROM squad_members WHERE squad_id IN (SELECT id FROM squads WHERE mentor_id = ?)",
       [userId],
     );
     await run("DELETE FROM squads WHERE mentor_id = ?", [userId]);
     await run("DELETE FROM squad_members WHERE user_id = ?", [userId]);
+    await run("DELETE FROM learning_paths WHERE user_id = ?", [userId]);
     await run("DELETE FROM lab_sessions WHERE user_id = ?", [userId]);
     await run("DELETE FROM progress WHERE user_id = ?", [userId]);
     await run("DELETE FROM users WHERE id = ?", [userId]);

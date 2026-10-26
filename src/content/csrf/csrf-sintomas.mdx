@@ -1,9 +1,24 @@
-No lab, transferência aceita GET com query string, form sem token, cookie SameSite=None e servidor ignora Origin. Qualquer combinação abre CSRF.
+Você abre o endpoint fictício e encontra isto:
 
-<Code caption={"Mutar estado via GET (anti-padrão)"}>
+<Code caption={"Mutação exposta como leitura"}>
 
-```
-GET /transferir?valor=100&para=atacante
+```http
+GET /transferir?valor=100&para=destino
+Cookie: sessao=...
 ```
 
 </Code>
+
+O primeiro cheiro é semântico: uma leitura GET está mudando estado e pode ser disparada por navegação, link ou carregamento de recurso. Trocar para POST reduz essa superfície, mas ainda é preciso investigar as outras camadas.
+
+O segundo cheiro é um formulário sem token anti-CSRF. Isso é uma lacuna, mas não permite concluir sozinho que o ataque funcionará: um cookie `SameSite=Strict`, por exemplo, pode impedir que a sessão acompanhe o pedido cross-site. Da mesma forma, uma validação correta de Origin pode recusar o envio antes da mutação.
+
+O terceiro cheiro é aceitar qualquer Origin ou confiar cegamente em Referer. O servidor deve comparar a origem recebida com a origem esperada. Se a infraestrutura remove cabeçalhos ou há fluxos legítimos entre origens, a política precisa prever esses casos sem “abrir tudo”.
+
+<Callout tone="armadilha">
+
+Não transforme checklist em teorema: “faltou uma caixa, então há exploração” é tão impreciso quanto “há uma caixa, então está seguro”. Trace o pedido completo: contexto de envio, cookie, método, token, origem, autenticação e autorização.
+
+</Callout>
+
+A conclusão útil de uma revisão é específica: qual pedido o atacante consegue montar, quais credenciais o navegador anexará e em qual validação ele será aceito ou recusado.

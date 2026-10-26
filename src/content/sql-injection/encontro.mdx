@@ -1,31 +1,39 @@
-O campo do formulário é só texto quando chega. Ele vira problema na linha em que esse texto é costurado na consulta. Antes disso, é um valor. Depois disso, o banco pode lê-lo como parte do comando.
+Agora acompanhe o email de Alice. Uma **entrada**, também chamada de *input*, é qualquer valor recebido pelo programa: um campo de formulário, um parâmetro de endereço ou um dado vindo de outra integração. Receber uma entrada é normal. A decisão crítica é como o servidor a usa.
 
-<Code caption={"O encontro perigoso"}>
+<Code caption="Versão que concatena a entrada">
 
-```
+```js
 const email = body.email
 db.query("SELECT id FROM usuarios WHERE email = '" + email + "'")
 ```
 
 </Code>
 
-<Code caption={"O mesmo pedido, com o valor separado"}>
+Na primeira linha, `email` ainda é apenas um valor. Na segunda, o operador `+` faz **concatenação**: junta vários textos em um só. O email passa a ocupar o mesmo texto que contém a instrução SQL.
 
-```
+Compare com a mesma tarefa:
+
+<Code caption="Versão que envia o valor separadamente">
+
+```js
 const email = body.email
 db.query("SELECT id FROM usuarios WHERE email = ?", [email])
 ```
 
 </Code>
 
+O `?` é um **placeholder**, isto é, um marcador de lugar. A lista `[email]` fornece o valor para esse lugar por um canal separado. Essa técnica é chamada de **consulta parametrizada**.
+
 <Callout tone="conceito">
 
-A primeira versão mistura o campo com a instrução. A segunda manda a instrução e o valor por caminhos diferentes. O banco continua buscando um e-mail. O que muda é quem controla a forma da consulta.
+As duas versões querem buscar um usuário por email. Na versão concatenada, o conteúdo do campo participa da construção da instrução. Na parametrizada, a instrução fica fixa e o campo continua sendo dado.
 
 </Callout>
 
 <Callout tone="armadilha">
 
-Trocar aspas ou filtrar um caractere famoso não é a correção. A correção é o valor não entrar no texto do comando.
+Remover um caractere específico tenta adivinhar conteúdos perigosos, mas mantém a arquitetura frágil. A decisão robusta é não colocar a entrada dentro do texto SQL.
 
 </Callout>
+
+**Decisão prática:** procure o ponto exato em que uma variável encontra a chamada ao banco. Se houver concatenação, substitua-a pelo método de parâmetros oferecido pelo driver ou ORM.

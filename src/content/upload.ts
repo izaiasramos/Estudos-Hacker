@@ -5,7 +5,7 @@ export const TRAIL = {
   slug: "upload",
   title: "Upload inseguro",
   summary:
-    "Quando o arquivo que o usuário manda vira código, caminho ou página no seu domínio — e como conteúdo conferido, nome gerado no servidor e entrega isolada fecham o buraco.",
+    "Acompanhe o arquivo da entrada à entrega: limite bytes, valide e reprocesse o conteúdo, gere o nome e isole a origem.",
 };
 
 export const UNITS: Unit[] = [
@@ -38,7 +38,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "contenttype",
-        prompt: "O formulário manda `Content-Type: image/png`. Isso prova que é uma imagem?",
+        prompt: "O formulário declara `Content-Type: image/png`, um rótulo de formato. Isso prova que o conteúdo é uma imagem?",
         choices: [
           {
             id: "nao",
@@ -62,7 +62,8 @@ export const UNITS: Unit[] = [
             id: "xss",
             label: "Ao abrir o link, o script dentro dele roda com a origem do seu site",
             correct: true,
-            explain: "Vira XSS armazenado: mesmo domínio, mesmos cookies, mesmo acesso.",
+            explain:
+              "Se o arquivo for servido na origem do site, vira Cross-Site Scripting (XSS) armazenado. HttpOnly impede o script de ler o cookie, mas o navegador ainda pode enviá-lo em ações autenticadas.",
           },
           {
             id: "lento",
@@ -124,9 +125,10 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "isolado",
-            label: "De outro domínio (ou storage), com `Content-Disposition: attachment` e nosniff",
+            label: "De uma origem separada, sem cookies da aplicação e com `X-Content-Type-Options: nosniff`",
             correct: true,
-            explain: "Mesmo que algo escape, ele não roda com a origem do seu app.",
+            explain:
+              "Uma origem realmente separada não recebe a sessão do app. Para arquivos destinados a download, `Content-Disposition: attachment` pode acrescentar outra barreira; um avatar exibido na página não usa esse mesmo contrato.",
           },
           {
             id: "public",
@@ -184,13 +186,14 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "svg",
-        prompt: "O produto quer aceitar avatar em SVG. Qual a decisão mais segura?",
+        prompt: "O produto quer aceitar avatar em Scalable Vector Graphics (SVG), formato vetorial baseado em Extensible Markup Language (XML). Qual é a decisão mais segura?",
         choices: [
           {
             id: "recusar",
             label: "Recusar SVG ou convertê-lo para PNG no servidor",
             correct: true,
-            explain: "SVG é XML com script. Converter para bitmap tira o que pode executar.",
+            explain:
+              "SVG é baseado em XML e pode conter script ou outros recursos ativos. Recusar ou converter para PNG evita servir esse conteúdo ativo como avatar.",
           },
           {
             id: "aceitar",

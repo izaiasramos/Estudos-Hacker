@@ -41,11 +41,11 @@ export const TRAILS: Trail[] = [
     labUnitId: "lab-defensivo",
     checkpointId: "checkpoint",
     units: sqlUnits,
-    sealPending: "O selo espera o laboratório em que a defesa passa nos testes.",
+    sealPending: "O selo espera a inspeção estrutural das duas consultas no laboratório.",
     seal: {
       badge: "SQL",
       name: "SQL Injection",
-      text: "Você explicou a fronteira e fechou as duas consultas do lab. O login da Alice continua válido. O pedido do Bruno fica de fora.",
+      text: "A inspeção reconheceu instruções fixas e o email enviado separadamente nas duas consultas fictícias. O exercício não executou login nem consultas no banco.",
       tone: "accent",
     },
   },

@@ -1,15 +1,19 @@
-O controle de acesso costuma sumir em quatro lugares. Checagem só na interface: o botão some para quem não é admin, mas a rota responde para qualquer sessão. Rota “escondida”: ninguém linkou o endpoint, então ninguém protegeu. Consulta pelo id puro: o banco busca o registro sem filtrar pelo dono. Campos que o cliente não devia mandar: o corpo do pedido traz `role` ou `userId` e o servidor grava o que recebeu.
+O controle costuma desaparecer quando a equipe confia no que a interface esconde. O botão de administração some, mas a rota continua aberta; o endereço não aparece em links, mas ainda aceita pedidos; a consulta busca apenas pelo identificador; ou o servidor grava campos que o cliente não deveria controlar.
+
+Um Universally Unique Identifier (UUID), identificador único universal longo e difícil de adivinhar, reduz enumeração. Ele não autoriza nada: pode vazar em link, log ou e-mail. Do mesmo modo, uma boa experiência do usuário pode esconder ações indevidas, mas só a rota consegue recusá-las.
 
 <Callout tone="armadilha">
 
-Trocar o id sequencial por UUID dificulta adivinhar, mas não decide nada. Um UUID vaza em link, log ou e-mail. A checagem do dono continua obrigatória.
+Compare: `WHERE id = ?` encontra qualquer registro conhecido; `WHERE id = ? AND user_id = ?` exige também o dono obtido da sessão.
 
 </Callout>
+
+Outra falha é *mass assignment*: copiar automaticamente todos os campos do corpo para o registro. Se o modelo contém `role` ou `userId`, o cliente pode tentar mudar o próprio papel ou dono. A decisão segura é usar uma lista explícita de campos aceitos.
 
 <Callout tone="dev">
 
-Negar por padrão: rota nova começa fechada e alguém libera, de propósito, quem pode. O contrário — começar aberta e lembrar de fechar — é como o buraco nasce.
+Negue por padrão: rota nova nasce fechada e libera, de propósito, os papéis permitidos. Assim, esquecer uma regra gera uma recusa, não um vazamento.
 
 </Callout>
 
-<Glossary term={"Mass assignment"} text={"O servidor copia todos os campos do corpo para o registro. Se o modelo tem `role`, quem manda `role` no corpo muda o próprio papel."} />
+<Glossary term={"Mass assignment"} text={"Cópia automática dos campos recebidos para um objeto persistido. Campos sensíveis enviados pelo cliente podem ser gravados se não houver uma lista permitida."} />

@@ -1,7 +1,9 @@
-A prévia de link da Pizzaria do Lab começa buscando qualquer URL que o cliente cola no chat. O painel mostra o que o servidor faria com quatro endereços de exemplo. Cada opção abaixo fecha uma parte da regra.
+A prévia fictícia da Pizzaria do Lab começa buscando qualquer URL colada no chat. O painel simula o resultado de cinco endereços; não faz requisições reais nem testa a rede.
+
+Decida as camadas: somente HTTPS, IP resolvido fora de faixas internas, redirecionamento recusado ou revisto, e resposta resumida com limites de tamanho e tempo. Bloquear palavras como `localhost` é um distrator deliberado e não conta como defesa.
 
 <Callout tone="dev">
 
-Conjunto que passa: só HTTPS, IP resolvido fora de faixa interna, redirect checado de novo, resposta resumida com limite de tamanho e tempo. Bloquear `localhost` pelo texto não conta como defesa.
+O checker avalia as opções marcadas. Na implementação real, “conferir o IP” inclui conectar exatamente ao IP validado, sem deixar o cliente resolver o nome novamente.
 
 </Callout>

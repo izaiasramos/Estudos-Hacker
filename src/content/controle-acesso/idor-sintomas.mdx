@@ -1,6 +1,6 @@
-Em code review, o sintoma aparece como uma consulta que recebe só o id vindo da URL. Compare as duas versões da rota de pedidos da Pizzaria do Lab.
+Na revisão da rota de pedidos, pergunte de onde vêm os dois valores decisivos: o identificador do pedido e a identidade autorizada. Na versão vulnerável, só o primeiro aparece.
 
-<Code caption={"Rota que confia no id (vulnerável)"}>
+<Code caption={"Consulta que confia no identificador"}>
 
 ```
 const pedido = await db.one(
@@ -12,7 +12,9 @@ return pedido;
 
 </Code>
 
-<Code caption={"Rota que amarra ao dono da sessão"}>
+O parâmetro `?` ajuda a evitar injeção de Structured Query Language (SQL), a linguagem de consulta do banco, mas não cria autorização. O contraste está no filtro de dono:
+
+<Code caption={"Consulta que exige o dono da sessão"}>
 
 ```
 const pedido = await db.one(
@@ -25,8 +27,6 @@ return pedido;
 
 </Code>
 
-<Callout tone="dev">
+O `user_id` vem da sessão emitida e verificada pelo servidor, nunca do corpo, da query ou de um campo escondido. Para um recurso alheio, a equipe decide entre 403 (proibido) e 404 (não encontrado, sem confirmar existência), sempre sem devolver o conteúdo.
 
-O `user_id` vem da sessão, que o servidor emitiu. Nunca do corpo, da query ou de um campo escondido no formulário.
-
-</Callout>
+Síntese: identificação sem filtro de recurso ainda é acesso quebrado.

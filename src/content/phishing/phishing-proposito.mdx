@@ -1,13 +1,21 @@
-Phishing convence alguém a fazer o que o atacante quer: clicar, abrir anexo, colar senha, autorizar app falso. Não explora SQL nem XSS primeiro — explora confiança, pressa e hábito. No trabalho, o prejuízo pode ser conta corporativa, código ou dados de cliente.
+Uma mensagem chega minutos antes de uma reunião: “Detectamos acesso incomum. Confirme agora para não perder a conta.” Ela usa o nome da empresa, o tom do suporte e um motivo possível. É justamente por parecer rotina que merece investigação.
+
+**Phishing** é uma tentativa de induzir alguém a clicar, abrir, revelar um segredo ou aprovar uma ação em benefício do atacante. O primeiro mecanismo não é uma falha de código: é uma história que explora confiança, pressa, autoridade ou hábito.
 
 <Callout tone="analogia">
 
-É um criminoso com crachá falso na recepção. Não arrombou a porta; pediu que alguém abrisse.
+É alguém com crachá convincente pedindo que você abra a porta. Uniforme, nome e confiança tornam o pedido plausível; nenhum deles prova que a pessoa está autorizada.
 
 </Callout>
+
+A meta defensiva não é transformar pessoas em detectores infalíveis. É criar uma pausa verificável, oferecer um canal simples de confirmação e limitar o dano quando alguém erra.
+
+Uma dessas barreiras é a **autenticação de dois fatores (2FA)**: além da senha, a conta exige um segundo fator, como uma chave física ou confirmação em aplicativo. 2FA reduz o valor de uma senha roubada, embora não elimine todo phishing — a pessoa ainda pode ser induzida a aprovar uma solicitação falsa.
 
 <Callout tone="armadilha">
 
-Este produto só usa caixa de entrada fictícia do laboratório. Proibido template para atacar pessoas reais, página clone de banco/Google ou captura de senha de terceiros.
+Esta trilha usa somente mensagens fictícias e simulações de decisão. Não cria páginas clonadas, não coleta credenciais e não testa pessoas reais. Treino interno precisa de autorização, escopo, proteção dos participantes e foco em aprendizagem.
 
 </Callout>
+
+A pergunta que guiará a caixa de entrada é: **como confirmar a história sem usar o link, o anexo ou o contato fornecido pela própria mensagem?**

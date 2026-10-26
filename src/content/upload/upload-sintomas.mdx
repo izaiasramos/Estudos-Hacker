@@ -1,6 +1,6 @@
-Em code review, o sintoma é uma rota que usa o que veio no pedido para decidir caminho, tipo e entrega. Compare a rota de avatar da Pizzaria do Lab antes e depois.
+Na revisão da rota de avatar, acompanhe três valores: bytes, nome e endereço de entrega. Na versão vulnerável, todos continuam sob controle do cliente.
 
-<Code caption="Upload que confia no cliente (vulnerável)">
+<Code caption="Upload que confia no cliente">
 
 ```
 const file = form.get("avatar");
@@ -11,7 +11,9 @@ return Response.json({ url: `/uploads/${file.name}` });
 
 </Code>
 
-<Code caption="Upload com as decisões no servidor">
+Usar `../../.env` no nome tenta um path traversal: `path.join` monta o caminho, mas não garante que ele permaneça na pasta esperada. O contraste elimina a escolha do cliente:
+
+<Code caption="Upload com decisões do servidor">
 
 ```
 const file = form.get("avatar");
@@ -28,8 +30,4 @@ return Response.json({ url: `https://arquivos.exemplo.com/avatars/${id}.png` });
 
 </Code>
 
-<Callout tone="dev">
-
-O nome original, se a tela precisar, vai para o banco como texto. Ele nunca vira caminho.
-
-</Callout>
+O limite ideal também é aplicado durante a leitura do fluxo, antes de aceitar todos os bytes. O nome original nunca vira caminho. Síntese: o servidor decide o que entra, quanto entra, onde fica e como volta.

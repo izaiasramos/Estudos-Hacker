@@ -16,7 +16,7 @@ export function SsrfDefenseLab({ done, missing }: { done: boolean; missing: stri
       <LabDone
         items={[
           "Só HTTPS entra.",
-          "O IP resolvido não pode ser interno, loopback ou link-local.",
+          "O IP resolvido não pode ser interno, loopback ou link-local, e a conexão usa exatamente o destino conferido.",
           "Redirect não é seguido sem nova checagem.",
           "Volta só o resumo da página, com limite de tamanho e tempo.",
         ]}
@@ -43,8 +43,8 @@ export function SsrfDefenseLab({ done, missing }: { done: boolean; missing: stri
       bad: !resolve,
     },
     {
-      input: "https://link-curto.exemplo/abc → redirect para http://169.254.169.254/",
-      result: redirect ? blocked : "seguiu o redirect até o serviço de metadados",
+      input: "https://link-curto.exemplo/abc → redireciona para http://169.254.169.254/",
+      result: redirect ? blocked : "seguiu sem revalidar até o serviço de metadados",
       bad: !redirect,
     },
     {
@@ -68,7 +68,7 @@ export function SsrfDefenseLab({ done, missing }: { done: boolean; missing: stri
         Lista permitida de esquema — só <code className="font-mono text-[13px]">https:</code>
       </LabCheck>
       <LabCheck name="resolve" checked={resolve} onChange={setResolve}>
-        Resolver o nome e recusar IP interno, loopback e link-local — conectar no IP conferido
+        Resolver o nome pelo sistema de nomes de domínio (DNS), recusar IP interno, loopback e link-local — e conectar exatamente ao IP conferido
       </LabCheck>
       <LabCheck name="redirect" checked={redirect} onChange={setRedirect}>
         Não seguir redirect sem conferir o novo destino

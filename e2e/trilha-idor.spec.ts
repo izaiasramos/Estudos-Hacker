@@ -5,7 +5,13 @@ test("trilha de controle de acesso até o selo", async ({ page, account }) => {
   expect(account.email).toContain("@shieldpath.test");
 
   await page.goto("/trilha/controle-acesso");
-  await expect(page.getByRole("heading", { level: 1, name: "Controle de acesso (IDOR)" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Controle de acesso e referência direta insegura (IDOR)",
+      exact: true,
+    }),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Continuar — Quem é vs. o que pode" }).click();
 
   // Erro primeiro: a explicação aparece e a unidade não fecha.
@@ -27,7 +33,7 @@ test("trilha de controle de acesso até o selo", async ({ page, account }) => {
   await page.getByRole("link", { name: "Seguir — Onde o controle some" }).click();
 
   await answerQuiz(page, [
-    /É boa UX, mas a rota precisa conferir o papel/,
+    /rota precisa conferir o papel no servidor$/,
     /Não\. Fica mais difícil adivinhar/,
     /Quem mandar role ou userId/,
   ]);
@@ -44,7 +50,7 @@ test("trilha de controle de acesso até o selo", async ({ page, account }) => {
   await expect(page.getByText("Alice logada · GET /pedidos/:id")).toBeVisible();
   await page.getByRole("checkbox", { name: "Trocar o id sequencial por UUID" }).check();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Filtre também pelo dono da sessão" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Filtre também pelo dono obtido da sessão" })).toBeVisible();
 
   await page.getByRole("checkbox", { name: /Filtrar pelo dono/ }).check();
   await page.getByRole("checkbox", { name: /Conferir o papel na rota/ }).check();

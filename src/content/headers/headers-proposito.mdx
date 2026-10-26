@@ -1,17 +1,15 @@
-Toda resposta do servidor é lida inteira por quem fez o pedido. A tela mostra o nome e a foto, mas o navegador recebeu o JSON todo, os headers todos e, se algo quebrou, a mensagem de erro do jeito que saiu. Exposição de dados sensíveis é quando essa resposta carrega mais do que o cliente precisa.
+A tela do perfil mostra nome e foto, mas a resposta pode trazer muito mais. Quem fez o pedido recebe status, headers e corpo completos, mesmo que a interface esconda parte deles.
 
-O vazamento costuma aparecer em três lugares. Campos sobrando: a rota devolve o registro do banco inteiro, com `password_hash`, token ou e-mail de outra pessoa. Erro detalhado: a pilha do erro sai com caminho de arquivo, versão de biblioteca e a consulta que falhou. Assinatura do servidor: headers como `X-Powered-By` anunciam framework e versão.
+Uma Application Programming Interface (API), interface pela qual sistemas trocam dados, costuma responder em JavaScript Object Notation (JSON), formato textual de pares e listas. Se o JSON inclui `password_hash` ou token de redefinição, esconder o campo na tela não remove o vazamento.
+
+Erros também falam. Uma *stack trace*, ou pilha de execução, lista as chamadas percorridas até a falha e pode revelar caminhos de arquivo, bibliotecas e consultas. Em produção, o cliente recebe mensagem genérica e um código de correlação; o detalhe fica no log protegido. Headers como `X-Powered-By` ainda podem anunciar tecnologia e versão sem necessidade.
 
 <Callout tone="analogia">
 
-O garçom traz o seu prato e, junto, a comanda da cozinha com o pedido de todas as mesas. Você só olhou o prato, mas a comanda estava na bandeja.
+O garçom traz o prato e também a comanda completa da cozinha. Você só precisava do prato, mas toda a comanda chegou à mesa.
 
 </Callout>
 
-<Glossary term="Superfície da resposta" text="Tudo o que sai do servidor num pedido: status, headers e corpo. O que estiver ali é visível para quem pediu, mesmo que a tela não mostre." />
+A decisão é minimizar no servidor: selecionar campos de saída, reduzir erros e remover assinaturas desnecessárias.
 
-<Callout tone="dev">
-
-Abra a aba Network do navegador nesta página e clique no pedido do documento. Os headers de segurança que a próxima unidade explica estão ali: esta plataforma manda todos eles.
-
-</Callout>
+<Glossary term="Superfície da resposta" text="Tudo o que sai do servidor: status, headers e corpo. O cliente pode inspecionar tudo, mesmo que a tela mostre apenas uma parte." />

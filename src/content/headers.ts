@@ -3,9 +3,9 @@ import type { Unit } from "@/content/sql-injection";
 // Texto de cada unidade: src/content/headers/<id>.mdx
 export const TRAIL = {
   slug: "headers",
-  title: "Exposição de dados e headers",
+  title: "Exposição de dados e cabeçalhos HTTP",
   summary:
-    "O que a resposta do servidor conta sem querer — campos sobrando, erro detalhado, versão do framework — e os headers que dizem ao navegador como se proteger.",
+    "Decida o mínimo que uma resposta revela e use políticas explícitas para limitar o que o navegador pode fazer com ela.",
 };
 
 export const UNITS: Unit[] = [
@@ -20,7 +20,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "exposicao",
-        prompt: "O que caracteriza exposição de dados sensíveis numa API?",
+        prompt: "O que caracteriza exposição de dados sensíveis numa Application Programming Interface (API)?",
         choices: [
           {
             id: "sobra",
@@ -43,7 +43,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "esconder",
-        prompt: "A tela não mostra o campo `password_hash`, mas o JSON da API traz ele. Está seguro?",
+        prompt: "A tela não mostra `password_hash`, mas o JavaScript Object Notation (JSON), formato textual da resposta da API, traz o campo. Está seguro?",
         choices: [
           {
             id: "nao",
@@ -61,7 +61,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "erro",
-        prompt: "Por que devolver a pilha de erro (stack trace) em produção é um problema?",
+        prompt: "Por que devolver a stack trace, a pilha de chamadas até o erro, em produção é um problema?",
         choices: [
           {
             id: "mapa",
@@ -93,9 +93,10 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "script",
-            label: "O navegador só executa script que traz o nonce desta resposta",
+            label: "Restringe scripts aos autorizados pela política e pelo nonce desta resposta",
             correct: true,
-            explain: "Um script injetado não conhece o nonce, que muda a cada resposta. Por isso a CSP segura XSS.",
+            explain:
+              "O nonce ajuda o navegador a distinguir scripts autorizados naquela resposta. É uma camada contra XSS, mas não corrige uma saída insegura nem garante proteção absoluta.",
           },
           {
             id: "cifra",
@@ -280,18 +281,20 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "onde",
-        prompt: "Onde configurar esses headers num app Next.js?",
+        prompt: "Quando as políticas de segurança em headers precisam chegar ao navegador?",
         choices: [
           {
             id: "servidor",
-            label: "No servidor: `next.config` para os fixos e o proxy para a CSP com nonce",
+            label: "Na resposta HTTP, antes que o navegador interprete e execute a página",
             correct: true,
-            explain: "É como esta plataforma faz. O nonce muda a cada resposta, por isso vem do proxy.",
+            explain:
+              "O servidor ou a camada de entrega inclui os headers na resposta. Valores por resposta, como um nonce, precisam ser gerados e associados naquele momento.",
           },
           {
             id: "meta",
-            label: "Numa `<meta>` escrita pelo JavaScript da página depois de carregar",
-            explain: "Regra criada depois do carregamento chega tarde, e boa parte dos headers nem funciona em `<meta>`.",
+            label: "Depois do carregamento, por JavaScript executado dentro da página",
+            explain:
+              "Nesse momento o navegador já recebeu e começou a interpretar a resposta. Além disso, várias políticas não podem ser aplicadas por uma tag meta.",
           },
         ],
       },

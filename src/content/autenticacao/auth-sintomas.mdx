@@ -1,6 +1,6 @@
-No laboratório fictício abaixo, o endpoint `/login` ainda aceita `admin` / `admin`, responde “Usuário não encontrado” ou “Senha incorreta”, e não limita tentativas. Nenhum desses comportamentos é aceitável em produção.
+Agora observe um ambiente de staging — uma cópia usada para testar o sistema antes da produção. Ele ainda aceita `admin` / `admin`, distingue “e-mail inexistente” de “senha errada” e permite tentativas sem pausa. Se esse ambiente ficar exposto ou for copiado, as facilidades de teste viram caminhos reais de entrada.
 
-<Code caption={"Respostas que vazam enumeração"}>
+<Code caption={"Duas respostas que revelam contas"}>
 
 ```
 404 → "E-mail não cadastrado"
@@ -9,8 +9,16 @@ No laboratório fictício abaixo, o endpoint `/login` ainda aceita `admin` / `ad
 
 </Code>
 
+Uma resposta genérica, como “E-mail ou senha inválidos”, reduz essa revelação. Ela deve ser coerente também em outros sinais observáveis do fluxo, não só no texto exibido.
+
+<Glossary term={"Rate limiting"} text={"Limitação da quantidade ou da frequência de tentativas de login. Ela desacelera adivinhação automatizada e deve considerar mais de um sinal, para não depender apenas do endereço de rede ou apenas da conta."} />
+
+<Glossary term={"CAPTCHA"} text={"Desafio usado para dificultar automação. Pode ajudar depois de comportamento suspeito, mas cria atrito e não substitui hash de senha, política de cadastro ou rate limiting."} />
+
 <Callout tone="armadilha">
 
-Credencial padrão de demo esquecida no deploy vira porta dos fundos. Rate limit não substitui senha forte, mas impede tentar milhões de senhas por minuto.
+Rate limiting atua nas tentativas feitas pelo login. Hash lento atua nos testes feitos depois de um vazamento do banco. CAPTCHA é uma camada opcional contra automação. Cada defesa cobre um caminho diferente.
 
 </Callout>
+
+A decisão para o cenário é remover credenciais padrão, unificar a resposta de falha e limitar tentativas repetidas sem bloquear usuários legítimos indefinidamente.

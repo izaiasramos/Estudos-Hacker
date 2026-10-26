@@ -1,23 +1,37 @@
-Um app web quase sempre guarda coisas num banco: usuários, pedidos, mensagens. Quando alguém clica em entrar ou busca um pedido, o servidor monta uma consulta e o banco devolve linhas.
+Alice abre a Pizzaria do Lab e procura seus pedidos pelo email. A tela envia o valor ao servidor; o servidor pede os dados ao banco; o banco devolve as linhas encontradas. O ponto decisivo está no pedido que o servidor constrói.
 
 <Callout tone="conceito">
 
-A consulta é uma instrução. O e-mail, o id e o texto da busca são dados. A segurança começa quando esses dois papéis não se misturam.
+SQL é a sigla de **Structured Query Language (Linguagem de Consulta Estruturada)**, linguagem usada para consultar e alterar dados em bancos relacionais. Uma **consulta**, também chamada de *query*, é o pedido estruturado enviado ao banco: por exemplo, “busque os pedidos cujo email seja este”.
 
 </Callout>
+
+Nesse pedido existem dois papéis. A **instrução** define a operação, a tabela e o filtro. O email é um **dado**: ele varia a cada busca, mas não deveria mudar a operação. O banco não recebe a intenção de quem programou; ele interpreta a consulta que efetivamente chegou.
+
+<Code caption="Uma busca por email">
+
+```sql
+SELECT id, item FROM pedidos WHERE email = ?
+```
+
+</Code>
+
+O ponto de interrogação marca o lugar de um valor que será enviado separadamente. Assim, a forma da instrução permanece estável enquanto o email varia.
 
 <Callout tone="analogia">
 
-No restaurante, o pedido é o dado e a receita é a instrução. Se o cliente puder reescrever a receita no meio do pedido, a cozinha deixa de fazer o prato e passa a seguir outra ordem.
+Pense em um formulário com campos impressos. O formulário define o que será feito; Alice apenas preenche um espaço. Se o texto preenchido puder redesenhar o formulário, dado e instrução trocaram de papel.
 
 </Callout>
 
-O caminho comum é curto: o navegador manda o formulário, uma função no servidor lê o campo, uma consulta segue para o banco, e a resposta volta como página. O buraco mora nesse meio, quando o campo entra dentro do texto da consulta.
+<Glossary term="invariante" text="Regra que deve continuar verdadeira durante todo o fluxo. Nesta trilha: uma entrada permanece dado e não passa a definir a instrução SQL." />
 
-<Glossary term={"invariante"} text={"Uma regra que o sistema precisa manter verdade. Aqui: dado continua dado, instrução continua instrução."} />
+Uma equipe também pode usar um **ORM**, sigla de *Object-Relational Mapping* (Mapeamento Objeto-Relacional). É uma biblioteca que traduz operações do código para consultas ao banco. Ela ajuda quando sua interface segura recebe valores separadamente, mas não torna segura uma consulta SQL que o próprio código concatena.
 
 <Callout tone="dev">
 
-Você vê isso numa rota, num repositório ou num serviço que abre conexão com o banco. Se a consulta é um texto montado na hora, vale parar e olhar como o valor do usuário entrou ali.
+Ao revisar código, faça duas perguntas: qual parte define a operação e qual parte veio de fora da função? Se as duas viraram um único texto, há uma fronteira para investigar.
 
 </Callout>
+
+**Síntese:** o banco interpreta consultas; consultas contêm instruções e valores; a segurança começa mantendo esses papéis separados.

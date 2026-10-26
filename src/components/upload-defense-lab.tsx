@@ -25,7 +25,7 @@ export function UploadDefenseLab({ done, missing }: { done: boolean; missing: st
           "O conteúdo é conferido e a imagem é reprocessada.",
           "O nome salvo é gerado no servidor.",
           "Há limite de tamanho antes de ler o arquivo.",
-          "Os arquivos saem de outro domínio, com nosniff.",
+          "Os arquivos saem por uma origem separada, sem cookies ou outras credenciais da aplicação, com X-Content-Type-Options: nosniff.",
           "SVG não entra como está.",
         ]}
       />
@@ -40,13 +40,13 @@ export function UploadDefenseLab({ done, missing }: { done: boolean; missing: st
       bad: false,
     },
     {
-      input: "pagina.html enviado com Content-Type: image/png",
+      input: "pagina.html enviada com Content-Type: image/png",
       result: content
         ? "recusado: o conteúdo não é imagem"
         : contenttype
-          ? `aceito pelo header; ${isolate ? "baixado como anexo, sem rodar" : "abre como página do site"}`
+          ? `aceito pelo rótulo enviado pelo cliente; ${isolate ? "abre em outro domínio, fora da origem do site" : "abre como página do site"}`
           : isolate
-            ? "aceito; baixado como anexo, sem rodar"
+            ? "aceito; abre em outro domínio, fora da origem do site"
             : "aceito; abre como página do site e roda script",
       bad: !content && !isolate,
     },
@@ -89,7 +89,7 @@ export function UploadDefenseLab({ done, missing }: { done: boolean; missing: st
         Limite de tamanho no servidor (2 MB)
       </LabCheck>
       <LabCheck name="isolate" checked={isolate} onChange={setIsolate}>
-        Servir de outro domínio ou storage, com <code className="font-mono text-[13px]">nosniff</code>
+        Servir por uma origem separada, sem cookies ou credenciais da aplicação, com <code className="font-mono text-[13px]">X-Content-Type-Options: nosniff</code>
       </LabCheck>
       <LabCheck name="contenttype" checked={contenttype} onChange={setContenttype}>
         Aceitar só se o <code className="font-mono text-[13px]">Content-Type</code> do pedido for{" "}

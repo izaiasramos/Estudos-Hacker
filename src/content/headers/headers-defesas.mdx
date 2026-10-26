@@ -1,29 +1,26 @@
-Os headers de segurança são instruções que o servidor manda ao navegador. Sem eles, o navegador faz o comportamento padrão, que costuma ser o mais permissivo.
+Depois de reduzir o que sai, o servidor orienta o navegador com headers de segurança. Cada header trata um comportamento específico; a ausência não torna todos os padrões iguais, mas deixa aquela proteção sem uma política explícita.
 
-`Content-Security-Policy` (CSP) diz o que a página pode executar e de onde pode carregar. Com nonce, só roda o script que traz o valor aleatório desta resposta; um script injetado não conhece esse valor. `Strict-Transport-Security` (HSTS) manda o navegador usar só HTTPS neste domínio pelos próximos acessos. `frame-ancestors` na CSP, ou o antigo `X-Frame-Options`, diz quem pode carregar a página num iframe. `X-Content-Type-Options: nosniff` faz o navegador respeitar o tipo declarado do arquivo. `Referrer-Policy` limita quanto do endereço vai para outros sites.
+Content Security Policy (CSP), política de segurança de conteúdo, limita o que a página executa e carrega. Um *nonce* aleatório por resposta autoriza scripts legítimos sem liberar qualquer script inline. HTTP Strict Transport Security (HSTS), segurança estrita de transporte HTTP, manda o navegador usar apenas HTTPS nos próximos acessos. HTTP é o protocolo de troca na web; HTTPS é HTTP protegido por Transport Layer Security (TLS), que cifra e autentica a conexão.
 
-<Code caption="Headers que esta plataforma manda numa página">
+`frame-ancestors` restringe quais sites podem enquadrar a página. `X-Content-Type-Options: nosniff` desativa a tentativa do navegador de adivinhar um tipo diferente do `Content-Type`, o rótulo de formato declarado pelo servidor. `Referrer-Policy` limita quanto do endereço de origem acompanha a navegação.
+
+<Code caption="Políticas em uma resposta">
 
 ```
-Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
+Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic'; frame-ancestors 'self'; object-src 'none'
 Strict-Transport-Security: max-age=63072000; includeSubDomains
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
-X-Frame-Options: SAMEORIGIN
 ```
 
 </Code>
 
 <Callout tone="armadilha">
 
-`script-src 'self' 'unsafe-inline'` parece uma CSP, mas libera exatamente o script inline que um XSS injeta. Se a CSP precisa de `'unsafe-inline'` para o site funcionar, ela está protegendo pouco.
+`script-src 'self' 'unsafe-inline'` parece proteção, mas libera scripts inline, inclusive um injetado. CSP reduz o impacto de Cross-Site Scripting (XSS), execução de script indevido na origem do site; não corrige a falha que permitiu a injeção.
 
 </Callout>
 
-<Glossary term="Nonce" text="Valor aleatório, novo a cada resposta, que aparece na CSP e nos scripts legítimos da página. Quem injeta script não sabe o valor, então o navegador recusa." />
+<Glossary term="Nonce" text="Valor imprevisível e novo a cada resposta, repetido na CSP e nos scripts legítimos. Um script injetado sem esse valor é recusado." />
 
-<Callout tone="dev">
-
-Header é defesa em camada. CSP não corrige o XSS no código, e HSTS não substitui ter HTTPS. Eles diminuem o estrago quando algo escapa.
-
-</Callout>
+Síntese: dados mínimos diminuem o que vaza; políticas explícitas limitam o que o navegador faz.

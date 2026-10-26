@@ -5,7 +5,13 @@ test("trilha de exposição de dados e headers até o selo", async ({ page, acco
   expect(account.email).toContain("@shieldpath.test");
 
   await page.goto("/trilha/headers");
-  await expect(page.getByRole("heading", { level: 1, name: "Exposição de dados e headers" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      level: 1,
+      name: "Exposição de dados e cabeçalhos HTTP",
+      exact: true,
+    }),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Continuar — A resposta fala demais" }).click();
 
   await answerQuiz(page, [
@@ -16,7 +22,7 @@ test("trilha de exposição de dados e headers até o selo", async ({ page, acco
   await page.getByRole("link", { name: "Seguir — Headers que protegem" }).click();
 
   await answerQuiz(page, [
-    "O navegador só executa script que traz o nonce desta resposta",
+    /Restringe scripts aos autorizados.*nonce desta resposta/,
     /Faz o navegador usar só HTTPS/,
     /Outro site carregar a sua página num iframe/,
     /O navegador adivinhar o tipo do arquivo/,
@@ -54,7 +60,7 @@ test("trilha de exposição de dados e headers até o selo", async ({ page, acco
 
   const rail = page.getByRole("navigation", { name: "Unidades da trilha" }).first();
   await rail.getByRole("link", { name: /Checkpoint\s*agora/ }).click();
-  await answerQuiz(page, [/Lista de campos no servidor/, /No servidor: next\.config/, "Depois do lab e deste checkpoint"]);
+  await answerQuiz(page, [/Lista de campos no servidor/, /Na resposta HTTP, antes que o navegador/, "Depois do lab e deste checkpoint"]);
   await expect(page).toHaveURL(/\/trilha\/headers\/selo/);
   await expect(page.getByText(/Emitido em/)).toBeVisible();
 

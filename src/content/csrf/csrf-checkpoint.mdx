@@ -1,1 +1,11 @@
-Decisões de produto antes do selo.
+Retome a transferência do início. O atacante tentou usar a sessão que o navegador já conhecia; o servidor precisava distinguir credencial válida de intenção legítima.
+
+A síntese é: **proteja mutações com evidências e restrições complementares**. Token anti-CSRF comprova participação no fluxo legítimo. SameSite restringe quando o cookie acompanha pedidos entre sites. Origin e Referer permitem verificar a procedência declarada. GET permanece livre de efeitos; POST expressa mutação, mas não é defesa suficiente sozinho.
+
+<Callout tone="conceito">
+
+Defesa em profundidade soma garantias. Não exige afirmar que todas as camadas precisam existir ou falhar em qualquer arquitetura: investigue qual camada bloqueia cada caminho e onde estão seus limites.
+
+</Callout>
+
+As próximas duas decisões verificam se você consegue aplicar esse modelo. O selo depende deste checkpoint e da simulação de configuração concluída no lab.

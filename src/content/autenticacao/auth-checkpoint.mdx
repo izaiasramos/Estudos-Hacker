@@ -1,1 +1,5 @@
-Quatro decisões de produto. O selo não sai só da leitura: o lab de login precisa estar verde.
+Feche o raciocínio: autenticação verifica uma prova de identidade; sessão mantém a identidade entre pedidos; autorização decide o acesso. No login com senha, o conjunto básico inclui hash adequado com salt, política de cadastro, remoção de credenciais padrão, resposta de falha que não entregue contas e rate limiting contra repetição automatizada.
+
+Segundo fator pode reduzir o impacto de uma senha vazada, e CAPTCHA pode adicionar atrito contra automação em situações específicas. Nenhum deles corrige senha armazenada em texto puro.
+
+O checkpoint verifica essa síntese. O lab verde registra apenas as decisões marcadas na simulação; ele não certifica código executado.

@@ -13,7 +13,13 @@ base.describe("smoke", () => {
     expect(account.email).toContain("@shieldpath.test");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Continuar|As trilhas abertas/);
     await page.goto("/trilha/sql-injection");
-    await expect(page.getByRole("heading", { name: "SQL Injection" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: "Injeção em SQL (Linguagem de Consulta Estruturada)",
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(page.getByRole("link", { name: /Continuar —/ })).toBeVisible();
   });
 });

@@ -1,7 +1,11 @@
-O endpoint de transferência do lab começa permissivo. Cada caixa endurece uma camada. O servidor confere — não executa código seu.
+Agora você revisa uma transferência fictícia. Este lab é uma **simulação de decisão e configuração em checklist**: ele não cria um endpoint real, não movimenta valores e não executa código enviado por você.
+
+O checker pede um conjunto pedagógico completo para este cenário: token anti-CSRF validado, cookie com SameSite Lax ou Strict, origem conferida e mutação fora de GET.
 
 <Callout tone="dev">
 
-Conjunto que passa: token, SameSite Lax ou Strict, checagem de Origin e mutação só via POST.
+Marcar todas as opções demonstra como as camadas se combinam nesta simulação. Em produção, a conclusão de segurança depende do fluxo inteiro: uma camada correta pode barrar o ataque, e cada camada tem limites que as outras ajudam a cobrir.
 
 </Callout>
+
+Se algo faltar, leia o feedback como uma hipótese de revisão: ele explica a função daquela decisão, sem afirmar que a lacuna isolada prova uma exploração.

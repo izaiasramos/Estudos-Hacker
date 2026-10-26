@@ -1,0 +1,76 @@
+import type { SceneCatalog } from "./types";
+
+export const headersScenes = {
+  "headers:headers-proposito": {
+    id: "headers-minimum-response",
+    type: "compare",
+    eyebrow: "Antes de enviar",
+    title: "Quanto da resposta a tela realmente usa?",
+    accessibleSummary: "A cena compara uma resposta mínima, com apenas os campos usados pela tela, a uma resposta excessiva que também expõe dados internos e detalhes de erro.",
+    caption: "Se a tela não precisa do dado, a resposta não deve carregá-lo.",
+    tone: "danger",
+    sides: [
+      { id: "headers-minimum-response-needed", label: "Resposta necessária", description: "O servidor escolhe explicitamente o que sai.", items: ["Nome exibido", "Identificador necessário"] },
+      { id: "headers-minimum-response-excess", label: "Resposta que fala demais", description: "Campos extras chegam completos ao navegador.", items: ["Segredo armazenado", "Detalhes internos do erro"] },
+    ],
+  },
+  "headers:headers-defesas": {
+    id: "headers-policy-boundaries",
+    type: "boundary",
+    eyebrow: "Duas camadas",
+    title: "Quem limita os dados e quem orienta o navegador?",
+    accessibleSummary: "A cena separa o corpo mínimo escolhido pelo servidor das políticas enviadas em cabeçalhos, que orientam o navegador sobre transporte, scripts, enquadramento e interpretação de conteúdo.",
+    caption: "O corpo reduz o que é revelado; os cabeçalhos limitam como o navegador usa a resposta.",
+    tone: "defense",
+    zones: [
+      { id: "headers-policy-boundaries-server", label: "Servidor", description: "Monta uma resposta pequena e previsível.", items: ["Lista explícita de campos", "Erro público sem detalhes internos"] },
+      { id: "headers-policy-boundaries-headers", label: "Políticas da resposta", description: "Chegam antes de a página ser interpretada.", items: ["Somente transporte seguro", "Fontes e enquadramento restritos"] },
+      { id: "headers-policy-boundaries-browser", label: "Navegador", description: "Aplica as instruções recebidas.", items: ["Não adivinha tipos", "Executa apenas o que a política permite"] },
+    ],
+  },
+  "headers:headers-sintomas": {
+    id: "headers-response-inspection",
+    type: "sequence",
+    eyebrow: "Leia a resposta",
+    title: "O que sobra e o que falta na aba Network?",
+    accessibleSummary: "A inspeção começa pelo corpo devolvido, procura campos e erros desnecessários, revisa informações sobre a tecnologia e termina verificando se as políticas de proteção estão presentes.",
+    caption: "Uma resposta segura revela pouco e declara suas políticas.",
+    tone: "accent",
+    events: [
+      { id: "headers-response-inspection-body", marker: "01", label: "Corpo", detail: "Marque cada campo que a tela não usa." },
+      { id: "headers-response-inspection-errors", marker: "02", label: "Erros", detail: "Procure caminhos, consultas e pilhas internas." },
+      { id: "headers-response-inspection-signatures", marker: "03", label: "Assinaturas", detail: "Remova nomes e versões que não ajudam o navegador." },
+      { id: "headers-response-inspection-policies", marker: "04", label: "Políticas", detail: "Confirme transporte, conteúdo, tipo e enquadramento." },
+    ],
+  },
+  "headers:headers-lab": {
+    id: "headers-simulated-lifecycle",
+    type: "lifecycle",
+    eyebrow: "Checklist simulado",
+    title: "A resposta fictícia está pronta para sair?",
+    accessibleSummary: "Checklist simulado, sem executar código: selecionar os campos públicos, trocar detalhes internos por erro genérico, remover assinaturas desnecessárias e declarar políticas de navegador na resposta fictícia.",
+    caption: "O checker avalia escolhas declaradas; não executa código do participante.",
+    tone: "defense",
+    stages: [
+      { id: "headers-simulated-lifecycle-fields", label: "Escolher campos", detail: "Somente os dados necessários ao perfil permanecem." },
+      { id: "headers-simulated-lifecycle-errors", label: "Fechar erros", detail: "A pessoa recebe uma mensagem útil, sem detalhes internos." },
+      { id: "headers-simulated-lifecycle-signatures", label: "Limpar assinaturas", detail: "Tecnologia e versão desnecessárias deixam de sair." },
+      { id: "headers-simulated-lifecycle-policies", label: "Aplicar políticas", detail: "A configuração inclui as instruções esperadas pelo navegador." },
+    ],
+  },
+  "headers:headers-checkpoint": {
+    id: "headers-final-decision",
+    type: "decision",
+    eyebrow: "Decisão final",
+    title: "Qual resposta merece o selo?",
+    accessibleSummary: "A decisão final favorece a resposta que combina campos mínimos, erro genérico e políticas explícitas; uma política isolada não remove dados sensíveis nem detalhes internos.",
+    caption: "Proteção completa cuida do conteúdo e das instruções da resposta.",
+    tone: "accent",
+    prompt: "Qual resposta reduz o que revela e também limita o comportamento do navegador?",
+    options: [
+      { id: "headers-final-decision-layered", label: "Campos mínimos, erros genéricos e políticas explícitas", outcome: "Dados e comportamento do navegador ficam limitados em conjunto.", recommended: true },
+      { id: "headers-final-decision-policy-only", label: "Uma política de scripts, mantendo todo o corpo", outcome: "O navegador recebe uma regra, mas os dados extras continuam expostos." },
+      { id: "headers-final-decision-ui-only", label: "Ocultar os campos extras apenas na tela", outcome: "O corpo completo continua visível para quem fez o pedido." },
+    ],
+  },
+} satisfies SceneCatalog;

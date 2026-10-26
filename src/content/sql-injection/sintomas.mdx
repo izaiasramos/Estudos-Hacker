@@ -1,15 +1,24 @@
-No laboratório, o app de pedidos usa dados fictícios. Alice tem as pizzas dela. Bruno tem as dele. Quando a fronteira entre dado e instrução quebra, o sintoma aparece no comportamento, não num discurso.
+No cenário autorizado da Pizzaria do Lab, Alice e Bruno têm pedidos fictícios. A regra de negócio é simples: ao buscar pelo email de Alice, a lista deve conter apenas pedidos dela.
+
+Uma falha de SQL Injection pode deixar sinais diferentes. Um erro técnico pode indicar que o banco não conseguiu interpretar a consulta montada. Uma lista ampla demais pode indicar que a consulta foi interpretada, mas o filtro efetivo não correspondeu ao esperado. Um fluxo de autenticação também pode tomar uma decisão baseada em linhas que não deveria ter encontrado.
+
+<Callout tone="conceito">
+
+Um **sintoma** é algo observável; uma **hipótese** é uma explicação possível. “A resposta foi 500” é sintoma. “A entrada alterou a estrutura SQL” é hipótese. Para ligá-los, precisamos de evidências como o erro técnico da consulta, a relação com uma entrada específica e o ponto de concatenação no código.
+
+</Callout>
+
+Compare duas situações:
+
+- A busca por um valor específico falha, e o registro do servidor aponta erro ao interpretar SQL. A hipótese de consulta malformada ganhou apoio.
+- Qualquer página falha com um erro 500 genérico. Ainda não há base para concluir que o problema está no SQL.
 
 <Callout tone="dev">
 
-Três sinais cabem nesta hipótese: um erro 500 que menciona a consulta, uma busca que passa a listar pedido de outra pessoa, ou um login do lab que entra sem ser a conta dona da senha. Fora do lab, esses sinais pedem correção e incidente, não um teste por conta própria.
+Em sistema real, preserve registros, limite a exposição de detalhes ao usuário e siga o processo de incidente da equipe. Não faça testes em aplicações de terceiros. Nesta trilha, toda observação prática fica restrita ao ambiente fictício e autorizado.
 
 </Callout>
 
-O erro de sintaxe da consulta diz que o banco não conseguiu ler a frase. A listagem a mais diz que a frase foi lida e devolveu linhas que o filtro não deveria incluir. Os dois apontam para a mesma invariante, com evidências diferentes.
+A listagem de Alice oferece um contraste mais direto: resultado esperado, somente os pedidos dela; resultado simulado, também um pedido de Bruno. A próxima decisão não é procurar um rótulo mais dramático, e sim revisar o caminho do email até o filtro SQL.
 
-<Callout tone="armadilha">
-
-Um 500 genérico, sem relação com a consulta, pode ser outra coisa: arquivo ausente, serviço fora, bug de tipo. A hipótese de consulta quebrada precisa da evidência, não só do susto.
-
-</Callout>
+**Síntese:** um sinal isolado não fecha diagnóstico. Relacione entrada, consulta e resultado; então confirme no código onde a fronteira foi perdida.

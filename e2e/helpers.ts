@@ -54,6 +54,8 @@ export const test = base.extend<{ account: { email: string } }>({
     const account = { email };
     await provide(account);
     // Se o próprio teste já apagou a conta (perfil), não sobra nada para limpar.
-    if (account.email) await deleteAccount(page, account.email);
+    if (account.email) {
+      expect(await deleteAccount(page, account.email), "a conta temporária do E2E deve ser excluída").toBe(true);
+    }
   },
 });

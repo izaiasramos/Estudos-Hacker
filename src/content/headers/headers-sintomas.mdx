@@ -1,24 +1,18 @@
-Em code review e na aba Network, o sintoma é uma resposta que traz o que a tela não usa e não traz o que o navegador precisa. Compare a resposta do perfil da Alice na Pizzaria do Lab antes e depois.
+Na aba Network, painel do navegador que mostra pedidos e respostas, compare o que a tela precisa com o que realmente chegou. A primeira resposta expõe campos e usa uma política de script fraca.
 
-<Code caption="Resposta que fala demais (vulnerável)">
+<Code caption="Resposta que fala demais">
 
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express 4.17.1
 Content-Security-Policy: script-src 'self' 'unsafe-inline'
 
-{
-  "id": 7,
-  "name": "Alice",
-  "email": "alice@lab.local",
-  "password_hash": "$2b$12$…",
-  "reset_token": "9f2c…"
-}
+{ "id": 7, "name": "Alice", "password_hash": "$2b$12$…", "reset_token": "9f2c…" }
 ```
 
 </Code>
 
-<Code caption="Resposta fechada">
+<Code caption="Resposta reduzida e orientada">
 
 ```
 HTTP/1.1 200 OK
@@ -31,8 +25,6 @@ X-Content-Type-Options: nosniff
 
 </Code>
 
-<Callout tone="dev">
+A decisão não é “limpar no navegador”. A rota seleciona uma lista permitida de campos antes de serializar o JSON, troca a pilha por erro público genérico e adiciona as políticas adequadas à resposta.
 
-A lista de campos mora no servidor, como uma lista permitida: a rota escolhe o que sai, em vez de devolver o registro e torcer para a tela ignorar o resto.
-
-</Callout>
+Síntese: se chegou ao cliente, já foi exposto.

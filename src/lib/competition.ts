@@ -250,7 +250,7 @@ export async function recordAttempt(input: {
     await run(
       `INSERT INTO attempts (id,user_id,unit_id,mode,score,passed,attempt_number,started_at,submitted_at,active_duration_ms,question_version,competition_id)
        VALUES (?,?,?,?,?,?,?,NULL,?,0,?,?)`,
-      [id, input.userId, input.unitId, mode, input.score, input.passed, attemptNumber, submittedAt, input.questionVersion ?? "content-v1", competitionId],
+      [id, input.userId, input.unitId, mode, input.score, input.passed, attemptNumber, submittedAt, input.questionVersion ?? "content-v2", competitionId],
     );
 
     if (mode === "competition" && input.passed && competitionId) {

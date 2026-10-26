@@ -4,7 +4,8 @@ export const HEADERS_LAB_GAPS: Record<string, string> = {
   powered: "A resposta ainda anuncia `X-Powered-By`. Remova o header.",
   csp: "A CSP ainda falta ou usa `'unsafe-inline'`. Use nonce por resposta.",
   hsts: "Falta `Strict-Transport-Security` para o navegador ficar só em HTTPS.",
-  nosniff: "Falta `X-Content-Type-Options: nosniff`.",
+  nosniff:
+    "Falta `X-Content-Type-Options: nosniff`, que impede o navegador de tentar adivinhar outro tipo de conteúdo.",
   frame: "Qualquer site ainda pode enquadrar a página. Use `frame-ancestors 'self'` ou `'none'`.",
 };
 

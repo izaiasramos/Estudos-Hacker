@@ -1,6 +1,6 @@
-Em code review, o sintoma é um pedido HTTP cujo destino vem do corpo ou da query sem nenhuma regra no caminho. Compare a rota de prévia de link da Pizzaria do Lab antes e depois.
+Na revisão da prévia de link, procure um cliente HTTP cujo destino venha do corpo ou da query. Esta versão entrega ao usuário tanto a escolha do destino quanto o conteúdo recebido:
 
-<Code caption="Prévia que busca qualquer URL (vulnerável)">
+<Code caption="Prévia que busca qualquer URL">
 
 ```
 const resposta = await fetch(req.body.url);
@@ -9,25 +9,18 @@ return Response.json({ html: await resposta.text() });
 
 </Code>
 
-<Code caption="Prévia com a regra no servidor">
+O contraste seguro é uma sequência de decisões, não uma troca cosmética de chamada:
 
-```
-const url = new URL(req.body.url);
-if (url.protocol !== "https:") return erro("esquema");
-
-const { address } = await dns.lookup(url.hostname);
-if (ipInterno(address)) return erro("destino");
-
-const resposta = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(3000) });
-if (resposta.status >= 300 && resposta.status < 400) return erro("redirect");
-
-return Response.json(resumo(await lerAte(resposta, 512_000)));
-```
-
-</Code>
+1. interpretar a URL e aceitar apenas o esquema necessário;
+2. resolver todos os IPs e recusar internos, loopback e link-local;
+3. conectar ao IP que foi validado, sem uma segunda resolução do nome, mantendo o hostname para TLS;
+4. não seguir redirecionamentos automaticamente; validar cada novo destino se o produto precisar segui-los;
+5. limitar tempo e bytes e devolver apenas título, descrição e imagem.
 
 <Callout tone="dev">
 
-`resumo` devolve título, descrição e imagem, que é o que a prévia mostra. O corpo cru nunca volta para quem pediu.
+A API padrão de `fetch` não oferece, de modo portátil, uma opção simples para fixar a conexão no IP validado e ao mesmo tempo preservar corretamente hostname e TLS. Por isso não mostramos um trecho “pronto” enganoso: use um cliente ou agente que dê esse controle, ou isole a busca numa rede sem acesso interno.
 
 </Callout>
+
+JavaScript Object Notation (JSON) é apenas o formato da resposta; ele não torna o destino seguro. Síntese: o IP usado na conexão deve ser o mesmo que passou na validação.

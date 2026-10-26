@@ -1,7 +1,17 @@
-As duas funções abaixo são o app do lab. Hoje elas colam o email na frase. A busca tem de continuar a mesma: achar a pessoa pelo email, listar só os pedidos dela. O que muda é o caminho do valor.
+Agora você vai editar as duas funções fictícias do laboratório. A tarefa de negócio não muda: `findUser` busca uma pessoa pelo email e `listOrders` lista somente os pedidos desse email. Mude apenas o caminho do valor: estrutura SQL fixa, `?` como marcador e `email` enviado em argumento separado.
 
 <Callout tone="conceito">
 
-A instrução fica fixa, com um lugar marcado. O email segue como dado, num argumento separado. O servidor não executa o que você escrever: ele confere a forma da consulta e, se a fronteira fechou, roda os testes do app corrigido.
+Este editor **não executa o JavaScript nem consulta um banco**. Ao enviar, o servidor faz uma inspeção textual limitada: procura as duas funções, rejeita formas conhecidas de concatenação de `email` e verifica o padrão de parâmetro esperado pelo exercício. Uma aprovação confirma somente essa estrutura reconhecida; não demonstra, por execução, que login, senha e listagem funcionam.
 
 </Callout>
+
+A inspeção é deliberadamente estreita. Preserve os nomes `findUser` e `listOrders`, a ordem das funções e a chamada `db.query`. Em código de produção, revisão estrutural e testes comportamentais reais se complementariam; aqui, apenas a primeira parte está implementada.
+
+<Callout tone="dev">
+
+Use o método já mostrado: `db.query("... ?", [email])`. Corrija as duas funções. Se a inspeção apontar uma delas, leia o feedback como indicação do padrão textual encontrado, não como resultado de uma execução.
+
+</Callout>
+
+**Critério de conclusão:** as duas consultas mantêm a instrução fixa e passam `email` separadamente dentro do formato reconhecido pelo lab.

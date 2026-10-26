@@ -1,5 +1,5 @@
 export const IDOR_LAB_GAPS: Record<string, string> = {
-  owner: "A consulta ainda busca o pedido só pelo id. Filtre também pelo dono da sessão.",
+  owner: "A consulta ainda busca o pedido só pelo identificador. Filtre também pelo dono obtido da sessão.",
   server: "O papel ainda é conferido só na interface. A rota precisa conferir no servidor.",
   deny: "Rota nova ainda nasce aberta. Negue por padrão e libere de propósito.",
   allowlist: "O servidor ainda grava qualquer campo do corpo, inclusive `role` e `userId`. Use lista permitida.",

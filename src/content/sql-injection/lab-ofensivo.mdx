@@ -1,7 +1,19 @@
-O alvo é a Pizzaria do Lab. Só existem a Alice e o Bruno, com pedidos inventados. Nada aqui sai da plataforma. O trabalho desta unidade é ler o sintoma e apontar onde a fronteira quebrou. O fechamento fica no laboratório seguinte.
+O primeiro painel desta unidade é uma **simulação guiada**: nomes, emails, pedidos e resultado são fictícios e predefinidos, e nenhuma consulta é executada para produzi-lo. Abaixo dele, a Pizzaria do Lab pode abrir uma sessão executável separada; as verificações dessa sessão fazem requisições à aplicação do ambiente autorizado e exibem respostas observadas. Nenhum desses recursos executa o código que você editará no laboratório defensivo.
+
+A regra do cenário é: Alice deve ver apenas seus pedidos. O painel compara essa regra com um resultado simulado em que aparece um pedido atribuído a Bruno. Ao lado, uma inspeção já preparada informa que `findUser` e `listOrders` concatenam `email` ao texto SQL.
+
+<Callout tone="conceito">
+
+A simulação não prova o comportamento de um sistema externo nem reproduz uma exploração real. Ela oferece três peças para raciocinar: requisito, resultado divergente e padrão inseguro no código.
+
+</Callout>
+
+O contraste sustenta uma hipótese coerente: o filtro que chegou ao banco não preservou a busca exata por email. A inspeção estrutural mostra onde agir: as duas funções misturam o valor à instrução, mesmo que apenas uma delas tenha um sintoma visível no painel.
 
 <Callout tone="dev">
 
-O checker olhou as duas funções que montam consulta. As duas colam o email no texto. Na listagem, o filtro não segurou: apareceu pedido de outra pessoa. Não há um segundo passo escondido. O sintoma e a linha já estão na mesa.
+Não há um passo oculto nem motivo para tentar entradas em outro alvo. Responda com base no material mostrado. A prática de implementação acontece na unidade defensiva e permanece dentro deste ambiente autorizado.
 
 </Callout>
+
+**Decisão prática:** corrigir `findUser` e `listOrders`, mantendo a mesma finalidade de negócio e enviando `email` como parâmetro separado.
