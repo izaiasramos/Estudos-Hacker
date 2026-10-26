@@ -2,9 +2,9 @@ import type { Unit } from "@/content/sql-injection";
 
 export const TRAIL = {
   slug: "controle-acesso",
-  title: "Controle de acesso (IDOR)",
+  title: "Controle de acesso e referência direta insegura (IDOR)",
   summary:
-    "Quando o servidor confere quem você é, mas esquece de conferir o que você pode ver — e como dono, papel e negação por padrão fecham o buraco.",
+    "Autenticar identifica a pessoa; autorizar decide quais recursos ela pode ler ou alterar. Aprenda a combinar dono, papel e negação por padrão.",
 };
 
 export const UNITS: Unit[] = [
@@ -97,7 +97,7 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "ux",
-            label: "É boa UX, mas a rota precisa conferir o papel no servidor",
+            label: "Melhora a experiência de uso, mas a rota precisa conferir o papel no servidor",
             correct: true,
             explain: "A interface é do cliente. O pedido pode chegar à rota sem passar pelo botão.",
           },
@@ -111,7 +111,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "uuid",
-        prompt: "O time trocou ids sequenciais por UUID. O IDOR fechou?",
+        prompt: "O time trocou identificadores sequenciais por Universally Unique Identifier (UUID), um identificador longo e difícil de prever. O IDOR fechou?",
         choices: [
           {
             id: "nao",
@@ -129,7 +129,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "mass",
-        prompt: "O cadastro grava todos os campos do corpo. Qual é o risco?",
+        prompt: "O cadastro faz mass assignment: copia todos os campos do corpo para o registro. Qual é o risco?",
         choices: [
           {
             id: "role",

@@ -1,17 +1,13 @@
-Algumas funcionalidades pedem que o servidor vá buscar uma URL: a prévia de um link colado no chat, a foto importada de um endereço, o webhook que o cliente configura. Nessas horas o servidor vira um navegador, e quem escolhe para onde ele vai é o usuário.
+Uma prévia de link parece simples: o usuário cola um endereço e o servidor busca título e imagem. Mas o pedido parte de dentro da infraestrutura, onde pode alcançar bancos, painéis e serviços invisíveis para a internet.
 
-SSRF (Server-Side Request Forgery) é quando essa escolha não tem freio. O pedido sai de dentro da rede do servidor, então alcança o que ninguém de fora alcança: o banco, um painel administrativo sem senha porque "é interno", o serviço de metadados da nuvem.
+Server-Side Request Forgery (SSRF), ou falsificação de requisição pelo lado do servidor, ocorre quando alguém influencia esse destino sem controles suficientes. A Uniform Resource Locator (URL) identifica o recurso; o servidor usa Hypertext Transfer Protocol (HTTP) ou sua versão protegida, HTTPS, para buscá-lo.
 
 <Callout tone="analogia">
 
-Você pede ao recepcionista do prédio que busque uma encomenda num endereço. Ele tem crachá de todos os andares. Se você der o endereço da sala do cofre, ele sobe e traz o que estiver lá.
+Você pede ao recepcionista, que tem acesso a todos os andares, para buscar uma encomenda. Sem regras de destino, pode mandá-lo até a sala do cofre.
 
 </Callout>
 
-<Glossary term="Rede interna" text="Endereços que só existem dentro da infraestrutura: 127.0.0.1, faixas privadas como 10.x e 192.168.x, e o link-local 169.254.x.x. O firewall protege de fora, mas confia em quem já está dentro." />
+Um Internet Protocol address (IP), endereço numérico de rede, pode apontar para a internet ou para destinos internos. Por isso a decisão não termina no texto da URL: o servidor precisa controlar esquema, destino resolvido, redirecionamentos e resposta.
 
-<Callout tone="dev">
-
-Ao revisar código, procure todo `fetch`, `axios` ou cliente HTTP cujo destino venha do pedido do usuário. Cada um é uma porta para a rede interna.
-
-</Callout>
+<Glossary term="Rede interna" text="Destinos acessíveis apenas dentro da infraestrutura, como loopback, faixas privadas e endereços link-local. O servidor pode alcançá-los mesmo quando o usuário externo não pode." />

@@ -1,15 +1,19 @@
-Depois do login, o servidor cria uma sessão: um registro do lado dele, com o usuário e a hora. Para o navegador, sobra um identificador, quase sempre num cookie. Nas próximas requisições o navegador devolve essa chave, e o servidor trata quem a apresenta como aquele usuário.
+Você faz login na Pizzaria, abre outra página e continua reconhecido sem digitar a senha de novo. O servidor precisa ligar cada novo pedido à identidade que já foi autenticada. Para isso, cria uma sessão e entrega ao navegador uma chave temporária.
+
+<Glossary term={"Sessão"} text={"Registro temporário mantido pelo servidor depois da autenticação. Ele liga uma chave a uma identidade e deve ter prazo e forma de revogação."} />
+
+<Glossary term={"Cookie"} text={"Pequeno dado que o navegador guarda para um site e pode reenviar automaticamente nos pedidos seguintes. Um cookie de sessão costuma carregar só a chave da sessão, nunca a senha."} />
 
 <Callout tone="analogia">
 
-A chave do quarto de hotel não é a pessoa. Quem chega com a chave certa entra. Por isso a chave tem prazo, não fica escrita no corredor e é trocada quando o hóspede faz um novo check-in.
+A chave do quarto de hotel não é o hóspede. Mesmo assim, enquanto for válida, quem a apresenta consegue abrir a porta. Uma chave de sessão vazada cria o mesmo problema: o servidor pode atender outra pessoa como se fosse você.
 
 </Callout>
 
-<Glossary term={"Cookie de sessão"} text={"Pequeno valor que o navegador guarda e reenvia ao mesmo site. No produto, ele aponta para a sessão no servidor. Não é a senha."} />
+Autenticação, sessão e autorização ocupam momentos diferentes. A autenticação verifica quem está entrando. A sessão mantém essa identidade entre pedidos. A autorização decide o que a identidade pode fazer em cada recurso.
 
 <Callout tone="armadilha">
 
-Guardar essa chave onde o JavaScript da página lê com facilidade, como o localStorage, aumenta o estrago se um script indesejado rodar na mesma página. O cookie pode ser marcado para o script não ler.
+A decisão prática é simples: trate a chave como segredo temporário. Não a coloque em locais feitos para o JavaScript ler, não a reutilize depois de um novo login e invalide-a no logout.
 
 </Callout>

@@ -18,13 +18,21 @@ export function AuthHardeningLab({
   if (done) {
     return (
       <section className="mt-8 rounded-[16px] border border-defense/40 bg-defense/10 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Checker</p>
-        <ul className="mt-3 space-y-2 text-sm text-text">
-          <li>Senha armazenada como hash bcrypt.</li>
-          <li>Resposta única: “E-mail ou senha inválidos”.</li>
-          <li>Cadastro recusa senhas curtas e comuns.</li>
-          <li>Após falhas repetidas, login desacelera.</li>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">
+          Checklist simulado completo
+        </p>
+        <p className="mt-3 text-sm text-text">
+          Você selecionou as quatro decisões deste checklist simulado:
+        </p>
+        <ul className="mt-2 space-y-2 text-sm text-text">
+          <li>armazenar senhas com algoritmo próprio para hash de senha;</li>
+          <li>manter mensagem e status coerentes para qualquer credencial inválida;</li>
+          <li>recusar senhas curtas e comuns no cadastro;</li>
+          <li>limitar tentativas falhas repetidas.</li>
         </ul>
+        <p className="mt-4 text-xs text-muted">
+          O checker conferiu opções marcadas; não executou hash nem testou um endpoint real.
+        </p>
       </section>
     );
   }
@@ -32,26 +40,28 @@ export function AuthHardeningLab({
   return (
     <form action="/api/trilha/autenticacao-lab" method="post" className="mt-8 space-y-4">
       <div className="rounded-[16px] border border-white/10 bg-ink/50 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">POST /login (lab)</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+          Prévia do login simulado
+        </p>
         <p className="mt-3 font-mono text-sm text-text">
-          {hash ? "password_hash=bcrypt(...)" : "password_plain=***"}
+          {hash ? "armazenamento=hash_para_senha" : "armazenamento=texto_puro"}
         </p>
         <p className="mt-2 text-xs text-muted">
           {generic
-            ? "Resposta: E-mail ou senha inválidos."
-            : "Resposta: distingue e-mail inexistente de senha errada."}
+            ? "Resposta escolhida: E-mail ou senha inválidos."
+            : "Resposta escolhida: distingue e-mail inexistente de senha errada."}
         </p>
         <p className="mt-1 text-xs text-muted">
-          {policy ? "Cadastro: política mínima ativa." : "Cadastro: aceita senha123."}
+          {policy ? "Cadastro: política mínima selecionada." : "Cadastro: aceitaria senha123."}
           {" · "}
-          {limit ? "Tentativas: limitadas." : "Tentativas: ilimitadas."}
+          {limit ? "Tentativas: limite selecionado." : "Tentativas: sem limite."}
         </p>
       </div>
 
       {missing.length > 0 ? (
         <ul className="space-y-2 text-sm text-danger" role="alert">
           {missing.map((key) => (
-            <li key={key}>{AUTH_LAB_GAPS[key] ?? "Falta uma defesa."}</li>
+            <li key={key}>{AUTH_LAB_GAPS[key] ?? "Falta uma decisão no checklist."}</li>
           ))}
         </ul>
       ) : null}
@@ -65,7 +75,7 @@ export function AuthHardeningLab({
           onChange={(event) => setHash(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Hash bcrypt — nunca guardar senha em texto puro
+        Hash de senha — usar bcrypt, scrypt ou Argon2 com salt e custo adequados
       </label>
       <label className="flex items-start gap-3 text-sm">
         <input
@@ -76,7 +86,7 @@ export function AuthHardeningLab({
           onChange={(event) => setGeneric(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Mensagem genérica — mesma resposta para e-mail ou senha inválidos
+        Resposta coerente — mesma mensagem e mesmo status para credenciais inválidas
       </label>
       <label className="flex items-start gap-3 text-sm">
         <input
@@ -87,7 +97,7 @@ export function AuthHardeningLab({
           onChange={(event) => setPolicy(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Política no cadastro — tamanho mínimo e bloqueio de senhas comuns
+        Política de cadastro — tamanho mínimo e bloqueio de senhas comuns
       </label>
       <label className="flex items-start gap-3 text-sm">
         <input
@@ -98,13 +108,13 @@ export function AuthHardeningLab({
           onChange={(event) => setLimit(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Limite de tentativas — desacelerar logins falhos repetidos
+        Rate limiting — desacelerar tentativas falhas repetidas
       </label>
       <button
         type="submit"
         className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
-        Conferir o login
+        Conferir decisões
       </button>
     </form>
   );

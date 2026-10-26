@@ -1,7 +1,19 @@
-Token anti-CSRF: valor secreto no form que o site malicioso não conhece. SameSite Lax/Strict: cookie não sai em muitos pedidos cross-site. Checagem de Origin/Referer: servidor recusa POST vindo de origem estranha. Por fim, nunca mutar estado em GET.
+O endpoint de transferência precisa reconhecer mais que uma sessão. Quatro decisões se complementam.
 
-<Callout tone="dev">
+Um **token anti-CSRF** é um valor imprevisível associado à sessão ou ao formulário. O aplicativo legítimo o inclui na mutação, e o servidor o valida. Outra origem pode tentar enviar um formulário, mas, por causa da política de mesma origem, normalmente não consegue ler o token da página legítima para reproduzi-lo.
 
-Nesta plataforma, rotas POST checam same-origin via Origin/Referer. É uma camada — não substitui token em apps com requisitos mais rígidos.
+**SameSite** é um atributo do cookie que controla seu envio em contextos entre sites. Aqui, **site** não é sinônimo de origem: de forma prática, considera o esquema e o domínio registrável, sem distinguir porta. Assim, `https://app.exemplo.com` e `https://painel.exemplo.com` são origens diferentes, mas continuam no mesmo site. SameSite não barra esse segundo caso; token ou validação de Origin ainda podem fazê-lo.
+
+`Strict` é mais restritivo; `Lax` permite alguns fluxos de navegação, mas bloqueia o cookie em muitos pedidos cross-site, como um `POST` de formulário externo. `None` permite envio cross-site e exige `Secure`. A escolha precisa considerar os fluxos legítimos do produto.
+
+Os cabeçalhos **Origin** e **Referer** ajudam o servidor a verificar de onde o pedido foi iniciado. `Origin` informa a origem. `Referer` normalmente informa a URL da página anterior e pode ser usado como fallback conforme política explícita. Compare com uma lista exata de origens permitidas; não aceite apenas porque um texto “contém” o domínio. Decida também o que fazer quando o cabeçalho esperado estiver ausente.
+
+Por fim, **GET** e **POST** expressam intenções diferentes. GET deve obter dados sem alterar estado. POST envia uma operação que pode alterar estado. Mover a mutação para POST evita disparos por simples links e recursos, mas **POST sozinho não impede CSRF**: um site externo também pode enviar formulários POST.
+
+<Callout tone="conceito">
+
+Defesa em profundidade não significa que todas as camadas precisam falhar para toda conclusão, nem que todo sistema usa exatamente o mesmo conjunto. Uma validação correta pode barrar o ataque; as demais cobrem limites, erros de configuração e diferentes fluxos.
 
 </Callout>
+
+A decisão de arquitetura é documentar qual camada reconhece a intenção, qual restringe o cookie e qual reduz superfícies acidentais.

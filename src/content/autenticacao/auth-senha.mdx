@@ -1,23 +1,26 @@
-Se o vazamento do banco traz senhas legíveis, o atacante testa as mesmas senhas em outros sites. Hash com algoritmo pensado para senha (bcrypt, scrypt, Argon2) torna cada tentativa cara. O salt impede que duas senhas iguais gerem o mesmo hash.
+Se um banco vaza e as senhas estão legíveis, o invasor pode testá-las imediatamente neste e em outros serviços. Guardar a senha de forma reversível só muda o caminho até o mesmo desastre.
 
-<Code caption={"Forma errada (nunca faça)"}>
+<Glossary term={"Hash de senha"} text={"Resultado de uma transformação de mão única usada para verificar uma senha sem guardar a senha original. No login, o sistema testa a senha digitada contra o hash armazenado."} />
+
+<Glossary term={"Salt"} text={"Valor aleatório e único adicionado a cada senha antes do cálculo do hash. Ele pode ficar junto do hash e evita que senhas iguais produzam resultados iguais."} />
+
+<Glossary term={"bcrypt, scrypt e Argon2"} text={"Famílias de algoritmos próprios para hash de senha. Eles tornam cada tentativa deliberadamente custosa; a aplicação escolhe um deles e configura seu custo conforme a plataforma."} />
+
+<Code caption={"Contraste conceitual"}>
 
 ```
-if (senhaDigitada === usuario.senhaNoBanco) { ... }
+errado: guardar senhaDigitada
+certo:  guardar algoritmo + parâmetros + salt + hash
 ```
 
 </Code>
 
-<Code caption={"Forma certa (conceito)"}>
-
-```
-const ok = await bcrypt.compare(senhaDigitada, usuario.password_hash);
-```
-
-</Code>
+No login, a biblioteca do algoritmo lê os dados armazenados e verifica a senha digitada. Não é necessário — nem correto — recuperar a senha original.
 
 <Callout tone="dev">
 
-Nesta plataforma, cadastro recusa senha curta, igual ao e-mail ou presente numa lista de senhas comuns — antes de chegar no hash. Política mínima no cadastro, hash no armazenamento.
+Hash não torna uma senha fraca impossível de descobrir. Quem obtém o banco pode testar palpites sem passar pelo login. Por isso, o cadastro também deve barrar senhas muito curtas, óbvias ou presentes em listas de senhas comuns.
 
 </Callout>
+
+A decisão é usar uma biblioteca atual para bcrypt, scrypt ou Argon2, com salt único e custo adequado, além de revisar esses parâmetros com o tempo.

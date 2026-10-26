@@ -167,7 +167,7 @@ export async function gradeUnit(
       score: graded.score,
       passed: graded.passed,
       alreadyDone,
-      questionVersion: "content-v1",
+      questionVersion: "content-v2",
     });
     const attempts = (current?.attempts ?? 0) + 1;
     if (alreadyDone) {
@@ -232,7 +232,7 @@ export async function recordLabResult(
       score: passed ? 100 : 0,
       passed,
       alreadyDone,
-      questionVersion: "lab-checker-v1",
+      questionVersion: "lab-checker-v2",
     });
     const completedAt = new Date().toISOString();
     const gain = passed && !alreadyDone ? LAB_XP : 0;

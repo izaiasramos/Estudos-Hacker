@@ -8,13 +8,15 @@ export function DefenseEditor({ done }: { done: boolean }) {
   const router = useRouter();
   const [source, setSource] = useState(VULNERABLE_QUERIES);
   const [tests, setTests] = useState<LabTest[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [passed, setPassed] = useState(done);
 
   if (done) {
     return (
       <p className="mt-8 text-sm text-defense" role="status">
-        Vetor fechado. Login e listagem continuam valendo para a Alice.
+        Inspeção estrutural aprovada: as duas funções mantêm o email fora do texto SQL. Este
+        exercício não executou o código nem testou o banco.
       </p>
     );
   }
@@ -23,23 +25,40 @@ export function DefenseEditor({ done }: { done: boolean }) {
     event.preventDefault();
     setPending(true);
     setTests(null);
+    setError(null);
+    setPassed(false);
+
     const body = new FormData();
     body.set("source", source);
-    const response = await fetch("/api/trilha/lab", { method: "POST", body });
-    setPending(false);
-    if (!response.ok) return;
-    const data = (await response.json()) as {
-      passed: boolean;
-      tests: LabTest[];
-      sealed: boolean;
-    };
-    setTests(data.tests);
-    setPassed(data.passed);
-    if (data.sealed) {
-      router.push("/trilha/sql-injection/selo");
-      return;
+
+    try {
+      const response = await fetch("/api/trilha/lab", { method: "POST", body });
+      if (!response.ok) {
+        setError(
+          "A inspeção não pôde ser concluída. Isso é uma falha de comunicação com o lab, não uma avaliação do seu código. Tente novamente.",
+        );
+        return;
+      }
+
+      const data = (await response.json()) as {
+        passed: boolean;
+        tests: LabTest[];
+        sealed: boolean;
+      };
+      setTests(data.tests);
+      setPassed(data.passed);
+      if (data.sealed) {
+        router.push("/trilha/sql-injection/selo");
+        return;
+      }
+      if (data.passed) router.refresh();
+    } catch {
+      setError(
+        "Não foi possível alcançar o serviço de inspeção. Nenhum resultado de execução foi produzido; verifique a conexão e tente novamente.",
+      );
+    } finally {
+      setPending(false);
     }
-    if (data.passed) router.refresh();
   }
 
   return (
@@ -61,8 +80,13 @@ export function DefenseEditor({ done }: { done: boolean }) {
         disabled={pending}
         className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink disabled:opacity-60"
       >
-        {pending ? "Rodando testes" : "Rodar testes"}
+        {pending ? "Inspecionando estrutura" : "Inspecionar estrutura"}
       </button>
+      {error ? (
+        <p className="text-sm leading-relaxed text-danger" role="alert">
+          {error}
+        </p>
+      ) : null}
       {tests ? (
         <ol className="space-y-2" aria-live="polite">
           {tests.map((test, index) => (
@@ -72,7 +96,11 @@ export function DefenseEditor({ done }: { done: boolean }) {
               style={{ animationDelay: `${index * 180}ms` }}
             >
               <p className="text-sm text-text">
-                {test.state === "pass" ? "Verde" : test.state === "fail" ? "Aberto" : "À espera"}
+                {test.state === "pass"
+                  ? "Reconhecido"
+                  : test.state === "fail"
+                    ? "A corrigir"
+                    : "Não executado"}
                 <span className="mx-2 text-white/20">·</span>
                 {test.name}
               </p>
@@ -83,7 +111,8 @@ export function DefenseEditor({ done }: { done: boolean }) {
       ) : null}
       {passed ? (
         <p className="text-sm text-defense" role="status">
-          Vetor fechado. Login e listagem continuam valendo para a Alice.
+          Inspeção estrutural aprovada. Isso conclui o exercício, mas não representa uma execução
+          do JavaScript nem um teste comportamental do banco.
         </p>
       ) : null}
     </form>

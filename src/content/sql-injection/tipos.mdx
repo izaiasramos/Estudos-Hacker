@@ -1,15 +1,21 @@
-O mecanismo de fundo é um só: dado virou instrução. O que muda é como o efeito volta para quem observa. Saber o nome ajuda a ler um relatório. Não muda a defesa principal.
+Até aqui, o mecanismo foi sempre o mesmo: uma entrada ganhou influência sobre a estrutura SQL. Os nomes a seguir descrevem **quando** e **como** o efeito pode ser observado. Eles ajudam a ler relatórios, mas não criam três problemas independentes.
 
 <Callout tone="conceito">
 
-Na forma direta, a resposta da própria página traz o que não deveria. Na forma cega, a página não mostra o dado, mas o comportamento muda: erro, resultado vazio, ou uma diferença que denuncia a frase. Na forma de segunda ordem, o valor é guardado agora e só entra numa consulta concatenada mais tarde.
+- **Direta:** a própria resposta mostra um resultado que não deveria estar disponível, como linhas de outra pessoa.
+- **Cega:** a resposta não exibe o dado, mas diferenças de comportamento — erro, vazio ou outra mudança observável — permitem inferir que a consulta mudou.
+- **De segunda ordem:** o valor é armazenado como dado e só causa o problema depois, quando outra função o concatena em uma nova consulta.
 
 </Callout>
 
-Para quem programa, a segunda ordem é a que mais escapa no review. O campo foi salvo “só como texto”. Outra função, em outro dia, cola esse texto numa consulta. O buraco não está na tela que gravou. Está na consulta que confiou no que estava guardado.
+Pense na Pizzaria do Lab. Se a lista de Alice exibe o pedido de Bruno, a evidência é direta. Se a tela só muda entre “resultado” e “erro”, sem revelar linhas, a observação é cega. Se um apelido salvo hoje for concatenado por um relatório amanhã, a falha aparece em segunda ordem.
+
+A terceira forma merece atenção em revisão de código: “veio do nosso banco” não significa “pode entrar na estrutura SQL”. Origem confiável e papel seguro são ideias diferentes. Um valor lido do banco continua sendo dado.
 
 <Callout tone="dev">
 
-Defender os três é a mesma invariante em todos os pontos que montam consulta, inclusive nos que leem dado já salvo. Não existe uma defesa por nome e outra por nome.
+A decisão prática não depende do nome: parametrize toda consulta, inclusive as que usam valores já armazenados. Use a classificação para descrever a evidência e priorizar investigação, não para escolher se a separação é necessária.
 
 </Callout>
+
+**Síntese:** direta, cega e de segunda ordem mudam o caminho da evidência. A invariante e a defesa principal continuam iguais.

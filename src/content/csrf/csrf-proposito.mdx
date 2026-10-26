@@ -1,9 +1,15 @@
-Cross-Site Request Forgery (CSRF) envia, a partir de outra página, um pedido que o navegador completa com os cookies da vítima. O servidor vê sessão válida e executa a ação — transferência, mudança de e-mail, exclusão — sem que a pessoa tenha clicado de propósito no seu app.
+Uma pessoa deixa o internet banking aberto em uma aba e visita outro site. Sem perceber, esse segundo site tenta enviar uma transferência. O atacante não sabe a senha nem lê a conta; ele aposta que o navegador anexará a sessão já aberta ao pedido.
+
+**Cross-Site Request Forgery (CSRF)** significa *falsificação de pedido entre sites*. O servidor recebe um pedido associado a uma sessão válida, mas a pessoa não iniciou aquela ação no aplicativo legítimo.
+
+Para entender o nome, defina **origem** como a combinação de esquema, host e porta: `https://app.exemplo:443`. A **política de mesma origem** (*same-origin policy*) impede que uma página de outra origem leia livremente dados do aplicativo. Porém, ela não impede todos os envios entre sites. Um formulário externo ainda pode tentar enviar um pedido, e o navegador pode anexar cookies conforme as regras desses cookies.
 
 <Callout tone="analogia">
 
-A vítima deixou a carteira aberta na mesa. O atacante não rouba a senha; só estica o braço e assina um papel enquanto ela olha para outro lugar.
+A autenticação reconhece o crachá. A proteção contra CSRF pergunta também: “esta pessoa realmente iniciou este formulário dentro do prédio?” Sessão válida e intenção legítima são perguntas diferentes.
 
 </Callout>
 
-<Glossary term={"Same-origin vs cross-origin"} text={"Origem = esquema + host + porta. Pedido de outro site é cross-origin, mas o cookie de sessão ainda pode ir se o navegador permitir."} />
+O alvo comum é uma **mutação**: transferir valor, trocar e-mail, alterar senha ou excluir algo. A investigação começa no endpoint: qual credencial o navegador envia automaticamente e qual evidência adicional prova que o fluxo veio do aplicativo?
+
+<Glossary term={"Same-origin e cross-origin"} text={"Same-origin é a mesma combinação de esquema, host e porta. Cross-origin é uma origem diferente. A política do navegador limita leitura entre origens, mas pedidos e cookies têm regras próprias."} />

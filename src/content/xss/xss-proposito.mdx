@@ -1,9 +1,15 @@
-Cross-Site Scripting (XSS) acontece quando entrada não confiável entra na página e o navegador executa ou interpreta como HTML/JavaScript no contexto do seu site. O atacante passa a agir com os privilégios da vítima naquela origem: ler o DOM, disparar ações, às vezes roubar sessão se a chave estiver exposta ao script.
+Uma equipe lança comentários no painel de suporte. Na sexta-feira, alguém cola um texto com aparência de imagem quebrada. Na segunda, qualquer agente que abre o chamado vê a tela mudar e uma ação acontece com sua sessão. O comentário não deveria dar ordens ao navegador — mas deu.
+
+**Cross-Site Scripting (XSS)** significa *execução de script entre sites*. O nome histórico é menos importante que o modelo mental: dado não confiável entrou em uma página legítima e foi interpretado como HTML ou JavaScript ativo. O efeito ocorre no navegador de quem visita a página, dentro da origem e da sessão daquele aplicativo.
 
 <Callout tone="analogia">
 
-A página é um quadro de avisos. XSS é colar um bilhete que o quadro obedece como ordem, não como texto.
+Imagine um mural que deveria apenas exibir bilhetes. XSS acontece quando o mural lê um bilhete como instrução: “mova esta porta”, “envie este formulário”. A defesa central é garantir que bilhetes continuem sendo bilhetes.
 
 </Callout>
 
-<Glossary term={"Contexto de saída"} text={"O mesmo dado precisa de regra diferente em HTML, atributo, URL ou JavaScript. Escapar no lugar errado não protege."} />
+Mesmo um cookie `HttpOnly`, que não pode ser lido diretamente por JavaScript, não encerra o problema. Um script na página ainda pode alterar a interface, ler dados visíveis e disparar ações que o navegador autoriza para a sessão atual.
+
+<Glossary term={"Contexto de saída"} text={"O lugar onde um valor será inserido: texto HTML, atributo, URL ou JavaScript. Cada contexto exige tratamento próprio; escapar para um contexto não protege automaticamente os outros."} />
+
+A pergunta que guiará a investigação é simples: **em que ponto o aplicativo deixou de tratar a entrada como dado e passou a tratá-la como código?**

@@ -1,17 +1,17 @@
-A primeira defesa que todo time tenta é recusar URLs com `localhost` no texto. Ela falha porque o texto não é o destino. Outro nome de domínio pode apontar para um IP interno, o mesmo IP pode ser escrito de várias formas, e uma URL aprovada pode responder com um redirect para dentro da rede.
+Bloquear a palavra `localhost` parece resolver o caso óbvio. Não resolve: outro nome pode chegar ao mesmo IP, um IP pode ter representações diferentes e um destino público pode redirecionar para dentro.
 
-A defesa que segura olha o que de fato vai acontecer. Esquema permitido: só `https:`, ou `http:` se não houver jeito. Destino conferido depois de resolver o nome: o IP final não pode estar em faixa interna, de loopback ou link-local. Redirect sob controle: não seguir, ou checar cada salto de novo. Quando possível, lista permitida de hosts, em vez de lista de bloqueio.
+Domain Name System (DNS), sistema de nomes de domínio, traduz um nome como `exemplo.com` em um ou mais IPs. A regra segura permite apenas os esquemas necessários, resolve o nome, recusa todos os candidatos internos, loopback ou link-local e conecta exatamente ao destino validado. Se a biblioteca resolver o nome outra vez durante a conexão, surge uma janela em que a resposta DNS pode mudar. A implementação precisa fixar a conexão ao IP conferido, preservando o nome original para validação do certificado TLS e para o cabeçalho de host.
+
+Cada redirecionamento é uma URL nova: prefira não seguir; se seguir, repita todo o processo e imponha um limite de saltos. Quando o produto conhece os destinos, uma lista permitida de hosts é mais forte que tentar listar tudo o que é proibido.
 
 <Callout tone="armadilha">
 
-Validar a URL e depois deixar a biblioteca resolver o nome de novo na hora do pedido abre uma janela: o DNS pode responder diferente na segunda vez. Resolva uma vez, confira o IP e conecte nesse IP.
+“Resolvi e validei” não basta se o cliente HTTP resolver novamente. Validar um IP e conectar por outro mantém a falha.
 
 </Callout>
 
-<Glossary term="Serviço de metadados" text="Endereço como 169.254.169.254, que provedores de nuvem usam para a máquina descobrir dados sobre si mesma, às vezes incluindo credenciais temporárias. Por isso é o alvo mais citado de SSRF." />
+Amazon Web Services (AWS) oferece o Instance Metadata Service version 2 (IMDSv2), serviço de metadados de instância versão 2. Ele exige um token temporário para consultar dados da máquina e reduz ataques simples, mas não substitui bloquear o endereço link-local `169.254.169.254` nem restringir a saída de rede.
 
-<Callout tone="dev">
+<Glossary term="Serviço de metadados" text="Endpoint interno usado por plataformas de nuvem para fornecer dados da máquina e, em alguns casos, credenciais temporárias. Não deve ser alcançável por uma busca controlada pelo usuário." />
 
-A rede também é defesa. O serviço que busca URLs pode rodar numa rede sem acesso ao interno. É assim que o laboratório desta plataforma roda no modo Docker: rede sem saída.
-
-</Callout>
+Síntese: valide o destino real, conecte ao que validou e trate cada salto como uma nova decisão.

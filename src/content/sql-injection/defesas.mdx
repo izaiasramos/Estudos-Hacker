@@ -1,19 +1,33 @@
-A defesa que segura o problema é a consulta em que a instrução fica fixa e o valor entra por um canal separado. No SQL isso aparece como parâmetro. Num ORM, como método que recebe o valor fora da string. Se o time voltar a concatenar, a defesa some.
+A defesa principal decorre diretamente do modelo mental: fixe a estrutura SQL e envie valores por parâmetros. No driver usado pelo laboratório, `?` marca o lugar e `[email]` leva o valor separadamente.
 
-<Glossary term={"menor privilégio"} text={"A conta do banco que o app usa só pode o que o app precisa. Ler e gravar as tabelas da feature. Não derrubar o banco, não ler o que outra parte do sistema guarda."} />
+<Code caption="Mesma busca, com papéis separados">
 
-<Callout tone="conceito">
+```js
+db.query("SELECT id FROM usuarios WHERE email = ?", [email])
+```
 
-Menor privilégio não conserta a consulta concatenada. Ele reduz o estrago se a fronteira falhar. As duas camadas contam. Nenhuma substitui a outra.
+</Code>
 
-</Callout>
+Um **ORM** — biblioteca de Mapeamento Objeto-Relacional — costuma oferecer métodos que constroem SQL a partir de objetos ou argumentos. Use a interface que trata valores como parâmetros. Inserir manualmente uma variável em uma string SQL continua inseguro, mesmo dentro de um projeto que usa ORM.
 
-Validar formato — um e-mail parece e-mail, um id é número — ajuda a feature a falhar cedo. Não é a muralha. Um valor válido ainda pode ser colado numa consulta se alguém concatenar.
+Além da correção principal, há camadas que reduzem risco e impacto:
 
-<Glossary term={"WAF"} text={"Um filtro na frente do app que tenta reconhecer pedidos suspeitos. É uma rede. Consulta concatenada continua quebrada se o pedido passar, ou se o dado já estiver salvo."} />
+<Glossary term="menor privilégio" text="Princípio de conceder à conta do aplicativo somente as permissões necessárias para sua função. Se algo falhar, o alcance possível fica menor." />
+
+Validar o formato da entrada também é útil. A validação responde “este valor faz sentido para esta função?”. A parametrização responde uma pergunta diferente: “este valor pode mudar a estrutura SQL?”. As duas podem coexistir, mas só a segunda fecha esta fronteira.
+
+<Glossary term="WAF" text="Sigla de Web Application Firewall (Firewall de Aplicação Web): camada diante da aplicação que examina requisições e tenta bloquear padrões suspeitos antes que cheguem ao código." />
 
 <Callout tone="armadilha">
 
-Tratar o WAF como correção única deixa o código do mesmo jeito. A rede observa. A fronteira se fecha na consulta.
+Um WAF não transforma uma consulta concatenada em parametrizada. Ele pode bloquear parte do tráfego, mas pode não reconhecer todas as formas, não cobre necessariamente dados já armazenados e não corrige a causa no código.
 
 </Callout>
+
+<Callout tone="dev">
+
+Ordem de decisão: primeiro elimine a concatenação de valores no SQL; depois confirme regras de negócio com validação; limite a conta do banco; use monitoramento e WAF como camadas adicionais. Não troque a defesa estrutural por uma barreira periférica.
+
+</Callout>
+
+**Síntese:** parâmetros corrigem a causa; validação melhora a entrada; menor privilégio reduz impacto; WAF adiciona observação e bloqueio parcial.

@@ -1,7 +1,21 @@
-No lab, o painel de comentários ainda usa innerHTML, não há CSP, a busca ecoa HTML e o editor aceita tags arbitrárias. Qualquer um desses abre XSS.
+O painel investigado precisa exibir texto comum e, em uma área separada, aceitar formatação rica. Isso exige decisões diferentes.
+
+Para **texto comum**, use uma API que crie texto, como `textContent`, ou a interpolação segura do framework. Além disso, codifique a saída conforme o contexto: caracteres com significado especial em HTML, atributos ou URLs não podem controlar a estrutura daquele contexto.
+
+Quando **HTML rico é um requisito real**, entra a **sanitização**: um sanitizador analisa o HTML e mantém somente uma lista permitida de tags e atributos. Não é o mesmo que codificar tudo. Codificação mostra a marcação como texto; sanitização preserva uma parte aprovada da marcação. Bloquear apenas palavras conhecidas é frágil.
+
+Por fim, configure uma **Content Security Policy (CSP)**, ou Política de Segurança de Conteúdo. Ela diz ao navegador quais fontes de script, estilo e outros recursos são aceitas. Um **nonce** é um valor imprevisível criado para uma resposta e colocado tanto no cabeçalho CSP quanto nos scripts autorizados daquela página; scripts sem o nonce correto são recusados.
 
 <Callout tone="armadilha">
 
-Confiar só no “React escapa por padrão” falha no momento em que alguém usa dangerouslySetInnerHTML, concatena string ou passa URL sem validar.
+CSP com nonce é uma camada adicional, não blindagem absoluta. Ela dificulta a execução de scripts não autorizados, mas não corrige `innerHTML`, não sanitiza conteúdo e pode perder força se o nonce for reutilizado ou aplicado a código que consome entrada perigosa.
 
 </Callout>
+
+<Callout tone="dev">
+
+Decisão prática: texto simples usa DOM seguro; HTML necessário passa por sanitização; toda saída respeita seu contexto; CSP reduz o impacto caso outra barreira falhe.
+
+</Callout>
+
+A ausência isolada de CSP não cria XSS por si só. O risco nasce quando dado não confiável alcança um ponto que o interpreta como conteúdo ativo; cada camada muda a chance ou o impacto dessa passagem.

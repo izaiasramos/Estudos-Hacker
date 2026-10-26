@@ -1,17 +1,23 @@
-Uma consulta concatenada é uma frase só. O banco tem um leitor dessa frase: ele decide onde acaba um texto e onde começa um comando. Se o valor do usuário contém o caractere que fecha esse texto, o leitor pode passar a tratar o resto como instrução.
+Uma consulta concatenada chega ao banco como um texto único. Para executá-la, o banco usa um **analisador** — também chamado de *parser* — que reconhece a estrutura da linguagem: o que é comando, nome de tabela, operador e valor textual.
+
+Se a entrada foi colada nesse texto, certos conteúdos podem alterar os limites que o analisador enxerga. Esse é o mecanismo da **SQL Injection**: uma entrada que deveria ocupar apenas o papel de dado passa a influenciar a estrutura da instrução SQL.
 
 <Callout tone="analogia">
 
-É a diferença entre uma carta dentro do envelope e uma ordem escrita do lado de fora. Concatenar é deixar a pessoa escrever no lado de fora.
+Na consulta parametrizada, a instrução é um formulário pronto e o valor preenche um campo. Na concatenação, todos recebem a mesma caneta para escrever tanto no campo quanto nas regras do formulário.
 
 </Callout>
 
-O servidor pode achar que mandou “busque este e-mail”. O banco recebe uma frase e obedece a frase inteira. Não há uma segunda leitura para adivinhar o que o programador queria.
+O servidor pode ter a intenção de “buscar exatamente este email”. O banco, porém, não recebe essa intenção como informação adicional. Ele recebe uma estrutura final e a interpreta conforme as regras do SQL.
 
 <Callout tone="dev">
 
-Quando revisar um pull request, procure consulta montada com +, template string ou formato equivalente, com variável que veio de request, query string, cabeçalho ou corpo. Esse é o lugar da invariante.
+Em uma revisão autorizada, siga a origem dos valores usados em consultas. Eles podem vir do corpo de uma requisição, de um parâmetro no endereço, de um cabeçalho ou até do próprio banco. Procure concatenação com `+`, interpolação em template string ou qualquer montagem textual equivalente.
 
 </Callout>
 
-<Glossary term={"consulta parametrizada"} text={"A instrução fica fixa e os valores entram por um canal separado, como um ?. O banco não reinterpreta o valor como comando."} />
+Bloquear uma pequena lista de caracteres deixa duas responsabilidades misturadas e exige prever todas as variações possíveis. Parametrizar muda o modelo: o banco conhece previamente a estrutura e recebe os valores em posições definidas.
+
+<Glossary term="consulta parametrizada" text="Consulta cuja estrutura SQL permanece fixa e cujos valores são enviados separadamente por parâmetros. O conteúdo do parâmetro não é reinterpretado como parte da instrução." />
+
+**Síntese:** o analisador do banco interpreta a estrutura recebida. Portanto, a correção deve controlar essa estrutura, e não tentar adivinhar toda entrada que poderia alterá-la.

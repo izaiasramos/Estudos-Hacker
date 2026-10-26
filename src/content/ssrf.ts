@@ -3,9 +3,9 @@ import type { Unit } from "@/content/sql-injection";
 // Texto de cada unidade: src/content/ssrf/<id>.mdx
 export const TRAIL = {
   slug: "ssrf",
-  title: "SSRF",
+  title: "Falsificação de requisições pelo servidor (SSRF)",
   summary:
-    "Quando o servidor busca uma URL que o usuário escolheu e acaba batendo na rede interna — e como lista permitida, checagem do IP resolvido e redirect sob controle fecham o buraco.",
+    "Controle o destino que o servidor busca: valide o endereço, resolva o nome, conecte ao Internet Protocol address (IP) conferido e trate cada redirecionamento como uma nova decisão.",
 };
 
 export const UNITS: Unit[] = [
@@ -20,7 +20,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "definicao",
-        prompt: "O que caracteriza SSRF (Server-Side Request Forgery)?",
+        prompt: "O que caracteriza Server-Side Request Forgery (SSRF), ou falsificação de requisição pelo lado do servidor?",
         choices: [
           {
             id: "servidor",
@@ -31,7 +31,8 @@ export const UNITS: Unit[] = [
           {
             id: "navegador",
             label: "O navegador da vítima envia um pedido forjado",
-            explain: "Isso é CSRF. No SSRF quem busca é o servidor.",
+            explain:
+              "Isso descreve Cross-Site Request Forgery (CSRF), em que o navegador autenticado é induzido a agir. Em SSRF, quem busca o destino é o servidor.",
           },
           {
             id: "sql",
@@ -131,7 +132,8 @@ export const UNITS: Unit[] = [
             id: "nuvem",
             label: "Em nuvens como AWS, ele serve dados da máquina, às vezes credenciais temporárias",
             correct: true,
-            explain: "Por isso a defesa bloqueia link-local e, na AWS, exige IMDSv2 com token.",
+            explain:
+              "Por isso a defesa bloqueia endereços link-local. Na Amazon Web Services (AWS), o Instance Metadata Service version 2 (IMDSv2) também exige um token temporário.",
           },
           {
             id: "dns",
@@ -238,9 +240,11 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "camadas",
-            label: "Esquema permitido, IP resolvido fora de faixa interna, redirect checado e resposta resumida",
+            label:
+              "Esquema permitido, todos os IPs resolvidos validados, conexão no IP aprovado, redirect rechecado e resposta resumida",
             correct: true,
-            explain: "Cada camada fecha um caminho diferente até a rede interna.",
+            explain:
+              "A validação precisa alcançar a conexão real: recuse destinos internos e conecte exatamente ao IP aprovado, preservando o hostname para TLS. Depois, revalide cada redirecionamento e limite a resposta.",
           },
           {
             id: "regex",

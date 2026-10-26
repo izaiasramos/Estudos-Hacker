@@ -1,1 +1,17 @@
-Este checkpoint olha se a história ficou de pé: o que quebra, onde quebra, o que o banco faz e o que fecha a fronteira. O selo da especialidade só sai quando o laboratório defensivo existir e os testes passarem. Aqui você confirma a teoria.
+Você começou com uma situação concreta: Alice deveria ver apenas os próprios pedidos. Depois construiu o modelo mental — o banco interpreta a consulta recebida —, comparou concatenação com parametrização e distinguiu sintomas de evidências.
+
+Antes de responder, percorra a cadeia completa:
+
+1. uma entrada chega ao servidor como dado;
+2. a concatenação pode fazê-la participar da estrutura SQL;
+3. o banco interpreta a consulta final, não a intenção original;
+4. parâmetros mantêm a instrução fixa e os valores separados;
+5. validação, menor privilégio e WAF são camadas úteis, mas não substituem essa separação.
+
+<Callout tone="conceito">
+
+O checkpoint confirma seu modelo mental. O selo também depende do laboratório defensivo, cuja aprovação é uma inspeção estrutural do código enviado — não uma execução do JavaScript nem um teste real de banco.
+
+</Callout>
+
+Use as perguntas para justificar decisões, não apenas reconhecer palavras. Se uma alternativa estiver errada, o feedback explica qual parte da cadeia ela confunde.

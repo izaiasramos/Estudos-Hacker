@@ -1,7 +1,9 @@
-A Pizzaria do Lab começa com sessao=chave-da-alice, sem marcas. Cada caixa liga uma defesa. O servidor confere a forma da chave: ele não executa o que você escreve e não abre um alvo fora daqui.
+Este lab é uma simulação de decisões de configuração. As caixas não executam um servidor, não inspecionam um cookie real e não provam que uma aplicação está protegida. O checker apenas verifica se você selecionou todas as decisões esperadas para o cenário.
+
+Comece com uma chave sem atributos e um ciclo incompleto. Escolha como ela seria configurada e como o servidor deveria tratá-la no login e no logout.
 
 <Callout tone="dev">
 
-O conjunto que passa: HttpOnly, Secure, SameSite Lax ou Strict, chave nova no login, registro apagado no logout.
+O checklist aceita: HttpOnly, Secure, SameSite=Lax ou Strict, nova chave no login e invalidação do registro no logout. Um resultado verde significa “decisões selecionadas na simulação”, não “código testado em execução”.
 
 </Callout>

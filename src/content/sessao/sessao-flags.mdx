@@ -1,13 +1,24 @@
-O cookie pode viajar demais. Sem marcas, um script da página consegue lê-lo, ele pode sair numa conexão sem HTTPS, e o navegador pode anexá-lo em um pedido que outro site provocou.
+Agora compare duas chaves. A primeira pode ser lida por scripts, viajar fora de HTTPS e acompanhar pedidos iniciados por outro site. A segunda recebe três atributos — instruções no cookie — que reduzem esses caminhos.
 
-<Glossary term={"HttpOnly"} text={"O JavaScript da página não lê o cookie. O navegador continua enviando a chave nas requisições do site."} />
+<Glossary term={"HttpOnly"} text={"Atributo que impede o JavaScript da página de ler o cookie. O navegador ainda pode enviá-lo automaticamente ao servidor."} />
 
-<Glossary term={"Secure"} text={"O navegador só envia o cookie em HTTPS. Uma rede que só vê HTTP não recebe a chave."} />
+<Glossary term={"Secure"} text={"Atributo que manda o navegador enviar o cookie somente por conexão HTTPS. Ele não cria HTTPS; o site também precisa estar configurado para usá-lo."} />
 
-<Glossary term={"SameSite"} text={"Limita o envio do cookie quando o pedido nasce em outro site. Lax ou Strict cobrem o caso comum. None deixa o cookie sair no pedido cruzado."} />
+<Glossary term={"SameSite"} text={"Atributo que limita quando o cookie acompanha um pedido iniciado em outro site. Strict é mais restritivo; Lax permite alguns casos, como certas navegações comuns; None permite envio entre sites e normalmente exige Secure."} />
+
+<Code caption={"Contraste de configuração"}>
+
+```
+frágil:   sessao=chave
+melhor:   sessao=chave; HttpOnly; Secure; SameSite=Lax
+```
+
+</Code>
+
+Esses atributos não resolvem todo o ciclo. No login, o servidor deve gerar uma chave nova e invalidar a anterior. No logout, deve invalidar a chave atual. Um prazo de expiração limita sessões esquecidas.
 
 <Callout tone="dev">
 
-No login, gere uma chave nova e esqueça a anterior. No logout, apague o registro no servidor. Um prazo curto encerra a sessão esquecida. As marcas não substituem isso.
+Decisão para este cenário: use HttpOnly, Secure e SameSite=Lax como base; escolha Strict quando o fluxo aceitar uma política mais restritiva. Só use None quando o produto realmente precisar de envio entre sites e houver proteção adequada para esse fluxo.
 
 </Callout>

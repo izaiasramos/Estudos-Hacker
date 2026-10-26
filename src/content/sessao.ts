@@ -3,7 +3,8 @@ import type { Unit } from "@/content/sql-injection";
 export const TRAIL = {
   slug: "sessao",
   title: "Sessão",
-  summary: "A chave temporária que o navegador guarda, e as marcas que impedem que ela sirva para outra pessoa.",
+  summary:
+    "Como um site reconhece você depois do login — e quais decisões impedem que outra pessoa reutilize essa identidade.",
 };
 
 export const UNITS: Unit[] = [
@@ -11,140 +12,156 @@ export const UNITS: Unit[] = [
     id: "sessao-chave",
     order: 1,
     title: "A chave temporária",
-    summary: "O servidor lembra quem entrou. O navegador só carrega a chave dessa lembrança.",
+    summary: "Do login ao pedido seguinte: quem guarda a identidade e quem carrega a chave.",
     kind: "theory",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "quem",
-        prompt: "Quem confirma a identidade depois do login?",
+        prompt: "Depois do login, quem confirma a identidade em cada novo pedido?",
         choices: [
           {
             id: "servidor",
-            label: "O servidor, ao reconhecer a chave da sessão",
+            label: "O servidor, ao validar a chave e encontrar a sessão correspondente",
             correct: true,
-            explain: "A chave só funciona porque o servidor ainda tem o registro correspondente.",
+            explain:
+              "A sessão fica sob controle do servidor. O navegador apresenta a chave; o servidor verifica se ela ainda aponta para uma identidade válida.",
           },
           {
             id: "navegador",
-            label: "O navegador, que decide sozinho quem é o usuário",
-            explain: "O navegador só devolve a chave. Quem confia nela é o servidor.",
+            label: "O navegador, que escolhe sozinho qual usuário está conectado",
+            explain:
+              "O navegador guarda e reenvia a chave, mas não decide em qual identidade o servidor deve confiar.",
           },
           {
             id: "senha",
-            label: "A senha, reenviada em toda página",
-            explain: "A senha autentica o login. A sessão evita pedir a senha de novo.",
+            label: "A senha, que deve ser enviada de novo em cada página",
+            explain:
+              "A senha participa da autenticação inicial. A sessão evita repetir esse segredo em cada pedido.",
           },
         ],
       },
       {
         kind: "choice",
         id: "chave",
-        prompt: "O que o cookie de sessão representa?",
+        prompt: "O que um cookie de sessão deve carregar?",
         choices: [
           {
             id: "temp",
-            label: "Uma chave temporária da sessão que o servidor criou",
+            label: "Uma chave temporária que o servidor relaciona à sessão",
             correct: true,
-            explain: "Ela aponta para um registro. Não é um documento de identidade permanente.",
+            explain:
+              "A chave representa a sessão enquanto for válida. Ela não é a senha nem uma identidade permanente.",
           },
           {
             id: "senha",
-            label: "A senha, para o servidor não precisar de banco",
-            explain: "A senha não deve voltar ao navegador dentro do cookie.",
+            label: "A senha da pessoa, para o servidor economizar uma consulta",
+            explain:
+              "A senha não deve voltar ao navegador dentro do cookie. Expor o segredo amplia o dano de qualquer vazamento.",
           },
           {
             id: "html",
-            label: "O HTML da área logada",
-            explain: "O cookie é um identificador, não a página.",
+            label: "O conteúdo HTML completo da área logada",
+            explain:
+              "O cookie leva um pequeno valor de identificação da sessão, não o conteúdo das páginas.",
           },
         ],
       },
       {
         kind: "text",
         id: "por-que",
-        prompt: "Em uma frase: por que vazar essa chave é grave?",
+        prompt: "Em uma frase: por que o vazamento da chave de sessão é grave?",
         min: 24,
         stems: ["servidor", "usuário", "usuario", "como se", "identidade", "chave"],
-        explain: "Quem apresenta a chave é tratado como o dono da sessão, enquanto ela continuar válida.",
+        explain:
+          "Enquanto a chave continuar válida, o servidor pode tratar quem a apresenta como o usuário ligado à sessão.",
       },
     ],
   },
   {
     id: "sessao-flags",
     order: 2,
-    title: "As marcas da chave",
-    summary: "HttpOnly, Secure e SameSite dizem ao navegador quando a chave pode sair e quem pode lê-la.",
+    title: "Limites para a chave",
+    summary: "Três instruções ao navegador e duas decisões no servidor reduzem caminhos de abuso.",
     kind: "theory",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "httponly",
-        prompt: "O que HttpOnly muda?",
+        prompt: "O que o atributo HttpOnly muda?",
         choices: [
           {
             id: "script",
-            label: "O script da página deixa de conseguir ler a chave",
+            label: "Impede o JavaScript da página de ler o cookie",
             correct: true,
-            explain: "A chave continua indo nas requisições. Só some do alcance do JavaScript.",
+            explain:
+              "O navegador ainda pode enviar o cookie ao servidor, mas não o entrega à leitura direta do JavaScript.",
           },
           {
             id: "https",
-            label: "Obriga o site a usar HTTPS",
-            explain: "HTTPS é a marca Secure. HttpOnly é sobre leitura por script.",
+            label: "Cria uma conexão HTTPS para o site",
+            explain:
+              "HttpOnly controla leitura por script. Secure controla o envio por conexão, e o site ainda precisa oferecer HTTPS.",
           },
           {
             id: "senha",
-            label: "Criptografa a senha no banco",
-            explain: "A senha e o cookie resolvem problemas diferentes.",
+            label: "Transforma a senha guardada no banco",
+            explain:
+              "HttpOnly é um atributo do cookie. Armazenamento de senha pertence ao fluxo de autenticação.",
           },
         ],
       },
       {
         kind: "choice",
         id: "samesite",
-        prompt: "SameSite=None, sem outra proteção, deixa a chave…",
+        prompt: "O que SameSite=None permite em comparação com Lax ou Strict?",
         choices: [
           {
             id: "cruzado",
-            label: "sair em pedidos provocados por outro site",
+            label: "Que o cookie acompanhe pedidos entre sites",
             correct: true,
-            explain: "None é a opção aberta. Lax ou Strict seguram o envio cruzado.",
+            explain:
+              "None permite esse envio e normalmente exige Secure. Lax limita o envio e ainda aceita algumas navegações; Strict é mais restritivo.",
           },
           {
             id: "some",
-            label: "sumir do navegador",
-            explain: "None não apaga o cookie. Ele amplia quando o cookie viaja.",
+            label: "Que o cookie seja apagado ao fechar qualquer página",
+            explain:
+              "SameSite controla o contexto de envio entre sites; não define sozinho quando o cookie expira.",
           },
           {
             id: "banco",
-            label: "impedir consulta ao banco",
-            explain: "SameSite não mexe na consulta. Muda o envio do cookie.",
+            label: "Que o navegador escolha quais consultas chegam ao banco",
+            explain:
+              "SameSite só orienta o envio do cookie. Consultas e permissões continuam sob responsabilidade do servidor.",
           },
         ],
       },
       {
         kind: "choice",
         id: "rotacao",
-        prompt: "Por que trocar a chave no login?",
+        prompt: "Por que gerar outra chave quando o login termina?",
         choices: [
           {
             id: "antiga",
-            label: "A chave de antes do login deixa de valer",
+            label: "Para a chave conhecida antes do login não identificar a sessão autenticada",
             correct: true,
-            explain: "Se o identificador não muda, quem já o tinha continua apresentando a mesma chave.",
+            explain:
+              "A rotação separa o estado anterior da nova sessão autenticada e o servidor deve invalidar a chave antiga.",
           },
           {
             id: "visual",
-            label: "Para o cookie ficar mais longo na barra",
-            explain: "O tamanho não é a defesa. A troca invalida o identificador anterior.",
+            label: "Para o valor parecer mais complexo no inspetor",
+            explain:
+              "A aparência não é a defesa. O que importa é criar outro identificador e invalidar o anterior.",
           },
           {
             id: "email",
-            label: "Para enviar a senha por e-mail",
-            explain: "Senha não viaja por e-mail. A rotação é no servidor, no momento do login.",
+            label: "Para enviar uma cópia da senha por e-mail",
+            explain:
+              "A rotação troca a chave da sessão no servidor; não envia nem recupera a senha.",
           },
         ],
       },
@@ -153,77 +170,86 @@ export const UNITS: Unit[] = [
   {
     id: "sessao-sintomas",
     order: 3,
-    title: "O que o dev vê",
-    summary: "Três sintomas de uma chave solta, antes de qualquer correção.",
+    title: "Ler os sintomas",
+    summary: "Use o que é observável para escolher a defesa certa, sem confundir responsabilidades.",
     kind: "exercise",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "sintoma",
-        prompt: "O script da página consegue ler sessao=chave-da-alice. Qual marca está faltando?",
+        prompt: "O JavaScript da página lê `sessao=chave-da-alice`. Qual decisão está ausente?",
         choices: [
           {
             id: "httponly",
-            label: "HttpOnly",
+            label: "Adicionar HttpOnly ao cookie",
             correct: true,
-            explain: "HttpOnly tira a chave do alcance do script. Secure e SameSite cuidam de outros caminhos.",
+            explain:
+              "HttpOnly remove o cookie da leitura direta por JavaScript. Secure e SameSite tratam outros caminhos.",
           },
           {
             id: "cors",
-            label: "Um cabeçalho de cor do botão",
-            explain: "Aparência não esconde o cookie do script.",
+            label: "Mudar a cor do botão de login",
+            explain:
+              "Uma mudança visual não altera quem consegue ler o cookie. A decisão relacionada ao sintoma é HttpOnly.",
           },
           {
             id: "senha",
-            label: "Repetir a senha no HTML",
-            explain: "Mostrar a senha piora o quadro. A marca que falta é HttpOnly.",
+            label: "Colocar a senha junto da chave",
+            explain:
+              "Isso exporia também a prova de autenticação. O cookie de sessão não deve carregar a senha.",
           },
         ],
       },
       {
         kind: "choice",
         id: "http",
-        prompt: "A mesma chave aparece numa visita sem HTTPS. Qual marca segura esse caminho?",
+        prompt: "O navegador envia a chave numa conexão sem HTTPS. Qual atributo impede esse envio?",
         choices: [
           {
             id: "secure",
             label: "Secure",
             correct: true,
-            explain: "Secure faz o navegador guardar a chave para conexões HTTPS.",
+            explain:
+              "Secure orienta o navegador a enviar o cookie somente por HTTPS; ele não configura HTTPS no servidor.",
           },
           {
             id: "httponly",
             label: "HttpOnly",
-            explain: "HttpOnly esconde do script. Não escolhe HTTP ou HTTPS.",
+            explain:
+              "HttpOnly controla a leitura por JavaScript, não escolhe entre conexões HTTP e HTTPS.",
           },
           {
             id: "cache",
-            label: "Desligar o cache do CSS",
-            explain: "O cache da folha de estilo não decide se o cookie viaja.",
+            label: "Desativar o cache dos estilos",
+            explain:
+              "O cache visual não controla o transporte do cookie. O atributo relacionado ao sintoma é Secure.",
           },
         ],
       },
       {
         kind: "choice",
         id: "fixa",
-        prompt: "O identificador é o mesmo antes e depois do login. O que falta no servidor?",
+        prompt: "A chave é igual antes e depois da autenticação. O que o servidor deve fazer?",
         choices: [
           {
             id: "troca",
-            label: "Trocar a chave no login e esquecer a anterior",
+            label: "Gerar uma nova chave no login e invalidar a anterior",
             correct: true,
-            explain: "A chave antiga deixa de apontar para a sessão autenticada.",
+            explain:
+              "Assim, uma chave conhecida antes do login não passa a representar a identidade autenticada.",
           },
           {
             id: "css",
-            label: "Esconder o campo de senha com CSS",
-            explain: "Esconder o campo não troca o identificador.",
+            label: "Ocultar o campo de senha depois do envio",
+            explain:
+              "Ocultar um elemento da tela não muda a validade da chave no servidor.",
           },
           {
             id: "none",
-            label: "Marcar SameSite=None",
-            explain: "None abre o envio cruzado. Não troca a chave.",
+            label: "Alterar SameSite para None",
+            explain:
+              "None permite envio entre sites e não troca o identificador. A correção aqui é a rotação da chave.",
           },
         ],
       },
@@ -232,8 +258,8 @@ export const UNITS: Unit[] = [
   {
     id: "sessao-lab",
     order: 4,
-    title: "Fechar a chave",
-    summary: "Marque as defesas. O checker só aceita a chave quando todas estão presentes.",
+    title: "Decidir a configuração",
+    summary: "Complete um checklist simulado para a chave e para seu ciclo no servidor.",
     kind: "lab",
     gate: true,
     questions: [],
@@ -242,48 +268,53 @@ export const UNITS: Unit[] = [
     id: "sessao-checkpoint",
     order: 5,
     title: "Checkpoint",
-    summary: "O selo de sessão espera este checkpoint e o lab em que a chave passou no checker.",
+    summary: "Conecte os limites do cookie ao nascimento e ao fim da sessão.",
     kind: "checkpoint",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "conjunto",
-        prompt: "Qual conjunto fecha a chave no caso comum?",
+        prompt: "Qual conjunto resume as decisões exercitadas no checklist?",
         choices: [
           {
             id: "todas",
-            label: "HttpOnly, Secure, SameSite Lax, troca no login e apagar no logout",
+            label: "HttpOnly, Secure, SameSite adequado, rotação no login e invalidação no logout",
             correct: true,
-            explain: "Cada peça cobre um caminho. Uma só não substitui as outras.",
+            explain:
+              "Esse é o conjunto exercitado no lab. Em uma aplicação real, também é preciso definir expiração e revisar outros riscos.",
           },
           {
             id: "none",
-            label: "SameSite=None e a chave no localStorage",
-            explain: "None deixa o cookie sair em pedido cruzado, e o localStorage entrega a chave ao script da página.",
+            label: "SameSite=None e a chave em um local legível por JavaScript",
+            explain:
+              "Essa escolha amplia o envio entre sites e expõe a chave à leitura por scripts. Ela piora os riscos estudados.",
           },
           {
             id: "esconder",
-            label: "Esconder o botão de sair",
-            explain: "O botão some da tela. A chave antiga continua válida no servidor.",
+            label: "Esconder o botão de sair sem invalidar a chave",
+            explain:
+              "A interface muda, mas a sessão continua válida no servidor. Logout precisa invalidar a chave.",
           },
         ],
       },
       {
         kind: "choice",
         id: "selo",
-        prompt: "Quando o selo de sessão pode sair?",
+        prompt: "O que o lab verde demonstra nesta trilha?",
         choices: [
           {
             id: "lab",
-            label: "Depois do lab das flags e deste checkpoint",
+            label: "Que as decisões esperadas foram selecionadas no checklist simulado",
             correct: true,
-            explain: "A especialidade inclui a chave que o checker aceitou.",
+            explain:
+              "O lab registra somente decisões de configuração; não executa nem certifica uma implementação real. O selo também exige concluir este checkpoint.",
           },
           {
             id: "leitura",
-            label: "Assim que a teoria das flags é lida",
-            explain: "Ler explica. O selo pede a defesa conferida.",
+            label: "Que uma aplicação real foi testada apenas com a leitura da teoria",
+            explain:
+              "A teoria e o checklist ensinam decisões, mas validar código real exige testes e revisão da implementação.",
           },
         ],
       },

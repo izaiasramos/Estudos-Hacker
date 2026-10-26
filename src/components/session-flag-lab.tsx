@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 const GAPS: Record<string, string> = {
-  httponly: "HttpOnly ainda está desligado, então o script da página continua lendo a chave.",
-  secure: "Secure ainda está desligado, então a chave ainda pode sair sem HTTPS.",
-  samesite: "SameSite precisa ser Lax ou Strict. None deixa a chave sair em pedido de outro site.",
-  rotate: "A chave do login continua a mesma. Troque no momento em que a pessoa entra.",
-  logout: "O logout ainda não apaga o registro no servidor.",
+  httponly: "Na simulação, falta selecionar HttpOnly para impedir a leitura direta do cookie por JavaScript.",
+  secure: "Na simulação, falta selecionar Secure para restringir o envio do cookie a HTTPS.",
+  samesite: "Escolha SameSite=Lax ou Strict para o cenário. None permitiria envio entre sites.",
+  rotate: "Falta decidir pela geração de uma nova chave quando o login termina.",
+  logout: "Falta decidir pela invalidação da sessão no servidor durante o logout.",
 };
 
 export function SessionFlagLab({
@@ -32,15 +32,23 @@ export function SessionFlagLab({
   if (done) {
     return (
       <section className="mt-8 rounded-[16px] border border-defense/40 bg-defense/10 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Checker</p>
-        <p className="mt-3 font-mono text-sm text-text">
-          sessao=chave-nova; HttpOnly; Secure; SameSite=Lax
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">
+          Checklist simulado completo
         </p>
-        <ul className="mt-4 space-y-2 text-sm text-text">
-          <li>O script da página não lê a chave.</li>
-          <li>Sem HTTPS, o navegador não envia a chave.</li>
-          <li>No login a chave muda. No logout o registro some.</li>
+        <p className="mt-3 font-mono text-sm text-text">
+          sessao=chave-nova; HttpOnly; Secure; SameSite=Lax ou Strict
+        </p>
+        <p className="mt-4 text-sm text-text">
+          Você selecionou as decisões esperadas para este cenário:
+        </p>
+        <ul className="mt-2 space-y-2 text-sm text-text">
+          <li>restringir a leitura do cookie por JavaScript e seu envio a HTTPS;</li>
+          <li>limitar seu uso entre sites;</li>
+          <li>trocar a chave no login e invalidá-la no logout.</li>
         </ul>
+        <p className="mt-4 text-xs text-muted">
+          O checker conferiu opções marcadas; não executou nem certificou uma aplicação real.
+        </p>
       </section>
     );
   }
@@ -48,20 +56,24 @@ export function SessionFlagLab({
   return (
     <form action="/api/trilha/sessao-lab" method="post" className="mt-8 space-y-4">
       <div className="rounded-[16px] border border-white/10 bg-ink/50 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">Cookie do lab</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+          Prévia da configuração simulada
+        </p>
         <p className="mt-3 break-all font-mono text-sm text-text">
           sessao={rotate ? "chave-nova" : "chave-da-alice"}
           {marks.length > 0 ? `; ${marks.join("; ")}` : ""}
         </p>
         <p className="mt-2 text-xs text-muted">
-          {logout ? "Logout apaga o registro no servidor." : "Logout ainda deixa o registro vivo."}
+          {logout
+            ? "Decisão de logout: invalidar a sessão no servidor."
+            : "Decisão de logout: a sessão ainda ficaria válida."}
         </p>
       </div>
 
       {missing.length > 0 ? (
         <ul className="space-y-2 text-sm text-danger" role="alert">
           {missing.map((key) => (
-            <li key={key}>{GAPS[key] ?? "Falta uma defesa."}</li>
+            <li key={key}>{GAPS[key] ?? "Falta uma decisão no checklist."}</li>
           ))}
         </ul>
       ) : null}
@@ -75,7 +87,7 @@ export function SessionFlagLab({
           onChange={(event) => setHttpOnly(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        HttpOnly — o script da página não lê a chave
+        HttpOnly — impedir a leitura direta do cookie por JavaScript
       </label>
       <label className="flex items-start gap-3 text-sm">
         <input
@@ -86,10 +98,10 @@ export function SessionFlagLab({
           onChange={(event) => setSecure(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Secure — a chave só viaja em HTTPS
+        Secure — enviar o cookie somente por HTTPS
       </label>
       <fieldset className="space-y-2">
-        <legend className="text-sm">SameSite</legend>
+        <legend className="text-sm">SameSite — limite de envio entre sites</legend>
         {[
           ["none", "None"],
           ["lax", "Lax"],
@@ -117,7 +129,7 @@ export function SessionFlagLab({
           onChange={(event) => setRotate(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Trocar a chave no login
+        Gerar uma nova chave no login e invalidar a anterior
       </label>
       <label className="flex items-start gap-3 text-sm">
         <input
@@ -128,13 +140,13 @@ export function SessionFlagLab({
           onChange={(event) => setLogout(event.target.checked)}
           className="mt-1 accent-[#d6ff4a]"
         />
-        Apagar o registro no logout
+        Invalidar a sessão no servidor durante o logout
       </label>
       <button
         type="submit"
         className="inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
-        Conferir a chave
+        Conferir decisões
       </button>
     </form>
   );

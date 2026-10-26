@@ -1,9 +1,29 @@
-Depois do sintoma, a reconstituição é seca. O servidor montou uma frase. O banco leu essa frase como uma instrução. Executou o que a frase dizia. Não houve um modo secreto. Houve uma frase diferente da que a pessoa que programou tinha na cabeça.
+Vamos reconstruir a cena sem atribuir intenção ao banco.
+
+1. O servidor recebeu um valor de entrada.
+2. O código concatenou esse valor ao texto SQL.
+3. A concatenação produziu uma consulta cuja estrutura podia variar com a entrada.
+4. O analisador do banco interpretou a consulta final recebida.
+
+O banco não sabe qual trecho “deveria” continuar sendo dado. Essa informação foi perdida quando o servidor transformou instrução e entrada em um texto único.
 
 <Callout tone="conceito">
 
-Se a frase fechou o texto cedo e continuou com outra ordem, o banco tratou essa ordem como parte legítima da consulta. Ele não “escolheu o lado” de ninguém. Ele obedeceu a instrução recebida.
+A causa não é o banco decidir desobedecer ao programa. A causa é o programa entregar uma estrutura diferente da pretendida. O banco interpreta essa estrutura conforme a linguagem SQL.
 
 </Callout>
 
-Por isso o debrief olha para a consulta que saiu do servidor, não para a fama do problema. A pergunta útil é: em que ponto o valor deixou de viajar separado?
+Compare os modelos:
+
+- **Concatenação:** primeiro monta um texto variável; depois pede ao banco que descubra sua estrutura.
+- **Parametrização:** primeiro define uma estrutura fixa; depois associa valores aos lugares marcados.
+
+Essa diferença explica tanto o sintoma da listagem simulada quanto a correção futura. Não precisamos memorizar uma entrada especial para entender o problema: basta acompanhar o momento em que um dado passa a participar da instrução.
+
+<Callout tone="dev">
+
+Em um debrief real, registre a origem do valor, a função que montou a consulta, a estrutura enviada e o impacto observado. Essa cadeia é mais útil para corrigir e prevenir recorrência do que apenas nomear a vulnerabilidade.
+
+</Callout>
+
+**Síntese:** o servidor quebrou a fronteira ao concatenar; o banco interpretou a consulta final; a correção é preservar a separação antes do envio.

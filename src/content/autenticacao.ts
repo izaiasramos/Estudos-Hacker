@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "autenticacao",
   title: "Autenticação quebrada e senhas",
   summary:
-    "Provar identidade sem entregar a chave mestra: hash, mensagens genéricas e limites quando alguém erra o login.",
+    "Como verificar identidade sem revelar contas, facilitar adivinhação ou transformar um vazamento em uma lista de senhas legíveis.",
 };
 
 export const UNITS: Unit[] = [
@@ -12,76 +12,85 @@ export const UNITS: Unit[] = [
     id: "auth-proposito",
     order: 1,
     title: "O que o login prova",
-    summary: "Autenticação responde “quem é você?”. Autorização responde “o que pode fazer?”.",
+    summary: "Comece por uma resposta que vaza informação e separe identidade, continuidade e permissão.",
     kind: "theory",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "papel",
-        prompt: "O login bem-sucedido entrega o quê, em geral?",
+        prompt: "Depois de verificar a identidade, o que o login costuma criar?",
         choices: [
           {
             id: "sessao",
-            label: "Uma sessão ou token temporário, não a senha de volta",
+            label: "Uma sessão ou outra credencial temporária, sem devolver a senha",
             correct: true,
-            explain: "A senha autentica uma vez. Depois a sessão evita repetir o segredo.",
+            explain:
+              "A autenticação verifica a prova. Depois, uma sessão pode manter a identidade sem repetir a senha em cada pedido.",
           },
           {
             id: "senha",
-            label: "A senha em texto para o navegador guardar",
-            explain: "A senha não deve voltar ao cliente depois do cadastro.",
+            label: "Uma cópia da senha em texto para o navegador guardar",
+            explain:
+              "A senha não deve ser devolvida nem usada como identificador contínuo. Ela é uma prova de autenticação.",
           },
           {
             id: "banco",
-            label: "Acesso direto ao banco de produção",
-            explain: "Login autoriza o usuário no app, não abre o Postgres.",
+            label: "Permissão direta para consultar todo o banco",
+            explain:
+              "Autenticar identifica a pessoa. A autorização ainda precisa decidir quais recursos essa identidade pode acessar.",
           },
         ],
       },
       {
         kind: "choice",
         id: "authz",
-        prompt: "Bloquear um pedido porque não é do usuário é…",
+        prompt: "Negar a Ana acesso aos dados de Bruno é uma decisão de…",
         choices: [
           {
             id: "autorizacao",
-            label: "Autorização (controle de acesso)",
+            label: "Autorização",
             correct: true,
-            explain: "Autenticação identifica. Autorização decide o que essa identidade alcança.",
+            explain:
+              "Autenticação verifica quem é Ana. Autorização decide se Ana pode acessar aquele recurso específico.",
           },
           {
             id: "hash",
-            label: "Hash de senha",
-            explain: "Hash protege o segredo armazenado. Autorização olha o recurso pedido.",
+            label: "Armazenamento de senha",
+            explain:
+              "Proteger a senha armazenada é parte da autenticação, mas não decide o acesso a cada recurso.",
           },
           {
             id: "css",
-            label: "Estilo da página de erro",
-            explain: "Aparência não substitui checagem de permissão.",
+            label: "Aparência da página de erro",
+            explain:
+              "Ocultar um botão não aplica permissão. A decisão precisa acontecer no servidor.",
           },
         ],
       },
       {
         kind: "choice",
         id: "quebra",
-        prompt: "Qual cenário é autenticação quebrada?",
+        prompt: "Qual comportamento enfraquece a autenticação?",
         choices: [
           {
             id: "enum",
-            label: "Mensagens diferentes para “e-mail não existe” e “senha errada”",
+            label: "Responder de um jeito para e-mail inexistente e de outro para senha errada",
             correct: true,
-            explain: "Isso ajuda a adivinhar contas válidas. A resposta deve ser genérica.",
+            explain:
+              "A diferença permite descobrir contas cadastradas antes mesmo de acertar uma senha.",
           },
           {
             id: "bcrypt",
-            label: "Guardar senha com bcrypt",
-            explain: "Hash moderno é defesa, não quebra.",
+            label: "Usar um algoritmo próprio para hash de senha",
+            explain:
+              "Esse é um controle de armazenamento. A próxima unidade explica como ele funciona e quais opções existem.",
           },
           {
             id: "logout",
-            label: "Botão de sair que apaga a sessão",
-            explain: "Logout correto reduz risco de sessão, não é falha de login.",
+            label: "Invalidar a sessão quando a pessoa sai",
+            explain:
+              "Isso encerra a continuidade da identidade. É uma defesa de sessão, não uma quebra do login.",
           },
         ],
       },
@@ -91,140 +100,156 @@ export const UNITS: Unit[] = [
     id: "auth-senha",
     order: 2,
     title: "Senha no servidor",
-    summary: "Nunca texto puro. Hash lento, sal automático e comparação constante.",
+    summary: "Compare senha legível e prova não reversível; depois escolha armazenamento e política de cadastro.",
     kind: "theory",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "armazenar",
-        prompt: "Como a senha deve ficar no banco?",
+        prompt: "Qual é a forma adequada de armazenar uma senha?",
         choices: [
           {
             id: "hash",
-            label: "Somente hash com algoritmo moderno",
+            label: "Hash com salt único e algoritmo próprio para senhas",
             correct: true,
-            explain: "Texto puro ou criptografia reversível expõe o segredo no vazamento.",
+            explain:
+              "bcrypt, scrypt e Argon2 são opções próprias para esse trabalho. A biblioteca guarda também os parâmetros necessários para verificar a senha.",
           },
           {
             id: "plain",
-            label: "Texto puro, porque só dev interno acessa",
-            explain: "Backup, log ou SQL injection transformam “só interno” em vazamento.",
+            label: "Texto puro, porque apenas a equipe interna acessa o banco",
+            explain:
+              "Bancos, backups e logs podem vazar. Texto puro transforma esse incidente em exposição imediata das senhas.",
           },
           {
             id: "base64",
-            label: "Base64, porque parece embaralhado",
-            explain: "Base64 decodifica em um clique. Não é hash.",
+            label: "Base64, porque o resultado deixa de parecer uma senha",
+            explain:
+              "Base64 é uma codificação reversível, não um hash. Qualquer pessoa com o valor pode recuperar o texto.",
           },
         ],
       },
       {
         kind: "choice",
         id: "politica",
-        prompt: "Política mínima de senha no cadastro serve para…",
+        prompt: "O que uma política mínima de cadastro acrescenta ao hash?",
         choices: [
           {
             id: "barreira",
-            label: "Barrar senhas óbvias antes de hash",
+            label: "Recusa senhas muito curtas, óbvias ou conhecidas antes de armazená-las",
             correct: true,
-            explain: "Listas de senhas comuns quebram hash fraco ou reutilizado em segundos.",
+            explain:
+              "Hash desacelera testes, mas não transforma uma senha previsível em uma boa senha.",
           },
           {
             id: "email",
-            label: "Substituir verificação de e-mail",
-            explain: "São camadas diferentes. Política não prova que o e-mail é da pessoa.",
+            label: "Prova automaticamente que o e-mail pertence à pessoa",
+            explain:
+              "Qualidade da senha e controle do endereço de e-mail são verificações diferentes.",
           },
           {
             id: "oauth",
-            label: "Desligar login com Google",
-            explain: "OAuth e senha local podem coexistir com regras claras.",
+            label: "Impede qualquer uso de OAuth no produto",
+            explain:
+              "OAuth trata autorização delegada e pode participar de um fluxo com provedor. Ele não é desligado por uma política de senha local.",
           },
         ],
       },
       {
         kind: "text",
         id: "porque-hash",
-        prompt: "Em uma frase: por que vazar hash ainda é grave?",
+        prompt: "Em uma frase: por que o vazamento de hashes de senha ainda é grave?",
         min: 20,
-        stems: ["tentativa", "reutiliz", "lista", "rainbow", "quebrar", "testar"],
-        explain: "Atacantes testam hashes offline com listas e senhas reutilizadas até achar correspondência.",
+        stems: ["tentativa", "reutiliz", "lista", "offline", "descobrir", "testar"],
+        explain:
+          "Com os hashes, um atacante pode testar palpites offline. Senhas comuns ou reutilizadas ainda podem ser descobertas, mesmo quando o algoritmo desacelera cada tentativa.",
       },
     ],
   },
   {
     id: "auth-sintomas",
     order: 3,
-    title: "Sintomas no login",
-    summary: "Três sinais de login frágil antes de abrir o chamado de segurança.",
+    title: "Ler os sintomas",
+    summary: "Diagnostique conta padrão, resposta reveladora e repetição automatizada em um ambiente de teste.",
     kind: "exercise",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "generica",
-        prompt: "Qual resposta de login inválido é mais segura?",
+        prompt: "Qual resposta reduz a descoberta de contas cadastradas?",
         choices: [
           {
             id: "unica",
-            label: "“E-mail ou senha inválidos” para qualquer falha",
+            label: "“E-mail ou senha inválidos” em qualquer falha de credencial",
             correct: true,
-            explain: "Quem erra não descobre se o e-mail existe.",
+            explain:
+              "A mesma resposta deixa de confirmar se o e-mail existe. Outros sinais do fluxo também devem evitar essa diferença.",
           },
           {
             id: "404",
-            label: "404 quando o e-mail não existe e 401 quando a senha falha",
-            explain: "Dois códigos/mensagens distintos permitem enumerar contas.",
+            label: "404 para e-mail inexistente e 401 para senha errada",
+            explain:
+              "Códigos diferentes ainda revelam se a conta existe, mesmo que a interface esconda o texto.",
           },
           {
             id: "senha",
             label: "“Senha errada” mesmo quando o e-mail não existe",
-            explain: "Ainda confirma que o e-mail está cadastrado.",
+            explain:
+              "Essa mensagem confirma que a busca por e-mail aconteceu e continua ajudando a descobrir contas.",
           },
         ],
       },
       {
         kind: "choice",
         id: "default",
-        prompt: "admin / admin ainda funciona no ambiente de staging. O risco é…",
+        prompt: "`admin` / `admin` ainda funciona em staging. Qual é o risco?",
         choices: [
           {
             id: "backdoor",
-            label: "Conta conhecida aberta se o ambiente vazar ou for clonado",
+            label: "Uma credencial previsível pode abrir o ambiente se ele for exposto ou copiado",
             correct: true,
-            explain: "Credencial padrão é autenticação quebrada clássica.",
+            explain:
+              "Staging é ambiente de teste, não sinônimo de ambiente descartável. Credenciais padrão devem ser removidas.",
           },
           {
             id: "hash",
-            label: "Falta de hash bcrypt",
-            explain: "Pode coexistir com hash; o problema é a senha previsível aceita.",
+            label: "O único problema é não saber qual algoritmo gerou o hash",
+            explain:
+              "Mesmo com hash adequado, aceitar uma senha pública e previsível mantém a conta vulnerável.",
           },
           {
             id: "https",
-            label: "Ausência de favicon",
-            explain: "HTTPS importa, mas não corrige senha padrão.",
+            label: "A página não exibe um ícone ao lado do título",
+            explain:
+              "Um detalhe visual não corrige a credencial conhecida. O risco está no acesso previsível.",
           },
         ],
       },
       {
         kind: "choice",
         id: "limit",
-        prompt: "Rate limit no login protege principalmente contra…",
+        prompt: "O que rate limiting reduz diretamente no login?",
         choices: [
           {
             id: "forca",
-            label: "Tentativas automatizadas em massa",
+            label: "Tentativas automatizadas e repetidas de adivinhar credenciais",
             correct: true,
-            explain: "Desacelera adivinhação online. Hash forte protege o offline.",
+            explain:
+              "O limite desacelera tentativas online. Hash adequado continua necessário contra testes offline após vazamento.",
           },
           {
             id: "xss",
-            label: "Script roubar cookie",
-            explain: "XSS é outra categoria. Limitar login não impede script na página.",
+            label: "Leitura de uma chave de sessão por JavaScript",
+            explain:
+              "Esse é um problema do contexto da página e da sessão. Limitar tentativas de login não impede a leitura.",
           },
           {
             id: "sql",
-            label: "SQL injection na listagem",
-            explain: "Consulta parametrizada fecha SQLi. Rate limit fecha volume de login.",
+            label: "Consultas inseguras montadas com texto do usuário",
+            explain:
+              "Esse problema exige consultas parametrizadas. Rate limiting controla frequência, não a estrutura da consulta.",
           },
         ],
       },
@@ -233,8 +258,8 @@ export const UNITS: Unit[] = [
   {
     id: "auth-lab",
     order: 4,
-    title: "Endurecer o login",
-    summary: "Marque as defesas. O checker só aceita quando o login fictício fica defensável.",
+    title: "Decidir as defesas",
+    summary: "Complete um checklist simulado para armazenamento, respostas, cadastro e tentativas.",
     kind: "lab",
     gate: true,
     questions: [],
@@ -243,48 +268,54 @@ export const UNITS: Unit[] = [
     id: "auth-checkpoint",
     order: 5,
     title: "Checkpoint",
-    summary: "O selo de autenticação espera este checkpoint e o lab com checker verde.",
+    summary: "Una as decisões e reconheça o que o checklist consegue — e não consegue — demonstrar.",
     kind: "checkpoint",
     gate: true,
     questions: [
       {
         kind: "choice",
         id: "conjunto",
-        prompt: "Qual conjunto fecha login no caso comum?",
+        prompt: "Qual conjunto cobre os riscos apresentados nesta trilha?",
         choices: [
           {
             id: "todas",
-            label: "Hash, mensagem genérica, política no cadastro e limite de tentativas",
+            label:
+              "Hash adequado, resposta coerente, política de cadastro, remoção de credenciais padrão e rate limiting",
             correct: true,
-            explain: "Cada peça cobre um vetor. Uma só não substitui as outras.",
+            explain:
+              "Cada decisão cobre um caminho diferente. Conforme o risco, o produto ainda pode exigir segundo fator, recuperação segura e monitoramento.",
           },
           {
             id: "plain",
-            label: "Senha em texto puro com CAPTCHA colorido",
-            explain: "CAPTCHA atrapalha bots, mas vazamento do banco ainda expõe senhas.",
+            label: "Senha em texto puro protegida apenas por CAPTCHA",
+            explain:
+              "CAPTCHA pode dificultar automação, mas não protege senhas que vazam do banco nem substitui os outros controles.",
           },
           {
             id: "esconder",
-            label: "Esconder o formulário de login no CSS",
-            explain: "Ocultar UI não remove o endpoint.",
+            label: "Formulário escondido por estilo visual",
+            explain:
+              "Ocultar a interface não remove o endpoint nem aplica autenticação no servidor.",
           },
         ],
       },
       {
         kind: "choice",
         id: "selo",
-        prompt: "Quando o selo de autenticação pode sair?",
+        prompt: "O que o lab verde demonstra nesta trilha?",
         choices: [
           {
             id: "lab",
-            label: "Depois do lab de login e deste checkpoint",
+            label: "Que as decisões esperadas foram selecionadas no checklist simulado",
             correct: true,
-            explain: "A especialidade inclui a configuração que o checker aceitou.",
+            explain:
+              "O checker confirma somente as opções marcadas; não executa hash, mede tentativas nem certifica um login real. O selo também exige concluir este checkpoint.",
           },
           {
             id: "leitura",
-            label: "Assim que a teoria de hash é lida",
-            explain: "Ler explica. O selo pede a defesa conferida.",
+            label: "Que uma aplicação real ficou segura apenas com a leitura da teoria",
+            explain:
+              "A trilha ensina decisões. Uma implementação real ainda exige revisão, testes e observação do comportamento.",
           },
         ],
       },

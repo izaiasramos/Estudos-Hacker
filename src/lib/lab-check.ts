@@ -14,69 +14,92 @@ export type LabTest = {
   detail: string;
 };
 
-const BEHAVIOR: LabTest[] = [
+const STRUCTURAL_RESULTS: LabTest[] = [
   {
     id: "login",
-    name: "Login da Alice com a senha do lab",
+    name: "Estrutura reconhecida em findUser",
     state: "pass",
-    detail: "A conta fictícia da Alice entra. A busca por email continua de pé.",
+    detail: "A inspeção textual encontrou a forma parametrizada esperada em findUser; o login não foi executado.",
   },
   {
     id: "senha",
-    name: "Senha errada não entra",
-    state: "pass",
-    detail: "Senha que não é a do lab continua recusada.",
+    name: "Recusa de senha incorreta",
+    state: "skip",
+    detail: "Não executada neste exercício. Esse comportamento exigiria um teste real da aplicação.",
   },
   {
     id: "lista",
-    name: "Listagem da Alice sem o pedido do Bruno",
+    name: "Estrutura reconhecida em listOrders",
     state: "pass",
-    detail: "A Alice vê as pizzas dela. O pedido do Bruno fica de fora.",
+    detail: "A inspeção textual encontrou a forma parametrizada esperada em listOrders; a consulta não foi executada no banco.",
   },
 ];
+
+const FIND_USER_QUERY = /^\s*function\s+findUser\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+id\s*,\s*name\s+FROM\s+usuarios\s+WHERE\s+email\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
+const LIST_ORDERS_QUERY = /^\s*function\s+listOrders\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+id\s*,\s*item\s+FROM\s+pedidos\s+WHERE\s+email\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
 
 export function reviewQueries(source: string) {
   const problems: string[] = [];
   if (source.length > 4000) {
-    problems.push("O arquivo passou do tamanho deste lab.");
+    problems.push("O arquivo passou do limite de 4.000 caracteres deste exercício.");
   }
   if (!source.includes("function findUser") || !source.includes("function listOrders")) {
-    problems.push("As duas funções precisam continuar no arquivo: findUser e listOrders.");
+    problems.push(
+      "Preserve as duas declarações reconhecidas pela inspeção: function findUser e function listOrders.",
+    );
   }
 
   const listAt = source.indexOf("function listOrders");
-  const findBody = listAt >= 0 ? source.slice(0, listAt) : source;
-  const listBody = listAt >= 0 ? source.slice(listAt) : "";
-  for (const body of [findBody, listBody]) {
+  const functions = [
+    {
+      name: "findUser",
+      body: listAt >= 0 ? source.slice(0, listAt) : source,
+      expected: FIND_USER_QUERY,
+      example: 'db.query("SELECT id, name FROM usuarios WHERE email = ?", [email])',
+    },
+    {
+      name: "listOrders",
+      body: listAt >= 0 ? source.slice(listAt) : "",
+      expected: LIST_ORDERS_QUERY,
+      example: 'db.query("SELECT id, item FROM pedidos WHERE email = ?", [email])',
+    },
+  ];
+
+  for (const { name, body, expected, example } of functions) {
     if (!body) continue;
     if (mixesValue(body)) {
-      problems.push("O email ainda entra no texto da consulta.");
+      problems.push(
+        `${name}: a inspeção ainda encontrou email concatenado ou interpolado no texto da consulta.`,
+      );
       break;
     }
-    if (!bindsValue(body)) {
-      problems.push("O email precisa ir num argumento separado, com a instrução fixa.");
+    if (!expected.test(body)) {
+      problems.push(
+        `${name}: preserve a busca do exercício e passe email separadamente neste formato: ${example}.`,
+      );
       break;
     }
   }
 
   const frontier: LabTest = {
     id: "fronteira",
-    name: "Valor fora da frase",
+    name: "Separação estrutural nas duas funções",
     state: problems.length === 0 ? "pass" : "fail",
     detail:
       problems[0] ??
-      "A instrução ficou fixa. O email viaja separado nas duas funções.",
+      "A inspeção textual reconheceu instrução fixa e email separado em findUser e listOrders.",
   };
 
   const tests =
     problems.length === 0
-      ? [frontier, ...BEHAVIOR]
+      ? [frontier, ...STRUCTURAL_RESULTS]
       : [
           frontier,
-          ...BEHAVIOR.map((test) => ({
+          ...STRUCTURAL_RESULTS.map((test) => ({
             ...test,
             state: "skip" as const,
-            detail: "Ainda não rodou. A consulta precisa deixar o valor fora da frase.",
+            detail:
+              "Ainda não avaliado: corrija primeiro o problema indicado na separação estrutural.",
           })),
         ];
 
@@ -89,9 +112,4 @@ function mixesValue(body: string) {
     /\bemail\s*\+/.test(body) ||
     /\$\{\s*email\s*\}/.test(body)
   );
-}
-
-function bindsValue(body: string) {
-  const calls = body.match(/db\.query\([\s\S]*?\)/g) ?? [];
-  return calls.some((call) => call.includes("?") && /\[\s*email\s*\]|,\s*email\s*\)/.test(call));
 }

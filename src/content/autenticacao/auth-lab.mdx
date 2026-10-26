@@ -1,7 +1,9 @@
-O mini-serviço de login do lab começa vulnerável: senha em claro, mensagens que enumeram usuário, cadastro sem política e tentativas ilimitadas. Cada caixa liga uma defesa. O servidor confere a configuração — não executa código seu.
+Este lab é uma simulação de decisões para um login fictício. Marcar uma caixa não executa hash, não envia tentativas e não prova que um endpoint real está seguro. O checker apenas compara suas escolhas com o checklist esperado.
+
+Você vai decidir como a senha seria armazenada, como o login responderia a falhas, o que o cadastro recusaria e como tentativas repetidas seriam desaceleradas. Uma resposta coerente mantém mensagem e status iguais para qualquer credencial inválida.
 
 <Callout tone="dev">
 
-Conjunto que passa: hash no armazenamento, resposta genérica, política mínima no cadastro e limite de tentativas falhas.
+O checklist aceita: hash de senha com algoritmo próprio para senhas, resposta de falha coerente, política mínima no cadastro e rate limiting. Verde significa “configuração simulada completa”, não “implementação validada”.
 
 </Callout>

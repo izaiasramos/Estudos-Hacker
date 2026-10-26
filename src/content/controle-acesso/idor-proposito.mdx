@@ -1,11 +1,13 @@
-Controle de acesso quebrado é o primeiro item do OWASP Top 10. O login funciona, a sessão é válida, e mesmo assim a pessoa chega num dado que não é dela. O servidor respondeu à pergunta “quem está pedindo?” e pulou a segunda: “esse recurso pertence a quem está pedindo?”.
+Alice entra na própria conta e troca `/pedidos/101` por `/pedidos/103`. O login continua válido, mas o servidor entrega o pedido de Bruno. Esse é um caso de controle de acesso quebrado, primeira categoria do Top 10 do Open Worldwide Application Security Project (OWASP), organização aberta que reúne referências práticas de segurança.
 
-IDOR (Insecure Direct Object Reference) é o caso mais comum: a rota recebe um identificador — o número do pedido, da fatura, do perfil — e devolve o registro sem amarrar esse identificador ao dono da sessão.
+Insecure Direct Object Reference (IDOR), ou referência direta insegura a objeto, acontece quando a rota recebe um identificador — de pedido, fatura ou perfil — e usa esse valor sem conferir se a identidade da sessão pode acessar aquele recurso. Autenticação responde “quem é?”; autorização responde “pode fazer isso neste recurso?”.
 
 <Callout tone="analogia">
 
-O porteiro confere o crachá na entrada do prédio e deixa você subir. Mas todas as salas abrem com qualquer crachá. Entrar no prédio não deveria abrir a sala do vizinho.
+O porteiro confere o crachá na entrada, mas qualquer crachá abre todas as salas. Entrar no prédio não dá direito à sala do vizinho.
 
 </Callout>
 
-<Glossary term={"Invariante"} text={"Todo acesso a um recurso confere, no servidor, se a identidade da sessão tem direito àquele recurso específico. Saber o id não é permissão."} />
+A decisão fica no servidor: toda leitura ou alteração combina o recurso pedido com o dono ou o papel autorizado. Saber o identificador nunca é permissão.
+
+<Glossary term={"Invariante"} text={"Regra que deve continuar verdadeira em todos os caminhos: cada acesso confere, no servidor, se a identidade da sessão tem direito ao recurso específico."} />

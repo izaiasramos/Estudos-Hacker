@@ -1,9 +1,12 @@
 export const XSS_LAB_GAPS: Record<string, string> = {
-  escape: "A saída ainda concatena HTML cru. Codifique para o contexto (HTML, atributo, URL).",
-  csp: "Falta Content-Security-Policy que limite script inline e origens desconhecidas.",
-  safedom: "O comentário ainda entra via innerHTML. Para texto, prefira textContent ou API equivalente.",
+  escape:
+    "A saída ainda mistura dado e estrutura. Trate o valor para o contexto exato em que será inserido.",
+  csp:
+    "Falta a camada adicional de CSP para restringir scripts. Ela contém impacto, mas não substitui DOM seguro ou sanitização.",
+  safedom:
+    "Texto comum ainda chega a uma API que interpreta HTML. Use textContent ou a interpolação segura do framework.",
   sanitize:
-    "HTML rico do usuário ainda passa direto. Use sanitizador com lista permitida ou não aceite HTML.",
+    "HTML rico ainda aceita construções arbitrárias. Mantenha somente tags e atributos necessários com um sanitizador confiável.",
 };
 
 export function missingXssLabDefenses(form: {

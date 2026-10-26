@@ -1,16 +1,24 @@
-Refletido: o servidor devolve o input na resposta da mesma requisição (busca, erro, query string). Armazenado: o input fica salvo e outras pessoas veem depois (comentário, perfil, ticket). DOM-based: o script da página escreve no DOM sem passar pelo servidor. Em todos, o browser interpreta o trecho como código.
+Siga o caminho do comentário. Se ele chega pela busca e volta na mesma resposta, o caso é **XSS refletido**. Se fica salvo em um ticket e atinge visitantes depois, é **XSS armazenado**. Se um script do próprio front-end lê um valor da URL e o escreve de modo inseguro na página, é **XSS baseado no DOM**.
 
-<Callout tone="dev">
+**DOM**, ou *Document Object Model* (Modelo de Objetos do Documento), é a representação em objetos que o navegador constrói para a página. JavaScript consulta e altera essa árvore para criar textos, links e componentes.
 
-Sintoma comum: campo de busca que ecoa o termo dentro da página sem codificar. Comentário de outro usuário que aparece formatado demais.
+O contraste decisivo está na API usada:
 
-</Callout>
+<Code caption={"A mesma entrada, duas decisões diferentes"}>
 
-<Code caption={"Perigoso vs seguro (texto simples)"}>
-
-```
-painel.innerHTML = comentario;  // interpreta markup
-painel.textContent = comentario; // mostra como texto
+```js
+painel.innerHTML = comentario;   // analisa a string como HTML
+painel.textContent = comentario; // cria somente um nó de texto
 ```
 
 </Code>
+
+`innerHTML` é um **sink perigoso** quando recebe dado não confiável: ele pede ao navegador para analisar marcação. `textContent` preserva a intenção de exibir texto. Frameworks como React também escapam valores interpolados como texto por padrão, mas essa proteção pode ser contornada por APIs explícitas de HTML, como `dangerouslySetInnerHTML`.
+
+<Callout tone="conceito">
+
+Refletido, armazenado e baseado no DOM descrevem o trajeto. A falha é a mesma: uma fronteira de confiança foi quebrada e dados passaram a controlar a estrutura ou o comportamento da página.
+
+</Callout>
+
+Ao revisar código, não pare no local em que a entrada chegou. Acompanhe o valor até o ponto de saída e pergunte qual interpretação aquela API solicita ao navegador.

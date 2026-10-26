@@ -1,9 +1,17 @@
-No app web, login compara o que a pessoa sabe (senha), tem (dispositivo) ou prova (OAuth) com o que o sistema guarda. Se bater, o servidor cria uma sessão — outra trilha cuida da chave temporária. Aqui o foco é não quebrar a prova da senha.
+Imagine duas respostas ao mesmo login inválido: “e-mail não existe” e “senha errada”. Antes de entrar, alguém já consegue descobrir quais contas estão cadastradas. Autenticação não é só acertar uma senha; é verificar identidade sem revelar atalhos úteis a quem tenta abusar do fluxo.
+
+<Glossary term={"Autenticação"} text={"Processo de verificar uma prova de identidade, como uma senha ou o controle de um dispositivo."} />
+
+Depois da autenticação, o servidor costuma criar uma sessão: um registro temporário que mantém a identidade entre pedidos. Autorização vem depois e decide o que essa identidade pode ler, alterar ou excluir. Entrar como Ana não significa poder abrir os dados de Bruno.
+
+<Glossary term={"OAuth"} text={"Padrão para uma aplicação receber autorização limitada para acessar recursos em outro serviço, sem receber a senha desse serviço. Botões de login com um provedor costumam combinar OAuth com uma etapa própria de identificação."} />
+
+<Glossary term={"Segundo fator (2FA)"} text={"Segunda prova de autenticação, de categoria diferente da senha, pedida além dela — por exemplo, confirmar em um dispositivo sob controle da pessoa. Se a senha vazar, ainda falta essa outra prova."} />
 
 <Callout tone="analogia">
 
-A senha não é o crachá. É o segredo que troca por um crachá. Quem guarda o segredo em papel colado na porta entregou o prédio inteiro.
+A senha é a prova entregue na recepção; a sessão é o crachá temporário recebido depois; a autorização é a regra que abre apenas algumas portas. Confundir os três esconde falhas diferentes.
 
 </Callout>
 
-<Glossary term={"Autenticação quebrada"} text={"Falhas em login, cadastro ou recuperação que deixam entrar sem prova válida, vazam se um usuário existe ou mantêm senha fraca aceita."} />
+A decisão desta trilha é proteger todo o fluxo: prova armazenada, respostas de erro, cadastro e repetição de tentativas.

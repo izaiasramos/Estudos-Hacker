@@ -1,7 +1,9 @@
-A rota de avatar da Pizzaria do Lab começa aceitando qualquer arquivo, com o nome que veio, na pasta pública do site. O painel mostra o que aconteceria com quatro envios de exemplo. Cada opção abaixo fecha uma parte da regra.
+A rota fictícia de avatar começa aceitando qualquer arquivo, usando o nome recebido e servindo-o na pasta pública da aplicação. O painel simula cinco envios; nenhum arquivo é recebido, gravado ou executado.
+
+Configure conteúdo conferido e reprocessado, nome gerado no servidor, limite de tamanho e entrega por uma origem separada, sem cookies ou outras credenciais da aplicação, com `nosniff`. Para SVG, recuse ou converta. Confiar apenas no Content-Type do pedido é um distrator e não conta como defesa.
 
 <Callout tone="dev">
 
-Conjunto que passa: conteúdo conferido e reprocessado, nome gerado no servidor, limite de tamanho, entrega isolada com nosniff e SVG recusado ou convertido. Confiar no `Content-Type` do pedido não conta como defesa.
+O checker avalia decisões de configuração. Em produção, arquivos destinados a download também precisam de `Content-Disposition: attachment`; este lab de avatar avalia imagens isoladas e não simula esse header.
 
 </Callout>
