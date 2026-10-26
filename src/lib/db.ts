@@ -227,7 +227,11 @@ function pool() {
     if (!connectionString) {
       throw new Error("DATABASE_URL ausente");
     }
-    globalForDb.shieldpathPool = new Pool({ connectionString, max: 10 });
+    globalForDb.shieldpathPool = new Pool({
+      connectionString,
+      max: 10,
+      connectionTimeoutMillis: 5_000,
+    });
   }
   return globalForDb.shieldpathPool;
 }
@@ -275,6 +279,10 @@ async function query(sql: string, params: unknown[] = []) {
   await ensureSchema();
   const client = storage.getStore() ?? pool();
   return client.query(placeholders(sql), params);
+}
+
+export async function checkDatabaseReady() {
+  await pool().query("SELECT 1");
 }
 
 export async function many<T>(sql: string, params: unknown[] = []) {

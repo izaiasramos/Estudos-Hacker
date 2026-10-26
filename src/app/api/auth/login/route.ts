@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { DATABASE_UNAVAILABLE_MESSAGE } from "@/lib/auth-errors";
+import { isDatabaseUnavailable, databaseErrorMetadata } from "@/lib/db-errors";
 import { isEmail, redirectTo, sameOrigin } from "@/lib/http";
 import { clearLoginFailures, clientIp, loginBlockedUntil, recordLoginFailure } from "@/lib/login-throttle";
 import { verifyPassword } from "@/lib/password";
@@ -18,27 +20,46 @@ export async function POST(request: Request) {
     return redirectTo(request, "/entrar?erro=credenciais");
   }
 
-  // O bloqueio é checado antes do bcrypt: quem está travado nem chega a testar a senha.
-  const ip = clientIp(request);
-  if (await loginBlockedUntil(email, ip)) {
-    console.warn("[auth] login bloqueado por excesso de tentativas");
-    return redirectTo(request, "/entrar?erro=bloqueado");
-  }
+  try {
+    // O bloqueio é checado antes do bcrypt: quem está travado nem chega a testar a senha.
+    const ip = clientIp(request);
+    if (await loginBlockedUntil(email, ip)) {
+      console.warn("[auth] login bloqueado por excesso de tentativas");
+      return redirectTo(request, "/entrar?erro=bloqueado");
+    }
 
-  const user = await findUserByEmail(email);
-  if (!user?.passwordHash || !(await verifyPassword(password, user.passwordHash))) {
-    await recordLoginFailure(email, ip);
-    return redirectTo(request, "/entrar?erro=credenciais");
-  }
-  await clearLoginFailures(email);
+    const user = await findUserByEmail(email);
+    if (!user?.passwordHash || !(await verifyPassword(password, user.passwordHash))) {
+      await recordLoginFailure(email, ip);
+      return redirectTo(request, "/entrar?erro=credenciais");
+    }
+    await clearLoginFailures(email);
 
-  const cookie = sessionCookie(createSessionToken(user.id));
-  const response = redirectTo(
-    request,
-    user.ethicsAcceptedAt ? "/inicio" : "/regras",
-  );
-  response.cookies.set(cookie.name, cookie.value, cookie.options);
-  return response;
+    const cookie = sessionCookie(createSessionToken(user.id));
+    const response = redirectTo(
+      request,
+      user.ethicsAcceptedAt ? "/inicio" : "/regras",
+    );
+    response.cookies.set(cookie.name, cookie.value, cookie.options);
+    return response;
+  } catch (error) {
+    if (!isDatabaseUnavailable(error)) throw error;
+    console.error("[auth] banco indisponível durante login", databaseErrorMetadata(error));
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "temporarily_unavailable",
+        message: DATABASE_UNAVAILABLE_MESSAGE,
+      },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+          "Retry-After": "5",
+        },
+      },
+    );
+  }
 }
 
 export function GET() {
