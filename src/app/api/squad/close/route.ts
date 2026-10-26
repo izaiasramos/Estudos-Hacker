@@ -10,6 +10,7 @@ export async function POST(request: Request) {
   const payload = readSessionToken(jar.get(SESSION_COOKIE)?.value);
   const user = payload ? await findUserById(payload.sub) : null;
   if (!user) return redirectTo(request, "/entrar");
+  if (!user.ethicsAcceptedAt) return redirectTo(request, "/regras");
 
   const result = await closeSquad(user.id);
   if ("error" in result) return redirectTo(request, `/squad?erro=${result.error}`);

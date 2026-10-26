@@ -52,18 +52,144 @@ CREATE TABLE IF NOT EXISTS squads (
   code TEXT NOT NULL UNIQUE,
   mentor_id TEXT NOT NULL,
   created_at TEXT NOT NULL,
+  closed_at TEXT,
   FOREIGN KEY (mentor_id) REFERENCES users(id)
 );
+ALTER TABLE squads ADD COLUMN IF NOT EXISTS closed_at TEXT;
 CREATE TABLE IF NOT EXISTS squad_members (
   squad_id TEXT NOT NULL,
-  user_id TEXT NOT NULL UNIQUE,
+  user_id TEXT NOT NULL,
   joined_at TEXT NOT NULL,
+  left_at TEXT,
   PRIMARY KEY (squad_id, user_id),
   FOREIGN KEY (squad_id) REFERENCES squads(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+ALTER TABLE squad_members ADD COLUMN IF NOT EXISTS left_at TEXT;
+ALTER TABLE squad_members DROP CONSTRAINT IF EXISTS squad_members_user_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS squad_members_one_active_per_user
+  ON squad_members (user_id) WHERE left_at IS NULL;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS reduce_motion BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE progress ADD COLUMN IF NOT EXISTS completed_at TEXT;
+CREATE TABLE IF NOT EXISTS learning_paths (
+  user_id TEXT NOT NULL,
+  trail_slug TEXT NOT NULL,
+  level TEXT NOT NULL CHECK (level IN ('beginner', 'intermediate', 'advanced')),
+  selected_at TEXT NOT NULL,
+  PRIMARY KEY (user_id, trail_slug),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS learning_paths_trail ON learning_paths (trail_slug);
+CREATE TABLE IF NOT EXISTS competitions (
+  id TEXT PRIMARY KEY,
+  squad_id TEXT NOT NULL,
+  name TEXT NOT NULL,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  timezone TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('draft', 'active', 'closed')),
+  scoring_version TEXT NOT NULL,
+  minimum_coverage INTEGER NOT NULL CHECK (minimum_coverage BETWEEN 1 AND 100),
+  prize_mode TEXT NOT NULL CHECK (prize_mode IN ('winner', 'top3')),
+  prize_description TEXT NOT NULL,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  closed_at TEXT,
+  CHECK (ends_at > starts_at),
+  FOREIGN KEY (squad_id) REFERENCES squads(id),
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS competitions_squad_period ON competitions (squad_id, starts_at DESC, ends_at DESC);
+CREATE INDEX IF NOT EXISTS competitions_status_ends ON competitions (status, ends_at);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'competitions_one_open_per_squad') THEN
+    WITH duplicates AS (
+      SELECT id, ROW_NUMBER() OVER (PARTITION BY squad_id ORDER BY created_at DESC, id DESC) AS position
+      FROM competitions WHERE status IN ('draft', 'active')
+    )
+    UPDATE competitions c SET status='closed', closed_at=COALESCE(c.closed_at, c.ends_at)
+    FROM duplicates d WHERE c.id=d.id AND d.position > 1;
+  END IF;
+END $$;
+CREATE UNIQUE INDEX IF NOT EXISTS competitions_one_open_per_squad
+  ON competitions (squad_id) WHERE status IN ('draft', 'active');
+CREATE TABLE IF NOT EXISTS competition_units (
+  competition_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  PRIMARY KEY (competition_id, unit_id),
+  FOREIGN KEY (competition_id) REFERENCES competitions(id)
+);
+CREATE INDEX IF NOT EXISTS competition_units_unit ON competition_units (unit_id);
+CREATE TABLE IF NOT EXISTS competition_participants (
+  competition_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  joined_at TEXT NOT NULL,
+  eligible BOOLEAN NOT NULL DEFAULT false,
+  final_score INTEGER,
+  final_rank INTEGER,
+  PRIMARY KEY (competition_id, user_id),
+  FOREIGN KEY (competition_id) REFERENCES competitions(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE INDEX IF NOT EXISTS competition_participants_user ON competition_participants (user_id);
+CREATE TABLE IF NOT EXISTS attempts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  mode TEXT NOT NULL CHECK (mode IN ('learning', 'competition', 'practice')),
+  score INTEGER NOT NULL CHECK (score BETWEEN 0 AND 100),
+  passed BOOLEAN NOT NULL,
+  attempt_number INTEGER NOT NULL CHECK (attempt_number > 0),
+  started_at TEXT,
+  submitted_at TEXT NOT NULL,
+  active_duration_ms INTEGER,
+  question_version TEXT NOT NULL,
+  competition_id TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (competition_id) REFERENCES competitions(id)
+);
+CREATE INDEX IF NOT EXISTS attempts_user_unit ON attempts (user_id, unit_id, submitted_at);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'attempts_user_unit_number') THEN
+    WITH numbered AS (
+      SELECT id, ROW_NUMBER() OVER (PARTITION BY user_id, unit_id ORDER BY submitted_at, id) AS ordinal
+      FROM attempts
+    )
+    UPDATE attempts a SET attempt_number=n.ordinal FROM numbered n WHERE a.id=n.id;
+  END IF;
+END $$;
+CREATE UNIQUE INDEX IF NOT EXISTS attempts_user_unit_number ON attempts (user_id, unit_id, attempt_number);
+CREATE INDEX IF NOT EXISTS attempts_competition ON attempts (competition_id, user_id, submitted_at);
+CREATE TABLE IF NOT EXISTS competition_scores (
+  competition_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  unit_id TEXT NOT NULL,
+  attempt_id TEXT NOT NULL UNIQUE,
+  accuracy_points INTEGER NOT NULL,
+  first_pass_points INTEGER NOT NULL,
+  efficiency_points INTEGER NOT NULL,
+  speed_points INTEGER NOT NULL,
+  total_points INTEGER NOT NULL,
+  finalized_at TEXT NOT NULL,
+  PRIMARY KEY (competition_id, user_id, unit_id),
+  FOREIGN KEY (competition_id, user_id) REFERENCES competition_participants(competition_id, user_id),
+  FOREIGN KEY (attempt_id) REFERENCES attempts(id)
+);
+CREATE INDEX IF NOT EXISTS competition_scores_ranking ON competition_scores (competition_id, user_id, total_points);
+CREATE TABLE IF NOT EXISTS awards (
+  competition_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  position INTEGER NOT NULL CHECK (position > 0),
+  score INTEGER NOT NULL,
+  prize_description TEXT NOT NULL,
+  homologated_at TEXT NOT NULL,
+  delivered_at TEXT,
+  PRIMARY KEY (competition_id, position),
+  FOREIGN KEY (competition_id, user_id) REFERENCES competition_participants(competition_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS awards_user ON awards (user_id);
 CREATE TABLE IF NOT EXISTS login_failures (
   id BIGSERIAL PRIMARY KEY,
   key_hash TEXT NOT NULL,
@@ -123,6 +249,8 @@ export async function run(sql: string, params: unknown[] = []) {
 
 export async function withTx<T>(fn: () => Promise<T>) {
   await ensureSchema();
+  // Serviços podem compor operações sem abrir outra conexão/transação.
+  if (storage.getStore()) return fn();
   const client = await pool().connect();
   try {
     await client.query("BEGIN");

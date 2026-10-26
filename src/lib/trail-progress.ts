@@ -1,5 +1,6 @@
 import type { Question, Unit } from "@/content/sql-injection";
 import { locateUnit, trailBySlug, type Trail } from "@/content/trails";
+import { lockAttemptSequence, recordAttempt, type AttemptMode } from "@/lib/competition";
 import { many, run, withTx } from "@/lib/db";
 import { touchStreak } from "@/lib/streak";
 
@@ -150,89 +151,116 @@ export async function gradeUnit(
 ) {
   const unit = unitById(unitId);
   if (!unit?.gate || unit.questions.length === 0) return { error: "unidade" as const };
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-
   const graded = scoreUnitAnswers(unit.questions, answers);
-  const { score, passed, wrong } = graded;
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const passXp = passed && current?.status !== "done" ? xpForPass(unit) : 0;
-  const readXp =
-    passed &&
-    (unit.kind === "theory" || unit.kind === "checkpoint") &&
-    (current?.xpAwarded ?? 0) === 0
-      ? READ_XP
-      : 0;
-  const gain = passXp + readXp;
 
-  await withTx(async () => {
-    await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = CASE
-           WHEN excluded.status = 'done' OR progress.status = 'done' THEN 'done'
-           ELSE excluded.status
-         END,
-         score = excluded.score,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [
-        userId,
-        unit.id,
-        passed ? "done" : current?.status === "read" ? "read" : "available",
-        score,
-        attempts,
-        gain,
-        gain,
-      ],
-    );
-    if (gain > 0) {
-      await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
+  const result = await withTx(async () => {
+    await lockAttemptSequence(userId, unit.id);
+    const progress = await listProgress(userId);
+    if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+      return { error: "bloqueada" as const };
     }
-    if (passed && current?.status !== "done") await touchStreak(userId);
+    const current = progress.get(unit.id);
+    const alreadyDone = current?.status === "done";
+    const recorded = await recordAttempt({
+      userId,
+      unitId: unit.id,
+      score: graded.score,
+      passed: graded.passed,
+      alreadyDone,
+      questionVersion: "content-v1",
+    });
+    const attempts = (current?.attempts ?? 0) + 1;
+    if (alreadyDone) {
+      await run("UPDATE progress SET attempts = attempts + 1 WHERE user_id=? AND unit_id=?", [userId, unit.id]);
+      return { ok: true as const, ...graded, attempts, sealed: false, mode: recorded.mode };
+    }
+
+    const passXp = graded.passed ? xpForPass(unit) : 0;
+    const readXp = graded.passed && (unit.kind === "theory" || unit.kind === "checkpoint") &&
+      (current?.xpAwarded ?? 0) === 0 ? READ_XP : 0;
+    const gain = passXp + readXp;
+    const submittedAt = new Date().toISOString();
+    await run(
+      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded, completed_at)
+       VALUES (?, ?, ?, ?, 1, ?, ?)
+       ON CONFLICT(user_id, unit_id) DO UPDATE SET
+         status = CASE WHEN progress.status = 'done' THEN 'done' ELSE excluded.status END,
+         score = CASE WHEN progress.status = 'done' THEN progress.score ELSE excluded.score END,
+         attempts = progress.attempts + 1,
+         xp_awarded = progress.xp_awarded + ?,
+         completed_at = CASE WHEN progress.completed_at IS NOT NULL THEN progress.completed_at WHEN excluded.status = 'done' THEN excluded.completed_at ELSE NULL END`,
+      [userId, unit.id, graded.passed ? "done" : current?.status === "read" ? "read" : "available", graded.score, gain, graded.passed ? submittedAt : null, gain],
+    );
+    if (gain > 0) await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
+    if (graded.passed) await touchStreak(userId);
+    return { ok: true as const, ...graded, attempts, sealed: false, mode: recorded.mode };
   });
 
+  if ("error" in result) return result;
   const trail = locateUnit(unit.id)?.trail;
-  const sealed = passed && trail ? await awardTrailSeal(userId, trail) : false;
-  return { ok: true as const, passed, score, wrong, attempts, sealed };
+  const sealed = graded.passed && trail ? await awardTrailSeal(userId, trail) : false;
+  return { ...result, sealed };
 }
 
 /**
  * Fecha o lab defensivo de uma trilha (o checker já passou na rota) e tenta emitir o selo.
  * Só aceita a unidade que a trilha declara como `labUnitId`: o selo depende dela.
  */
-export async function completeLab(userId: string, unitId: string, ethicsDone: boolean) {
+export async function recordLabResult(
+  userId: string,
+  unitId: string,
+  passed: boolean,
+  ethicsDone: boolean,
+): Promise<
+  | { error: "unidade" | "bloqueada" }
+  | { ok: true; trail: Trail; mode: AttemptMode; sealed: boolean }
+> {
   const located = locateUnit(unitId);
   if (!located || located.trail.labUnitId !== unitId) return { error: "unidade" as const };
   const { trail, unit } = located;
-  const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
-    return { error: "bloqueada" as const };
-  }
-  const current = progress.get(unit.id);
-  const attempts = (current?.attempts ?? 0) + 1;
-  const gain = current?.status === "done" ? 0 : LAB_XP;
-  await withTx(async () => {
+  const result = await withTx(async () => {
+    await lockAttemptSequence(userId, unit.id);
+    const progress = await listProgress(userId);
+    if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+      return { error: "bloqueada" as const };
+    }
+    const current = progress.get(unit.id);
+    const alreadyDone = current?.status === "done";
+    const attempt = await recordAttempt({
+      userId,
+      unitId: unit.id,
+      score: passed ? 100 : 0,
+      passed,
+      alreadyDone,
+      questionVersion: "lab-checker-v1",
+    });
+    const completedAt = new Date().toISOString();
+    const gain = passed && !alreadyDone ? LAB_XP : 0;
     await run(
-      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded)
-       VALUES (?, ?, 'done', 100, ?, ?)
+      `INSERT INTO progress (user_id, unit_id, status, score, attempts, xp_awarded, completed_at)
+       VALUES (?, ?, ?, ?, 1, ?, ?)
        ON CONFLICT(user_id, unit_id) DO UPDATE SET
-         status = 'done',
-         score = 100,
-         attempts = excluded.attempts,
-         xp_awarded = progress.xp_awarded + ?`,
-      [userId, unit.id, attempts, gain, gain],
+         status = CASE WHEN progress.status='done' THEN 'done' ELSE excluded.status END,
+         score = CASE WHEN progress.status='done' THEN progress.score ELSE excluded.score END,
+         attempts = progress.attempts + 1,
+         xp_awarded = progress.xp_awarded + ?,
+         completed_at = CASE WHEN progress.completed_at IS NOT NULL THEN progress.completed_at WHEN excluded.status='done' THEN excluded.completed_at ELSE NULL END`,
+      [userId, unit.id, passed ? "done" : "available", passed ? 100 : 0, gain, passed ? completedAt : null, gain],
     );
     if (gain > 0) {
       await run("UPDATE users SET xp = xp + ? WHERE id = ?", [gain, userId]);
       await touchStreak(userId);
     }
+    return { ok: true as const, trail, mode: attempt.mode };
   });
-  return { ok: true as const, trail, sealed: await awardTrailSeal(userId, trail) };
+  if (result.ok !== true) return { error: result.error ?? "bloqueada" };
+  if (!passed) return { ...result, sealed: false };
+  const sealed = await awardTrailSeal(userId, trail);
+  return { ...result, sealed };
+}
+
+export async function completeLab(userId: string, unitId: string, ethicsDone: boolean) {
+  return recordLabResult(userId, unitId, true, ethicsDone);
 }
 
 /** Regra pura do selo: lab defensivo e checkpoint concluídos, selo ainda não emitido. */

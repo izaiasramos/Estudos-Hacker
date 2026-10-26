@@ -30,7 +30,9 @@ export async function squadOf(userId: string) {
     `SELECT squads.id, squads.name, squads.code, squads.mentor_id
      FROM squads
      JOIN squad_members ON squad_members.squad_id = squads.id
-     WHERE squad_members.user_id = ?`,
+     WHERE squad_members.user_id = ?
+       AND squad_members.left_at IS NULL
+       AND squads.closed_at IS NULL`,
     [userId],
   );
   return row ? mapSquad(row) : null;
@@ -63,6 +65,9 @@ export async function createSquad(userId: string, name: string) {
     } catch (error) {
       const constraint = typeof error === "object" && error && "constraint" in error ? String(error.constraint) : "";
       const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+      if (code === "23505" && constraint === "squad_members_one_active_per_user") {
+        return { error: "ja" as const };
+      }
       if (code !== "23505" || !constraint.includes("code")) throw error;
     }
   }
@@ -71,32 +76,104 @@ export async function createSquad(userId: string, name: string) {
 
 export async function joinSquad(userId: string, code: string) {
   const clean = code.trim().toUpperCase().replace(/\s+/g, "");
-  if (await squadOf(userId)) return { error: "ja" as const };
-  const squad = await one<SquadRow>("SELECT id, name, code, mentor_id FROM squads WHERE code = ?", [clean]);
-  if (!squad) return { error: "codigo" as const };
-  await run("INSERT INTO squad_members (squad_id, user_id, joined_at) VALUES (?, ?, ?)", [
-    squad.id,
-    userId,
-    new Date().toISOString(),
-  ]);
-  return { ok: true as const, squad: mapSquad(squad) };
+  const candidate = await one<SquadRow>(
+    "SELECT id, name, code, mentor_id FROM squads WHERE code = ? AND closed_at IS NULL",
+    [clean],
+  );
+  if (!candidate) return { error: "codigo" as const };
+
+  try {
+    return await withTx(async () => {
+      await run("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", [`competition:${candidate.id}`]);
+      const squad = await one<SquadRow>(
+        "SELECT id, name, code, mentor_id FROM squads WHERE id = ? AND closed_at IS NULL",
+        [candidate.id],
+      );
+      if (!squad) return { error: "codigo" as const };
+      const openCompetition = await one<{ id: string }>(
+        "SELECT id FROM competitions WHERE squad_id = ? AND status IN ('draft','active') LIMIT 1",
+        [squad.id],
+      );
+      if (openCompetition) return { error: "competicao-entrada" as const };
+      if (await squadOf(userId)) return { error: "ja" as const };
+      await run(
+        `INSERT INTO squad_members (squad_id, user_id, joined_at, left_at)
+         VALUES (?, ?, ?, NULL)
+         ON CONFLICT (squad_id, user_id) DO UPDATE SET
+           joined_at = excluded.joined_at,
+           left_at = NULL`,
+        [squad.id, userId, new Date().toISOString()],
+      );
+      return { ok: true as const, squad: mapSquad(squad) };
+    });
+  } catch (error) {
+    const constraint = typeof error === "object" && error && "constraint" in error ? String(error.constraint) : "";
+    const errorCode = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+    if (errorCode === "23505" && constraint === "squad_members_one_active_per_user") {
+      return { error: "ja" as const };
+    }
+    throw error;
+  }
 }
 
 export async function leaveSquad(userId: string) {
-  const squad = await squadOf(userId);
-  if (!squad) return { error: "fora" as const };
-  if (squad.mentorId === userId) return { error: "mentor" as const };
-  await run("DELETE FROM squad_members WHERE squad_id = ? AND user_id = ?", [squad.id, userId]);
-  return { ok: true as const };
+  const current = await squadOf(userId);
+  if (!current) return { error: "fora" as const };
+
+  return withTx(async () => {
+    await run("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", [`competition:${current.id}`]);
+    const squad = await one<SquadRow>(
+      `SELECT s.id, s.name, s.code, s.mentor_id FROM squads s
+       JOIN squad_members sm ON sm.squad_id = s.id
+       WHERE s.id = ? AND s.closed_at IS NULL AND sm.user_id = ? AND sm.left_at IS NULL`,
+      [current.id, userId],
+    );
+    if (!squad) return { error: "fora" as const };
+    if (squad.mentor_id === userId) return { error: "mentor" as const };
+    const openCompetition = await one<{ id: string }>(
+      "SELECT id FROM competitions WHERE squad_id = ? AND status IN ('draft','active') LIMIT 1",
+      [squad.id],
+    );
+    if (openCompetition) return { error: "competicao-saida" as const };
+    await run(
+      "UPDATE squad_members SET left_at = ? WHERE squad_id = ? AND user_id = ? AND left_at IS NULL",
+      [new Date().toISOString(), squad.id, userId],
+    );
+    return { ok: true as const };
+  });
 }
 
 export async function closeSquad(userId: string) {
-  const squad = await squadOf(userId);
-  if (!squad || squad.mentorId !== userId) return { error: "mentor" as const };
-  await withTx(async () => {
-    await run("DELETE FROM squad_members WHERE squad_id = ?", [squad.id]);
-    await run("DELETE FROM squads WHERE id = ?", [squad.id]);
-  });
+  const current = await squadOf(userId);
+  if (!current || current.mentorId !== userId) return { error: "mentor" as const };
+  try {
+    await withTx(async () => {
+      await run("SELECT pg_advisory_xact_lock(hashtextextended(?, 0))", [`competition:${current.id}`]);
+      const squad = await one<{ id: string }>(
+        `SELECT s.id FROM squads s JOIN squad_members sm ON sm.squad_id = s.id
+         WHERE s.id = ? AND s.mentor_id = ? AND s.closed_at IS NULL
+           AND sm.user_id = ? AND sm.left_at IS NULL`,
+        [current.id, userId, userId],
+      );
+      if (!squad) throw new Error("CLOSED_SQUAD");
+      const openCompetition = await one<{ id: string }>(
+        "SELECT id FROM competitions WHERE squad_id=? AND status IN ('draft','active') LIMIT 1",
+        [squad.id],
+      );
+      if (openCompetition) throw new Error("OPEN_COMPETITION");
+      const closedAt = new Date().toISOString();
+      await run("UPDATE squads SET closed_at=? WHERE id=?", [closedAt, squad.id]);
+      await run("UPDATE squad_members SET left_at=COALESCE(left_at,?) WHERE squad_id=?", [closedAt, squad.id]);
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "OPEN_COMPETITION") {
+      return { error: "competicao-aberta" as const };
+    }
+    if (error instanceof Error && error.message === "CLOSED_SQUAD") {
+      return { error: "mentor" as const };
+    }
+    throw error;
+  }
   return { ok: true as const };
 }
 
@@ -105,6 +182,7 @@ export type Standing = {
   name: string;
   rank: number;
   score: number | null;
+  coverage: number;
   attempts: number;
   done: number;
   place: string;
@@ -120,7 +198,10 @@ export async function squadStandings(squadId: string) {
     `SELECT users.id, users.name, users.streak, users.last_study_on
      FROM users
      JOIN squad_members ON squad_members.user_id = users.id
-     WHERE squad_members.squad_id = ?`,
+     JOIN squads ON squads.id = squad_members.squad_id
+     WHERE squad_members.squad_id = ?
+       AND squad_members.left_at IS NULL
+       AND squads.closed_at IS NULL`,
     [squadId],
   );
   const today = studyDay();
@@ -135,9 +216,9 @@ export async function squadStandings(squadId: string) {
         const bucket = seals.find((item) => item.slug === trail.slug);
         if (bucket) bucket.seals += 1;
       }
-      return { trail, stats: unitStats(progress, [...trail.units.map((unit) => unit.id), trail.sealId]), place: trailPlace(progress, trail) };
+      return { trail, stats: unitStats(progress, trail.units.map((unit) => unit.id)), place: trailPlace(progress, trail) };
     });
-    const overallIds = TRAILS.flatMap((trail) => [...trail.units.map((unit) => unit.id), trail.sealId]);
+    const overallIds = TRAILS.flatMap((trail) => trail.units.map((unit) => unit.id));
     return {
       userId: row.id,
       name: row.name,
@@ -156,6 +237,7 @@ export async function squadStandings(squadId: string) {
         userId: person.userId,
         name: person.name,
         score: person.overall.score,
+        coverage: person.overall.coverage,
         attempts: person.overall.attempts,
         done: person.overall.done,
         place: person.streak === 0 ? "Nenhum dia fechado" : person.streak === 1 ? "1 dia" : `${person.streak} dias seguidos`,
@@ -171,6 +253,7 @@ export async function squadStandings(squadId: string) {
             userId: person.userId,
             name: person.name,
             score: entry?.stats.score ?? null,
+            coverage: entry?.stats.coverage ?? 0,
             attempts: entry?.stats.attempts ?? 0,
             done: entry?.stats.done ?? 0,
             place: entry?.place ?? "Ainda no início",
@@ -183,9 +266,9 @@ export async function squadStandings(squadId: string) {
 
 function unitStats(progress: Map<string, ProgressRow>, unitIds: string[]) {
   let scoreSum = 0;
-  let scored = 0;
   let attempts = 0;
   let done = 0;
+  let scored = 0;
   for (const unitId of unitIds) {
     const row = progress.get(unitId);
     if (!row) continue;
@@ -196,7 +279,12 @@ function unitStats(progress: Map<string, ProgressRow>, unitIds: string[]) {
       scored += 1;
     }
   }
-  return { score: scored > 0 ? Math.round(scoreSum / scored) : null, attempts, done };
+  return {
+    score: scored > 0 ? Math.round(scoreSum / unitIds.length) : null,
+    coverage: unitIds.length ? Math.round((done / unitIds.length) * 100) : 0,
+    attempts,
+    done,
+  };
 }
 
 function trailPlace(progress: Map<string, ProgressRow>, trail: Trail) {
@@ -211,6 +299,7 @@ function rankRows(
   rows: Omit<Standing, "rank">[],
 ) {
   const ordered = [...rows].sort((a, b) => {
+    if (b.coverage !== a.coverage) return b.coverage - a.coverage;
     const scoreA = a.score ?? -1;
     const scoreB = b.score ?? -1;
     if (scoreB !== scoreA) return scoreB - scoreA;
@@ -227,5 +316,5 @@ function rankRows(
 }
 
 function sameStanding(a: Omit<Standing, "rank">, b: Omit<Standing, "rank">) {
-  return a.score === b.score && a.done === b.done && a.attempts === b.attempts;
+  return a.coverage === b.coverage && a.score === b.score && a.done === b.done && a.attempts === b.attempts;
 }

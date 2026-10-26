@@ -19,6 +19,7 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const unitId = String(form.get("unit") ?? "");
+  const requestedPractice = form.get("practice") === "1";
   const located = locateUnit(unitId);
   if (!located || !canSeeTrail(user, located.trail)) return redirectTo(request, "/inicio");
   const { trail, unit } = located;
@@ -38,6 +39,7 @@ export async function POST(request: Request) {
   }
 
   const destination = new URL(`/trilha/${trail.slug}/${unitId}`, request.url);
+  if (requestedPractice || result.mode === "practice") destination.searchParams.set("practice", "1");
   if (result.passed) {
     destination.searchParams.set("ok", String(result.score));
   } else {

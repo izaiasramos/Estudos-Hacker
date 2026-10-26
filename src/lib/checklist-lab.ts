@@ -4,7 +4,7 @@ import { locateUnit } from "@/content/trails";
 import { canSeeTrail } from "@/lib/access";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
-import { completeLab } from "@/lib/trail-progress";
+import { completeLab, recordLabResult } from "@/lib/trail-progress";
 import { findUserById } from "@/lib/users";
 
 /**
@@ -32,6 +32,8 @@ export async function handleChecklistLab(
   const missing = missingDefenses(await request.formData());
   const destination = new URL(`${basePath}/${unitId}`, request.url);
   if (missing.length > 0) {
+    const recorded = await recordLabResult(user.id, unitId, false, true);
+    if ("error" in recorded) return redirectTo(request, basePath);
     destination.searchParams.set("falta", missing.join(","));
     return NextResponse.redirect(destination, 303);
   }

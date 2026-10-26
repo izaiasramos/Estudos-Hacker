@@ -10,6 +10,7 @@ import type { Unit } from "@/content/sql-injection";
 import { trailBySlug } from "@/content/trails";
 import { canSeeTrail } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
+import { getLearningPath, LEARNING_LEVEL_LABELS } from "@/lib/learning-path";
 import {
   hasTrailSeal,
   listProgress,
@@ -38,7 +39,7 @@ export default async function UnitPage({
   searchParams,
 }: {
   params: Params;
-  searchParams: Promise<{ ok?: string; resp?: string; falta?: string }>;
+  searchParams: Promise<{ ok?: string; resp?: string; falta?: string; practice?: string }>;
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/entrar");
@@ -50,6 +51,7 @@ export default async function UnitPage({
 
   const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);
+  const learningPath = await getLearningPath(user.id, trail.slug);
   const status = unitStatus(unit, progress, true);
   if (status === "bloqueada") redirect(basePath);
 
@@ -86,6 +88,18 @@ export default async function UnitPage({
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight"><InlineCode text={unit.title} /></h1>
             <p className="mt-3 text-sm leading-relaxed text-muted"><InlineCode text={unit.summary} /></p>
+            {learningPath ? (
+              <div className="mt-5 rounded-[16px] border border-white/10 bg-ink/40 p-4">
+                <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-accent">Jornada {LEARNING_LEVEL_LABELS[learningPath.level].name}</p>
+                <p className="mt-2 text-sm text-muted">{LEARNING_LEVEL_LABELS[learningPath.level].guidance}</p>
+                {learningPath.level === "advanced" && (unit.questions.length > 0 || unit.kind === "lab") ? (
+                  <a href={unit.kind === "lab" ? "#lab" : "#quiz"} className="mt-3 inline-flex h-10 items-center rounded-full border border-white/15 px-4 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+                    Ir direto à prática
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+            <span id="lab" className="scroll-mt-24" />
             {lab.before}
             <Blocks slug={trail.slug} unitId={unit.id} />
             {lab.afterBlocks}
@@ -103,6 +117,7 @@ export default async function UnitPage({
               followingLabel={following?.title ?? null}
               attempts={progress.get(unit.id)?.attempts ?? 0}
               done={done}
+              practice={done && query.practice === "1"}
             />
             {lab.end}
           </article>
@@ -143,6 +158,7 @@ function Quiz({
   followingLabel,
   attempts,
   done,
+  practice,
 }: {
   unit: Unit;
   wrong: Map<string, string>;
@@ -153,6 +169,7 @@ function Quiz({
   followingLabel: string | null;
   attempts: number;
   done: boolean;
+  practice: boolean;
 }) {
   if (unit.questions.length === 0) return null;
   return (
@@ -165,20 +182,28 @@ function Quiz({
       <h2 className="text-lg font-semibold tracking-tight">{quizHeading(unit)}</h2>
       {passedNow ? (
         <p className="mt-3 text-sm leading-relaxed text-defense" role="status">
-          {score}% — esta unidade ficou para trás.
-          {sealPending ? " O selo continua esperando o laboratório defensivo." : ""}
+          {practice ? `${score}% — prática concluída. Seu XP, status e nota oficial não mudaram.` : `${score}% — esta unidade ficou para trás.`}
+          {!practice && sealPending ? " O selo continua esperando o laboratório defensivo." : ""}
         </p>
       ) : null}
       {wrong.size > 0 ? (
         <p className="mt-3 text-sm text-danger" role="alert">
-          Ainda não chegou a 70%. O motivo de cada resposta está embaixo dela.
+          {practice
+            ? "Esta prática ficou abaixo de 70%. Seu XP, status e nota oficial não mudaram; revise o feedback e tente novamente."
+            : "Ainda não chegou a 70%. O motivo de cada resposta está embaixo dela."}
         </p>
       ) : null}
-      {done ? (
-        <p className="mt-4 text-sm text-muted">Você já concluiu esta unidade. Pode reler à vontade.</p>
+      {done && !practice ? (
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted">Você já concluiu esta unidade. A prática não altera sua nota oficial nem o XP.</p>
+          <Link href="?practice=1#quiz" className="inline-flex h-10 items-center rounded-full border border-white/15 px-4 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+            Praticar novamente
+          </Link>
+        </div>
       ) : (
         <form action="/api/trilha/quiz" method="post" className="mt-6 space-y-8">
           <input type="hidden" name="unit" value={unit.id} />
+          {practice ? <input type="hidden" name="practice" value="1" /> : null}
           {unit.questions.map((question) => {
             const picked = wrong.get(question.id);
             if (question.kind === "text") {
