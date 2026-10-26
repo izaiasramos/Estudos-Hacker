@@ -96,6 +96,22 @@ describe("selo", () => {
 });
 
 describe("scoreUnitAnswers", () => {
+  it("avalia uma atividade de ordenação", () => {
+    const order = {
+      kind: "order" as const,
+      id: "flow",
+      prompt: "Ordene",
+      items: [
+        { id: "b", label: "B" },
+        { id: "a", label: "A" },
+      ],
+      correctOrder: ["a", "b"],
+      explain: "A vem antes de B",
+    };
+    expect(scoreUnitAnswers([order], { flow: "b,a" })).toMatchObject({ score: 0, passed: false });
+    expect(scoreUnitAnswers([order], { flow: "a,b" })).toMatchObject({ score: 100, passed: true });
+  });
+
   it("exige 70% para passar", () => {
     const questions = [
       {

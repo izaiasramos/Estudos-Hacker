@@ -313,11 +313,14 @@ function questionPasses(question: Question, given: string) {
     const normalized = given.toLocaleLowerCase("pt-BR");
     return question.stems.some((stem) => normalized.includes(stem));
   }
+  if (question.kind === "order") {
+    return given === question.correctOrder.join(",");
+  }
   return question.choices.some((choice) => choice.correct && choice.id === given);
 }
 
 function explainFor(question: Question, given: string) {
-  if (question.kind === "text") return question.explain;
+  if (question.kind === "text" || question.kind === "order") return question.explain;
   return (
     question.choices.find((choice) => choice.id === given)?.explain ??
     "Escolha uma alternativa para ver o porquê."

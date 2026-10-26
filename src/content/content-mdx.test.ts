@@ -6,7 +6,7 @@ import { TRAILS } from "@/content/trails";
 
 // Quem escreve conteúdo só edita .mdx. Este teste garante, antes do deploy, que cada unidade
 // tem o seu arquivo, que ele compila e que só usa os componentes que o player conhece.
-const COMPONENTS = new Set(["Callout", "Code", "Glossary"]);
+const COMPONENTS = new Set(["Callout", "Code", "Glossary", "InlineMission"]);
 const TONES = new Set(["conceito", "analogia", "armadilha", "dev"]);
 
 const units = TRAILS.flatMap((trail) =>

@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #07080d;
-  --surface: #12141c;
-  --text: #f4f1ea;
-  --muted: #a8a49b;
+  --ink: #080a10;
+  --surface: #131620;
+  --surface-raised: #1a1d28;
+  --text: #f7f5ef;
+  --muted: #b8b6ae;
   --accent: #d6ff4a;
-  --danger: #ff5c39;
-  --defense: #3ee0b0;
+  --danger: #ff7557;
+  --defense: #4ae8b8;
+  --info: #72b7ff;
+  --line: rgba(247, 245, 239, 0.14);
+  --line-strong: rgba(247, 245, 239, 0.24);
   --background: var(--ink);
   --foreground: var(--text);
 }
@@ -15,11 +19,15 @@
 @theme inline {
   --color-ink: var(--ink);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-danger: var(--danger);
   --color-defense: var(--defense);
+  --color-info: var(--info);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -665,5 +673,81 @@ html[data-motion="reduce"] .unit-scene-side::before,
 html[data-motion="reduce"] .unit-scene-option::before {
   animation: none;
   opacity: 1;
+  transform: none;
+}
+
+/* Experiência de aprendizagem inclusiva: leitura confortável, foco claro e movimento opcional. */
+.glossary-panel {
+  width: min(22rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  border-color: var(--line-strong);
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.unit-scene-summary,
+.unit-scene-node p,
+.unit-scene-option p,
+.unit-scene-zone p,
+.unit-scene-side p,
+.unit-scene-zone li,
+.unit-scene-side li {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.unit-scene-eyebrow,
+.unit-scene-index,
+.unit-scene-marker {
+  font-size: 0.8125rem;
+}
+
+.unit-scene-node strong,
+.unit-scene-option strong,
+.unit-scene-zone h3,
+.unit-scene-side h3,
+.unit-scene-prompt {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.quiz-choice,
+.activity-item {
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.quiz-choice:hover,
+.activity-item:hover {
+  transform: translateY(-1px);
+}
+
+.quiz-choice:has(input:checked) {
+  box-shadow: inset 4px 0 0 var(--accent), 0 10px 28px rgba(0, 0, 0, 0.2);
+}
+
+.learning-activity {
+  background-image: linear-gradient(rgba(114, 183, 255, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(114, 183, 255, 0.035) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-choice,
+  .activity-item {
+    transition: none;
+  }
+  .quiz-choice:hover,
+  .activity-item:hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduce"] .quiz-choice,
+html[data-motion="reduce"] .activity-item {
+  transition: none;
+}
+
+html[data-motion="reduce"] .quiz-choice:hover,
+html[data-motion="reduce"] .activity-item:hover {
   transform: none;
 }

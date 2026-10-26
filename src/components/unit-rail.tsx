@@ -42,7 +42,7 @@ export function UnitRail({
   ];
 
   return (
-    <nav aria-label="Unidades da trilha" className="flex items-stretch lg:flex-col">
+    <nav aria-label="Unidades da trilha" className="grid min-w-0 w-full grid-cols-2 items-stretch gap-2 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-0">
       {items.map((item, index) => (
         <Fragment key={item.key}>
           {index > 0 ? <RailEdge to={item.status} /> : null}
@@ -59,7 +59,7 @@ function RailEdge({ to }: { to: Status }) {
     <span
       aria-hidden
       data-state={state}
-      className="rail-edge shrink-0 self-center lg:ml-[calc(1.25rem-1px)] lg:self-start"
+      className="rail-edge hidden shrink-0 self-center lg:ml-[calc(1.25rem-1px)] lg:block lg:self-start"
     />
   );
 }
@@ -75,15 +75,15 @@ function RailItem({
   status: Status;
   current: boolean;
 }) {
-  const className = `flex min-w-[180px] items-center gap-3 rounded-[16px] border px-3 py-2 text-left lg:min-w-0 ${
-    current ? "border-accent/60 bg-surface" : "border-white/10 bg-surface/40"
+  const className = `flex min-w-0 items-center gap-3 rounded-[16px] border px-3 py-3 text-left ${
+    current ? "border-accent/70 bg-accent/[0.08]" : "border-line bg-surface/70"
   }`;
   const body = (
     <>
       <NodeDot status={status} />
       <span className="min-w-0">
-        <span className="block truncate text-sm text-text">{label}</span>
-        <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="block truncate text-sm font-medium text-text" title={label}>{label}</span>
+        <span className="mt-1 block text-xs font-semibold text-muted">
           {status}
         </span>
       </span>

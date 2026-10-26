@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ShieldPath — feche o buraco que você acabou de entender",
+  title: "ShieldPath — segurança de aplicações na prática",
   description:
-    "Trilha para devs júnior. Aprenda o ataque no laboratório, defenda no código e saia com o selo.",
+    "Aprenda a identificar riscos e proteger aplicações com trilhas guiadas, laboratórios seguros e correções validadas por testes.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

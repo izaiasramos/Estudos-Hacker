@@ -4,8 +4,9 @@ import { test } from "./helpers";
 base.describe("smoke", () => {
   base("landing pública", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Feche o buraco que você acabou de entender." })).toBeVisible();
-    await expect(page.getByRole("main").getByRole("link", { name: "Criar conta" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Aprenda a encontrar riscos. Pratique como corrigir." })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name: "Começar gratuitamente" })).toBeVisible();
+    await expect(page.getByRole("figure").getByText("Você aprende fazendo")).toBeVisible();
   });
 
   // Cadastro e regras saem do fixture `account` (helpers.ts), que também apaga a conta no fim.
