@@ -1,5 +1,6 @@
 import { TRAIL as authTrail, UNITS as authUnits } from "@/content/autenticacao";
 import { TRAIL as accessTrail, UNITS as accessUnits } from "@/content/controle-acesso";
+import { TRAIL as headersTrail, UNITS as headersUnits } from "@/content/headers";
 import { TRAIL as sqlTrail, UNITS as sqlUnits, type Unit } from "@/content/sql-injection";
 import { TRAIL as sessionTrail, UNITS as sessionUnits } from "@/content/sessao";
 import { TRAIL as csrfTrail, UNITS as csrfUnits } from "@/content/csrf";
@@ -128,6 +129,20 @@ export const TRAILS: Trail[] = [
       name: "Controle de acesso",
       text: "A rota de pedidos filtra pelo dono da sessão, confere o papel no servidor, nasce fechada, ignora campos fora da lista e não devolve o pedido do Bruno.",
       tone: "accent",
+    },
+  },
+  {
+    ...headersTrail,
+    sealId: "selo-headers",
+    units: headersUnits,
+    labUnitId: "headers-lab",
+    checkpointId: "headers-checkpoint",
+    sealPending: "O selo espera a resposta do perfil fechada no checker e o checkpoint.",
+    seal: {
+      badge: "HDR",
+      name: "Exposição de dados e headers",
+      text: "A resposta do perfil só traz o que a tela usa, o erro sai genérico, a versão não aparece e o navegador recebe CSP com nonce, HSTS, nosniff e frame-ancestors.",
+      tone: "defense",
     },
   },
 ];

@@ -1,8 +1,8 @@
-import { expect, test } from "@playwright/test";
-import { answerQuiz, signUpAndAcceptRules } from "./helpers";
+import { expect } from "@playwright/test";
+import { answerQuiz, test } from "./helpers";
 
-test("trilha de controle de acesso até o selo", async ({ page }) => {
-  await signUpAndAcceptRules(page, "e2e-idor");
+test("trilha de controle de acesso até o selo", async ({ page, account }) => {
+  expect(account.email).toContain("@shieldpath.test");
 
   await page.goto("/trilha/controle-acesso");
   await expect(page.getByRole("heading", { level: 1, name: "Controle de acesso (IDOR)" })).toBeVisible();
@@ -29,13 +29,13 @@ test("trilha de controle de acesso até o selo", async ({ page }) => {
   await answerQuiz(page, [
     /É boa UX, mas a rota precisa conferir o papel/,
     /Não\. Fica mais difícil adivinhar/,
-    /Quem mandar `role` ou `userId`/,
+    /Quem mandar role ou userId/,
   ]);
   await page.getByRole("link", { name: "Seguir — Sintomas no código" }).click();
 
   await answerQuiz(
     page,
-    [/`WHERE id = \?` sem nenhuma condição de dono/, "Da sessão que o servidor emitiu", "404 ou 403, sem o conteúdo do pedido"],
+    [/WHERE id = \? sem nenhuma condição de dono/, "Da sessão que o servidor emitiu", "404 ou 403, sem o conteúdo do pedido"],
     { "Em uma frase: qual invariante o IDOR quebra?": "O recurso precisa pertencer ao dono da sessão." },
   );
   await page.getByRole("link", { name: "Seguir — Fechar os pedidos" }).click();

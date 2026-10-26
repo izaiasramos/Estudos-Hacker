@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { InlineCode } from "@/components/inline-code";
 import { labSlots } from "@/components/unit-lab";
 import { UnitRail } from "@/components/unit-rail";
 import type { Unit } from "@/content/sql-injection";
@@ -83,11 +84,15 @@ export default async function UnitPage({
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
               Unidade {unit.order} · {status}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight">{unit.title}</h1>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{unit.summary}</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight"><InlineCode text={unit.title} /></h1>
+            <p className="mt-3 text-sm leading-relaxed text-muted"><InlineCode text={unit.summary} /></p>
             {lab.before}
             <Blocks slug={trail.slug} unitId={unit.id} />
             {lab.afterBlocks}
+            {/* Fica entre o texto e o quiz: fixa durante a leitura, para de flutuar quando o quiz chega. */}
+            {unit.kind !== "lab" && !done ? (
+              <ReadBar unitId={unit.id} hasQuiz={unit.questions.length > 0} />
+            ) : null}
             <Quiz
               unit={unit}
               wrong={wrong}
@@ -99,9 +104,6 @@ export default async function UnitPage({
               attempts={progress.get(unit.id)?.attempts ?? 0}
               done={done}
             />
-            {unit.kind !== "lab" && !done ? (
-              <ReadBar unitId={unit.id} hasQuiz={unit.questions.length > 0} />
-            ) : null}
             {lab.end}
           </article>
         </div>
@@ -183,7 +185,7 @@ function Quiz({
               return (
                 <div key={question.id}>
                   <label htmlFor={question.id} className="text-sm font-medium">
-                    {question.prompt}
+                    <InlineCode text={question.prompt} />
                   </label>
                   <textarea
                     id={question.id}
@@ -194,7 +196,7 @@ function Quiz({
                     className="mt-3 w-full rounded-[16px] border border-white/10 bg-ink px-4 py-3 text-sm outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
                   />
                   {picked !== undefined ? (
-                    <p className="mt-2 text-sm leading-relaxed text-danger">{question.explain}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-danger"><InlineCode text={question.explain} /></p>
                   ) : null}
                 </div>
               );
@@ -202,7 +204,7 @@ function Quiz({
             const choices = shuffleChoices(question.choices, attempts + 1);
             return (
               <fieldset key={question.id} className="space-y-3">
-                <legend className="text-sm font-medium">{question.prompt}</legend>
+                <legend className="text-sm font-medium"><InlineCode text={question.prompt} /></legend>
                 {choices.map((choice) => (
                   <label
                     key={choice.id}
@@ -215,13 +217,18 @@ function Quiz({
                       required
                       className="mt-1 accent-[#d6ff4a]"
                     />
-                    <span>{choice.label}</span>
+                    <span><InlineCode text={choice.label} /></span>
                   </label>
                 ))}
                 {picked !== undefined ? (
                   <p className="text-sm leading-relaxed text-danger">
-                    {question.choices.find((choice) => choice.id === picked)?.explain ??
-                      question.choices.find((choice) => !choice.correct)?.explain}
+                    <InlineCode
+                      text={
+                        question.choices.find((choice) => choice.id === picked)?.explain ??
+                        question.choices.find((choice) => !choice.correct)?.explain ??
+                        ""
+                      }
+                    />
                   </p>
                 ) : null}
               </fieldset>
@@ -253,7 +260,7 @@ function ReadBar({ unitId, hasQuiz }: { unitId: string; hasQuiz: boolean }) {
     <form
       action="/api/trilha/ler"
       method="post"
-      className="sticky bottom-4 mt-8 flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-ink/90 px-3 py-2 backdrop-blur"
+      className="sticky bottom-4 z-10 mt-8 flex flex-wrap items-center gap-3 rounded-full border border-white/10 bg-ink px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
     >
       <input type="hidden" name="unit" value={unitId} />
       <button
