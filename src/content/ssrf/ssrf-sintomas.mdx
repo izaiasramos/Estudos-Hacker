@@ -1,0 +1,33 @@
+Em code review, o sintoma é um pedido HTTP cujo destino vem do corpo ou da query sem nenhuma regra no caminho. Compare a rota de prévia de link da Pizzaria do Lab antes e depois.
+
+<Code caption="Prévia que busca qualquer URL (vulnerável)">
+
+```
+const resposta = await fetch(req.body.url);
+return Response.json({ html: await resposta.text() });
+```
+
+</Code>
+
+<Code caption="Prévia com a regra no servidor">
+
+```
+const url = new URL(req.body.url);
+if (url.protocol !== "https:") return erro("esquema");
+
+const { address } = await dns.lookup(url.hostname);
+if (ipInterno(address)) return erro("destino");
+
+const resposta = await fetch(url, { redirect: "manual", signal: AbortSignal.timeout(3000) });
+if (resposta.status >= 300 && resposta.status < 400) return erro("redirect");
+
+return Response.json(resumo(await lerAte(resposta, 512_000)));
+```
+
+</Code>
+
+<Callout tone="dev">
+
+`resumo` devolve título, descrição e imagem, que é o que a prévia mostra. O corpo cru nunca volta para quem pediu.
+
+</Callout>

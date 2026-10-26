@@ -5,7 +5,7 @@ test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page, acco
   const { email } = account;
 
   await page.goto("/perfil");
-  await expect(page.getByRole("heading", { name: "Selos · 0 de 8" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Selos · 0 de 10" })).toBeVisible();
 
   await page.getByLabel("Nome", { exact: true }).fill("Ana Teste");
   await page.getByRole("button", { name: "Salvar nome" }).click();

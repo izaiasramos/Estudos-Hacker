@@ -1,0 +1,17 @@
+A defesa se resume a três decisões que o servidor toma sozinho.
+
+Conteúdo: conferir a assinatura dos primeiros bytes contra uma lista permitida de tipos e, para imagem, reprocessar (abrir e salvar de novo como PNG ou JPEG). Reprocessar descarta o que não é pixel, inclusive script escondido. Nome: gerar um id aleatório no servidor e guardar o nome original só como texto, se precisar exibir. Entrega: servir de outro domínio ou de um storage, com `Content-Disposition: attachment` quando não for imagem e `X-Content-Type-Options: nosniff`. Antes de tudo, um limite de tamanho no servidor.
+
+<Callout tone="armadilha">
+
+`accept="image/*"` no input e checar a extensão `.png` são conferências do cliente e do rótulo. Quem envia o pedido direto, sem o formulário, pula as duas.
+
+</Callout>
+
+<Glossary term="Assinatura de arquivo" text="Os primeiros bytes que identificam o formato. Um PNG começa com 89 50 4E 47. Não é prova absoluta, mas é bem melhor que confiar no nome ou no header." />
+
+<Callout tone="dev">
+
+SVG merece decisão explícita: ele é XML e pode carregar script. Para avatar, converter para PNG ou recusar.
+
+</Callout>

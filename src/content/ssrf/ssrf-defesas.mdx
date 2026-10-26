@@ -1,0 +1,17 @@
+A primeira defesa que todo time tenta é recusar URLs com `localhost` no texto. Ela falha porque o texto não é o destino. Outro nome de domínio pode apontar para um IP interno, o mesmo IP pode ser escrito de várias formas, e uma URL aprovada pode responder com um redirect para dentro da rede.
+
+A defesa que segura olha o que de fato vai acontecer. Esquema permitido: só `https:`, ou `http:` se não houver jeito. Destino conferido depois de resolver o nome: o IP final não pode estar em faixa interna, de loopback ou link-local. Redirect sob controle: não seguir, ou checar cada salto de novo. Quando possível, lista permitida de hosts, em vez de lista de bloqueio.
+
+<Callout tone="armadilha">
+
+Validar a URL e depois deixar a biblioteca resolver o nome de novo na hora do pedido abre uma janela: o DNS pode responder diferente na segunda vez. Resolva uma vez, confira o IP e conecte nesse IP.
+
+</Callout>
+
+<Glossary term="Serviço de metadados" text="Endereço como 169.254.169.254, que provedores de nuvem usam para a máquina descobrir dados sobre si mesma, às vezes incluindo credenciais temporárias. Por isso é o alvo mais citado de SSRF." />
+
+<Callout tone="dev">
+
+A rede também é defesa. O serviço que busca URLs pode rodar numa rede sem acesso ao interno. É assim que o laboratório desta plataforma roda no modo Docker: rede sem saída.
+
+</Callout>
