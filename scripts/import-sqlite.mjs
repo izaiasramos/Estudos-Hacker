@@ -59,12 +59,17 @@ CREATE TABLE IF NOT EXISTS squads (
 );
 CREATE TABLE IF NOT EXISTS squad_members (
   squad_id TEXT NOT NULL,
-  user_id TEXT NOT NULL UNIQUE,
+  user_id TEXT NOT NULL,
   joined_at TEXT NOT NULL,
+  left_at TEXT,
   PRIMARY KEY (squad_id, user_id),
   FOREIGN KEY (squad_id) REFERENCES squads(id),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+ALTER TABLE squad_members ADD COLUMN IF NOT EXISTS left_at TEXT;
+ALTER TABLE squad_members DROP CONSTRAINT IF EXISTS squad_members_user_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS squad_members_one_active_per_user
+  ON squad_members (user_id) WHERE left_at IS NULL;
 `);
 
 const existing = await client.query("SELECT COUNT(*)::int AS total FROM users");

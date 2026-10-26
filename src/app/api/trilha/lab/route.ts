@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { reviewQueries } from "@/lib/lab-check";
 import { sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
-import { completeLab } from "@/lib/trail-progress";
+import { completeLab, recordLabResult } from "@/lib/trail-progress";
 import { findUserById } from "@/lib/users";
 
 export async function POST(request: Request) {
@@ -20,7 +20,9 @@ export async function POST(request: Request) {
   const source = String(form.get("source") ?? "");
   const review = reviewQueries(source);
   if (!review.ok) {
-    return NextResponse.json({ ok: true, passed: false, tests: review.tests, sealed: false });
+    const recorded = await recordLabResult(user.id, "lab-defensivo", false, true);
+    if ("error" in recorded) return NextResponse.json({ ok: false }, { status: 403 });
+    return NextResponse.json({ ok: true, passed: false, tests: review.tests, sealed: false, mode: recorded.mode });
   }
 
   const saved = await completeLab(user.id, "lab-defensivo", true);
