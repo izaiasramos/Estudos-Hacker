@@ -1,3 +1,6 @@
+export const DATABASE_UNAVAILABLE_MESSAGE =
+  "O serviço de dados está temporariamente indisponível. Tente novamente em alguns minutos.";
+
 const ERRORS: Record<string, string> = {
   email: "Informe um e-mail válido.",
   senha: "A senha precisa ter pelo menos 8 caracteres e não pode ser uma senha comum.",
@@ -6,6 +9,7 @@ const ERRORS: Record<string, string> = {
   bloqueado:
     "Muitas tentativas seguidas. O login fica pausado por até 15 minutos.",
   origem: "Não foi possível confirmar a origem do pedido.",
+  indisponivel: DATABASE_UNAVAILABLE_MESSAGE,
   "google-config":
     "O Google ainda não está configurado neste ambiente. Use e-mail e senha, ou defina as credenciais no servidor.",
   "google-estado": "A autorização do Google expirou. Tente de novo.",
