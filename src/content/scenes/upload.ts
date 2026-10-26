@@ -1,0 +1,76 @@
+import type { SceneCatalog } from "./types";
+
+export const uploadScenes = {
+  "upload:upload-proposito": {
+    id: "upload-safe-journey",
+    type: "flow",
+    eyebrow: "Da entrada à entrega",
+    title: "Em que momento um arquivo ganha confiança?",
+    accessibleSummary: "O fluxo acompanha cinco decisões: receber o arquivo, limitar seus bytes, validar e reprocessar o conteúdo, gerar um nome no servidor e entregar por uma origem isolada.",
+    caption: "O arquivo só avança quando tamanho, conteúdo, nome e origem são decididos pelo servidor.",
+    tone: "danger",
+    steps: [
+      { id: "upload-safe-journey-file-limit", label: "Arquivo → limite", detail: "O servidor limita os bytes antes de carregar todo o conteúdo." },
+      { id: "upload-safe-journey-content", label: "Conteúdo", detail: "O formato real é conferido e a imagem é reprocessada." },
+      { id: "upload-safe-journey-name", label: "Nome", detail: "Um identificador novo substitui o nome enviado pelo cliente." },
+      { id: "upload-safe-journey-origin", label: "Origem", detail: "A entrega acontece separada da sessão da aplicação." },
+    ],
+  },
+  "upload:upload-defesas": {
+    id: "upload-trust-comparison",
+    type: "compare",
+    eyebrow: "Quem decide?",
+    title: "O rótulo do arquivo conta a verdade?",
+    accessibleSummary: "A cena contrasta rótulos escolhidos por quem envia, como nome, extensão e tipo declarado, com decisões do servidor baseadas em limite, conteúdo reprocessado, nome novo e entrega isolada.",
+    caption: "Rótulos ajudam a descrever; somente verificações do servidor autorizam o arquivo.",
+    tone: "defense",
+    sides: [
+      { id: "upload-trust-comparison-client", label: "Informado por quem envia", description: "Útil como pista, nunca como prova.", items: ["Nome e extensão", "Tipo declarado"] },
+      { id: "upload-trust-comparison-server", label: "Decidido pelo servidor", description: "Controla o que será guardado e entregue.", items: ["Conteúdo conferido", "Nome e origem seguros"] },
+    ],
+  },
+  "upload:upload-sintomas": {
+    id: "upload-code-boundaries",
+    type: "boundary",
+    eyebrow: "Siga a confiança",
+    title: "Que escolha do cliente chegou ao armazenamento?",
+    accessibleSummary: "A inspeção separa entrada, processamento e entrega para localizar confiança indevida no nome, no tamanho ou no tipo declarado e verificar se o arquivo pode executar na mesma origem da aplicação.",
+    caption: "Toda escolha externa deve parar antes do caminho de gravação e da origem de entrega.",
+    tone: "danger",
+    zones: [
+      { id: "upload-code-boundaries-entry", label: "Entrada", description: "Dados ainda não confiáveis.", items: ["Nome do cliente", "Tipo declarado e bytes"] },
+      { id: "upload-code-boundaries-processing", label: "Processamento", description: "O servidor reduz e transforma a entrada.", items: ["Limite antecipado", "Conteúdo validado e reprocessado"] },
+      { id: "upload-code-boundaries-delivery", label: "Entrega", description: "O arquivo não compartilha a autoridade da aplicação.", items: ["Nome gerado", "Origem sem cookies da aplicação"] },
+    ],
+  },
+  "upload:upload-lab": {
+    id: "upload-simulated-checklist",
+    type: "sequence",
+    eyebrow: "Checklist simulado",
+    title: "O avatar fictício atravessa todas as barreiras?",
+    accessibleSummary: "Checklist simulado, sem receber arquivos: conferir limite antecipado, conteúdo validado e reprocessado, nome gerado pelo servidor e entrega em origem isolada.",
+    caption: "O checker avalia a configuração; nenhum arquivo é enviado, aberto ou gravado.",
+    tone: "defense",
+    events: [
+      { id: "upload-simulated-checklist-limit", marker: "1", label: "Limitar bytes", detail: "O teto vale antes da leitura completa." },
+      { id: "upload-simulated-checklist-content", marker: "2", label: "Conferir conteúdo", detail: "Somente formatos previstos avançam e imagens são reprocessadas." },
+      { id: "upload-simulated-checklist-name", marker: "3", label: "Gerar nome", detail: "O caminho não reutiliza o nome fornecido pelo cliente." },
+      { id: "upload-simulated-checklist-origin", marker: "4", label: "Isolar entrega", detail: "A origem de arquivos não recebe a sessão da aplicação." },
+    ],
+  },
+  "upload:upload-checkpoint": {
+    id: "upload-final-decision",
+    type: "decision",
+    eyebrow: "Decisão final",
+    title: "Qual avatar merece o selo?",
+    accessibleSummary: "A decisão final favorece o caminho com limite no servidor, conteúdo conferido e reprocessado, nome gerado e origem isolada, em vez de confiar em extensão ou tipo declarado.",
+    caption: "A proteção cobre o arquivo inteiro, da entrada limitada à entrega isolada.",
+    tone: "accent",
+    prompt: "Qual conjunto impede que o avatar vire caminho arbitrário, conteúdo ativo ou página da aplicação?",
+    options: [
+      { id: "upload-final-decision-complete", label: "Limite, conteúdo reprocessado, nome gerado e origem isolada", outcome: "Cada etapa reduz uma escolha perigosa antes da entrega.", recommended: true },
+      { id: "upload-final-decision-extension", label: "Extensão de imagem e nome original", outcome: "Ambos são textos escolhidos por quem envia e não provam o conteúdo." },
+      { id: "upload-final-decision-input", label: "Filtro do formulário no navegador", outcome: "Pedidos diretos não precisam respeitar a interface." },
+    ],
+  },
+} satisfies SceneCatalog;

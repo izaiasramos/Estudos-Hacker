@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/site-header";
 import { InlineCode } from "@/components/inline-code";
 import { labSlots } from "@/components/unit-lab";
 import { UnitRail } from "@/components/unit-rail";
+import { UnitScene } from "@/components/unit-scenes";
+import { sceneFor } from "@/content/scenes";
 import type { Unit } from "@/content/sql-injection";
 import { trailBySlug } from "@/content/trails";
 import { canSeeTrail } from "@/lib/access";
@@ -101,7 +103,7 @@ export default async function UnitPage({
             ) : null}
             <span id="lab" className="scroll-mt-24" />
             {lab.before}
-            <Blocks slug={trail.slug} unitId={unit.id} />
+            <Blocks slug={trail.slug} unitId={unit.id} title={unit.title} summary={unit.summary} />
             {lab.afterBlocks}
             {/* Fica entre o texto e o quiz: fixa durante a leitura, para de flutuar quando o quiz chega. */}
             {unit.kind !== "lab" && !done ? (
@@ -132,12 +134,27 @@ export default async function UnitPage({
  * Texto da unidade em MDX. O caminho sai de `TRAILS` (slug e id já validados), nunca do pedido.
  * Uma unidade sem arquivo é erro de conteúdo: o teste `content-mdx.test.ts` pega antes do deploy.
  */
-async function Blocks({ slug, unitId }: { slug: string; unitId: string }) {
+async function Blocks({
+  slug,
+  unitId,
+  title,
+  summary,
+}: {
+  slug: string;
+  unitId: string;
+  title: string;
+  summary: string;
+}) {
   const { default: Body } = await import(`@/content/${slug}/${unitId}.mdx`);
+  const scene = sceneFor(slug, unitId, { title, summary });
+
   return (
-    <div className="mt-8 space-y-4 text-[15px] leading-7 text-text/90">
-      <Body />
-    </div>
+    <>
+      <div className="mt-8 space-y-4 text-[15px] leading-7 text-text/90">
+        <Body />
+      </div>
+      <UnitScene scene={scene} />
+    </>
   );
 }
 

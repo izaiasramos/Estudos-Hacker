@@ -1,0 +1,76 @@
+import type { SceneCatalog } from "./types";
+
+export const ssrfScenes = {
+  "ssrf:ssrf-proposito": {
+    id: "ssrf-validated-destination",
+    type: "flow",
+    eyebrow: "Antes de conectar",
+    title: "Para onde o servidor realmente vai?",
+    accessibleSummary: "O fluxo recebe uma URL, resolve seu nome em DNS, valida todos os endereços IP resultantes e conecta somente ao IP aprovado; cada redirecionamento volta ao início da mesma validação.",
+    caption: "URL, DNS e IP aprovado precisam apontar para o mesmo destino permitido até a conexão.",
+    tone: "danger",
+    steps: [
+      { id: "ssrf-validated-destination-url", label: "URL recebida", detail: "Aceite apenas formatos e protocolos previstos pela funcionalidade." },
+      { id: "ssrf-validated-destination-dns", label: "Nome resolvido", detail: "Consulte o DNS e reúna todos os endereços retornados." },
+      { id: "ssrf-validated-destination-ip", label: "IP validado", detail: "Recuse endereços locais, privados, reservados e demais destinos proibidos." },
+      { id: "ssrf-validated-destination-connect", label: "Conexão controlada", detail: "Conecte ao IP aprovado; se houver redirect, valide o novo destino desde a URL." },
+    ],
+  },
+  "ssrf:ssrf-defesas": {
+    id: "ssrf-validation-boundaries",
+    type: "boundary",
+    eyebrow: "Cada salto conta",
+    title: "Em qual fronteira o destino pode mudar?",
+    accessibleSummary: "A cena mostra três fronteiras: o texto da URL pode esconder variações, o DNS pode apontar para vários IPs e um redirecionamento pode trocar o destino; todas precisam de validação antes da conexão.",
+    caption: "Aprovar apenas o texto inicial não garante o endereço usado na conexão.",
+    tone: "defense",
+    zones: [
+      { id: "ssrf-validation-boundaries-url", label: "URL", description: "Primeira regra, não prova final.", items: ["Protocolo permitido", "Nome dentro da política"] },
+      { id: "ssrf-validation-boundaries-resolution", label: "DNS e IP", description: "O endereço real é conferido antes de conectar.", items: ["Todos os IPs avaliados", "Faixas internas recusadas"] },
+      { id: "ssrf-validation-boundaries-redirect", label: "Redirecionamento", description: "Cada novo destino repete a decisão.", items: ["Não seguir automaticamente", "Recomeçar pela nova URL"] },
+    ],
+  },
+  "ssrf:ssrf-sintomas": {
+    id: "ssrf-code-signals",
+    type: "compare",
+    eyebrow: "Sinal no código",
+    title: "Existe uma decisão entre a entrada e a conexão?",
+    accessibleSummary: "A comparação distingue o caminho perigoso, em que uma entrada escolhe diretamente o destino do servidor, do caminho controlado, que limita protocolo, resolve DNS, valida IP e controla redirecionamentos antes de conectar.",
+    caption: "O sinal decisivo é uma política verificável entre a entrada e a conexão.",
+    tone: "danger",
+    sides: [
+      { id: "ssrf-code-signals-uncontrolled", label: "Destino sem controle", description: "A entrada externa chega diretamente ao cliente de rede.", items: ["Sem validação do IP", "Redirect seguido automaticamente"] },
+      { id: "ssrf-code-signals-controlled", label: "Conector controlado", description: "A aplicação preserva a decisão até a conexão.", items: ["IP resolvido e aprovado", "Novo destino sempre revalidado"] },
+    ],
+  },
+  "ssrf:ssrf-lab": {
+    id: "ssrf-simulated-checklist",
+    type: "sequence",
+    eyebrow: "Checklist simulado",
+    title: "A prévia fictícia sabe onde vai parar?",
+    accessibleSummary: "Checklist simulado, sem fazer pedidos de rede: conferir protocolos permitidos, validação de todos os IPs resolvidos, conexão presa ao IP aprovado e nova validação a cada redirecionamento.",
+    caption: "O checker examina regras declaradas; nenhuma URL é acessada.",
+    tone: "defense",
+    events: [
+      { id: "ssrf-simulated-checklist-url", marker: "1", label: "Limitar a URL", detail: "A configuração aceita somente os protocolos necessários." },
+      { id: "ssrf-simulated-checklist-ip", marker: "2", label: "Validar IPs", detail: "Todos os resultados do DNS passam pela política de rede." },
+      { id: "ssrf-simulated-checklist-connect", marker: "3", label: "Prender a conexão", detail: "O destino usado é exatamente um IP que foi aprovado." },
+      { id: "ssrf-simulated-checklist-redirect", marker: "4", label: "Revalidar redirects", detail: "Cada salto retorna à checagem de URL, DNS e IP." },
+    ],
+  },
+  "ssrf:ssrf-checkpoint": {
+    id: "ssrf-final-decision",
+    type: "decision",
+    eyebrow: "Decisão final",
+    title: "Qual caminho merece o selo?",
+    accessibleSummary: "A decisão final recomenda validar protocolo, todos os IPs do DNS, conexão ao IP aprovado e cada redirecionamento, além de limitar a resposta e separar a rede de busca dos serviços internos.",
+    caption: "A defesa acompanha o destino da entrada até cada conexão real.",
+    tone: "accent",
+    prompt: "Qual projeto impede que uma URL pública leve o servidor a um endereço interno?",
+    options: [
+      { id: "ssrf-final-decision-end-to-end", label: "Validar URL, DNS, IP, conexão e cada redirect", outcome: "A decisão permanece válida até o destino efetivamente conectado.", recommended: true },
+      { id: "ssrf-final-decision-text-block", label: "Bloquear algumas palavras no texto da URL", outcome: "Outros nomes e formatos ainda podem chegar ao mesmo endereço proibido." },
+      { id: "ssrf-final-decision-first-hop", label: "Validar somente o primeiro endereço", outcome: "Um redirecionamento pode trocar o destino depois da aprovação." },
+    ],
+  },
+} satisfies SceneCatalog;
