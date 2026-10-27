@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GlobalAudioPlayer } from "@/components/global-audio-player";
 import { MotionPreference } from "@/components/motion-preference";
 import { getCurrentUser } from "@/lib/current-user";
 import "./globals.css";
@@ -32,7 +33,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-ink text-text">
-        <MotionPreference reduce={reduce}>{children}</MotionPreference>
+        <MotionPreference reduce={reduce}>
+          {children}
+          <GlobalAudioPlayer />
+        </MotionPreference>
       </body>
     </html>
   );
