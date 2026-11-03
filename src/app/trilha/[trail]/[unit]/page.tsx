@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { AudioOutcome } from "@/components/audio-outcome";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { InlineCode } from "@/components/inline-code";
@@ -62,6 +63,7 @@ export default async function UnitPage({
   const done = status === "concluída";
   const wrong = readResponses(query.resp);
   const passedNow = query.ok !== undefined && done;
+  const attempts = progress.get(unit.id)?.attempts ?? 0;
   const following = nextUnit(progress, true, trail.slug);
   const lab = labSlots(unit.id, {
     userId: user.id,
@@ -71,6 +73,8 @@ export default async function UnitPage({
 
   return (
     <div className="relative isolate flex min-h-full max-w-full flex-col overflow-x-clip">
+      {passedNow ? <AudioOutcome outcome="success" id={`quiz:${trail.slug}:${unit.id}:${attempts}:success:${query.ok}`} /> : null}
+      {wrong.size > 0 ? <AudioOutcome outcome="error" id={`quiz:${trail.slug}:${unit.id}:${attempts}:error:${query.resp}`} /> : null}
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[520px]" />
       <SiteHeader />
       <div className="relative mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col px-4 py-6 sm:px-8">
@@ -118,7 +122,7 @@ export default async function UnitPage({
               sealPending={unit.kind === "checkpoint" && !hasTrailSeal(progress, trail.sealId)}
               followingHref={following ? `${basePath}/${following.id}` : basePath}
               followingLabel={following?.title ?? null}
-              attempts={progress.get(unit.id)?.attempts ?? 0}
+              attempts={attempts}
               done={done}
               practice={done && query.practice === "1"}
             />

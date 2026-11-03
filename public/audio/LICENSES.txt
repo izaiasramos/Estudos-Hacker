@@ -1,0 +1,27 @@
+ShieldPath audio assets
+
+All assets below were published under Creative Commons CC0 1.0 (public-domain dedication):
+https://creativecommons.org/publicdomain/zero/1.0/
+
+1. Horror Loop
+Source: https://opengameart.org/content/horror-loop
+Local file: horror-loop.mp3
+
+2. Darkest Hour
+Source: https://opengameart.org/content/darkest-hour
+Local file: darkest-hour.mp3
+
+3. Wye — author: cinameng / James Gargette
+Source: https://opengameart.org/content/wye
+Local file: wye.mp3
+
+4. Happy Clappy Loop — author: OwlishMedia
+Source: https://www.opengameart.org/content/happy-clappy-loop
+Local file: happy-clappy.mp3
+
+5. UI Sound Effects (Button Clicks, User Feedback, Notifications)
+Source: https://www.opengameart.org/content/ui-sound-effects-button-clicks-user-feedback-notifications
+Local files: ui/ui_ogg/*.ogg
+The source page identifies the pack as CC0 and notes that samples derive from the public-domain VCSL and VSCO 2 CE libraries.
+
+Downloaded for this project on 2026-10-26. Attribution is not required by CC0, but source information is retained for provenance.
