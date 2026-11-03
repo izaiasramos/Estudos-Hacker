@@ -32,7 +32,7 @@ test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page, acco
   await page.getByLabel("Senha atual").fill(PASSWORD);
   await page.getByRole("button", { name: "Excluir minha conta" }).click();
   await expect(page).toHaveURL(/\/\?conta=excluida/);
-  await expect(page.getByRole("status").filter({ hasText: "Conta excluída" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Sua conta e todo o histórico de aprendizagem foram excluídos" })).toBeVisible();
 
   account.email = ""; // já apagada pelo próprio teste
   await page.goto("/perfil");
