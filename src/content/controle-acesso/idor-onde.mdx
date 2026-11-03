@@ -17,4 +17,4 @@ Outra falha comum é o ***mass assignment***: copiar automaticamente todos os ca
 Negue por padrão. Uma rota nova nasce fechada e libera, de propósito, os papéis permitidos. Assim, se esquecer uma regra, o resultado é uma recusa, e não um vazamento.
 </Callout>
 
-<Glossary term={"Mass assignment"} text={"Copiar automaticamente os campos recebidos para um objeto que será salvo. Sem uma lista permitida, o cliente pode gravar campos sensíveis."} />
+<Glossary term="Mass assignment" text={"Quando o servidor pega todos os campos que o usuário mandou e salva tudo, sem escolher quais são permitidos. Alguém pode incluir um campo extra, como “role: admin”, e o servidor salva."} example={"Você manda {nome: 'Ana', role: 'admin'} num formulário de cadastro e vira administradora."} />

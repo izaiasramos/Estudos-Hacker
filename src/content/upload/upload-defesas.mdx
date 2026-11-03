@@ -8,6 +8,8 @@ A rota recebe `foto.png`, mas o conteúdo na verdade é uma página HTML. A exte
 
 Dois cabeçalhos ajudam na entrega: `Content-Disposition: attachment` pede ao navegador que baixe o arquivo em vez de abri-lo, e `X-Content-Type-Options: nosniff` obriga o navegador a respeitar o `Content-Type` declarado.
 
+<Diagram name="upload" />
+
 Teste se você sabe a ordem certa:
 
 <InlineMission id="upload-pipeline" />
@@ -16,7 +18,7 @@ Teste se você sabe a ordem certa:
 `accept="image/*"` ajuda a interface, e a extensão ajuda a orientar. Mas quem envia o pedido direto pode alterar os dois, então não são critérios de segurança.
 </Callout>
 
-<Glossary term="Assinatura de arquivo" text="Sequência de bytes no início do arquivo que é típica de cada formato. Ajuda a identificar o conteúdo, mas imagens ainda devem ser decodificadas e reprocessadas." />
+<Glossary term="Assinatura de arquivo" text={"Os primeiros bytes de um arquivo, que identificam o formato dele, como uma “impressão digital”. É mais confiável que o nome ou a extensão, mas ainda não é prova suficiente."} example={"Todo PNG começa com os bytes 89 50 4E 47. Um arquivo com esse início provavelmente é PNG, não importa o nome."} />
 
 **SVG** exige uma decisão clara: para avatar, recuse ou converta para PNG.
 

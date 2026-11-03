@@ -28,7 +28,7 @@ export function HeadersDefenseLab({ done, missing }: { done: boolean; missing: s
   if (done) {
     return (
       <section className="mt-8 rounded-[16px] border border-defense/40 bg-defense/10 p-4">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Checker</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Conferência</p>
         <ul className="mt-3 space-y-2 text-sm text-text">
           <li>O JSON só traz os campos que a tela usa.</li>
           <li>Erro sai genérico; o detalhe fica no log.</li>

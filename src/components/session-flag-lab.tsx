@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 const GAPS: Record<string, string> = {
-  httponly: "Na simulação, falta selecionar HttpOnly para impedir a leitura direta do cookie por JavaScript.",
-  secure: "Na simulação, falta selecionar Secure para restringir o envio do cookie a HTTPS.",
-  samesite: "Escolha SameSite=Lax ou Strict para o cenário. None permitiria envio entre sites.",
-  rotate: "Falta decidir pela geração de uma nova chave quando o login termina.",
-  logout: "Falta decidir pela invalidação da sessão no servidor durante o logout.",
+  httponly: "Falta marcar HttpOnly, que impede o JavaScript da página de ler o cookie.",
+  secure: "Falta marcar Secure, que faz o cookie viajar só por HTTPS.",
+  samesite: "Escolha SameSite=Lax ou Strict. O None deixaria o cookie viajar em pedidos de qualquer site.",
+  rotate: "Falta gerar uma chave nova a cada login.",
+  logout: "Falta invalidar a sessão no servidor quando a pessoa sai (logout).",
 };
 
 export function SessionFlagLab({
@@ -65,8 +65,8 @@ export function SessionFlagLab({
         </p>
         <p className="mt-2 text-xs text-muted">
           {logout
-            ? "Decisão de logout: invalidar a sessão no servidor."
-            : "Decisão de logout: a sessão ainda ficaria válida."}
+            ? "No logout: a sessão é invalidada no servidor."
+            : "No logout: a sessão ainda continuaria válida."}
         </p>
       </div>
 

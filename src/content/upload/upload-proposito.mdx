@@ -8,6 +8,6 @@ Quase tudo no pedido é controlado por quem envia: o nome, a extensão, o `Conte
 `HttpOnly` impede que o JavaScript **leia** o cookie. Mas o navegador ainda envia o cookie sozinho, e um script pode fazer ações autenticadas e ler respostas permitidas pela sessão. `HttpOnly` reduz o roubo direto do cookie, mas não neutraliza conteúdo ativo na origem do site.
 </Callout>
 
-<Glossary term="Path traversal" text="Truque com caminhos, como usar `../` no nome, para sair da pasta prevista e gravar ou ler em outro lugar do disco." />
+<Glossary term="Path traversal" text={"Um truque que usa “../” no nome do arquivo para “subir de pasta” e gravar fora do lugar permitido."} example={"Enviar um arquivo chamado ../../.env para sobrescrever a configuração do servidor."} />
 
 **Na prática:** o servidor separa rótulo de prova. Ele limita o tamanho, inspeciona o conteúdo, renomeia o arquivo e controla como ele é entregue.

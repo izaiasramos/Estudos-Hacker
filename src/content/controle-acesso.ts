@@ -259,7 +259,7 @@ export const UNITS: Unit[] = [
           {
             id: "uuid",
             label: "UUID no lugar do id e esconder o botão",
-            explain: "As duas coisas melhoram a superfície, mas nenhuma decide quem pode ver o quê.",
+            explain: "As duas coisas melhoram a experiência ou a segurança em volta, mas nenhuma decide quem pode ver o quê.",
           },
         ],
       },

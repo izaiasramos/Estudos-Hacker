@@ -1,12 +1,12 @@
 export const AUTH_LAB_GAPS: Record<string, string> = {
   hash:
-    "Na simulação, falta escolher hash com um algoritmo próprio para senhas, como bcrypt, scrypt ou Argon2.",
+    "Falta escolher como guardar a senha: use hash com bcrypt, scrypt ou Argon2.",
   generic:
-    "A resposta escolhida ainda revelaria se o e-mail existe. Mantenha mensagem e status coerentes para qualquer falha de credencial.",
+    "Essa resposta ainda revelaria se o email existe. Use a mesma mensagem e o mesmo status para qualquer login inválido.",
   policy:
-    "Falta escolher uma política de cadastro que recuse senhas muito curtas, óbvias ou comuns.",
+    "Falta uma regra no cadastro que recuse senhas curtas, óbvias ou comuns.",
   limit:
-    "Falta escolher rate limiting para desacelerar tentativas de login falhas e repetidas.",
+    "Falta limitar as tentativas de login (rate limiting) para frear quem tenta adivinhar senhas.",
 };
 
 export function missingAuthLabDefenses(form: {

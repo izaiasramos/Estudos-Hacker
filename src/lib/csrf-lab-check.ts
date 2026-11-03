@@ -1,12 +1,12 @@
 export const CSRF_LAB_GAPS: Record<string, string> = {
   token:
-    "Nesta simulação, a mutação ainda não comprova participação no fluxo legítimo. Inclua e valide um token anti-CSRF imprevisível.",
+    "Falta provar que o pedido veio do seu formulário. Inclua um token anti-CSRF imprevisível e valide no servidor.",
   samesite:
-    "O cookie ainda aceita SameSite=None. Para este fluxo, Lax ou Strict restringe seu envio em pedidos cross-site comuns.",
+    "O cookie ainda aceita SameSite=None, ou seja, viaja em pedidos de qualquer site. Use Lax ou Strict.",
   origin:
-    "A procedência ainda não é conferida. Compare Origin — e Referer como fallback definido — com a origem exata esperada.",
+    "Falta conferir de onde o pedido veio. Compare o cabeçalho Origin (ou o Referer, se faltar) com o endereço exato esperado.",
   postonly:
-    "A operação ainda muda estado via GET. Reserve GET para leitura e use POST com as demais proteções para a mutação.",
+    "A ação que muda dados ainda usa GET. Deixe o GET só para leitura e use POST, junto com as outras proteções.",
 };
 
 export function missingCsrfLabDefenses(form: {

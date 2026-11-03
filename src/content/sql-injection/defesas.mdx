@@ -12,11 +12,11 @@ Além da defesa principal, existem camadas extras que reduzem risco e estrago. T
 
 <InlineMission id="sql-camadas" />
 
-<Glossary term="menor privilégio" text="Dar à conta do aplicativo só as permissões de que ela precisa. Se algo der errado, o estrago possível fica menor." />
+<Glossary term="menor privilégio" text={"Dar a cada parte do sistema só as permissões de que ela realmente precisa, e mais nada. Se algo for invadido, o estrago fica pequeno."} example={"A conta do banco usada pelo site pode ler pedidos, mas não pode apagar tabelas."} />
 
 **Validar** o formato da entrada também ajuda. Ela responde: "este valor faz sentido aqui?" (um email, por exemplo, tem formato conhecido). A parametrização responde outra pergunta: "este valor pode mudar a estrutura SQL?". As duas podem conviver, mas só a segunda fecha a brecha.
 
-<Glossary term="WAF" text="Web Application Firewall (firewall de aplicação web): uma camada na frente do site que examina os pedidos e tenta bloquear padrões suspeitos antes de chegarem ao código." />
+<Glossary term="WAF" text={"Um “segurança na porta” do site. Ele olha os pedidos que chegam e tenta barrar os que parecem ataques. Ajuda, mas não conserta o código por dentro."} example={"Um filtro que bloqueia pedidos com cara de SQL Injection antes de chegarem ao seu servidor."} />
 
 <Callout tone="armadilha">
 Um WAF não transforma uma consulta concatenada em parametrizada. Ele pode barrar parte do tráfego, mas pode deixar passar variações, não protege dados que já estavam guardados e não corrige a causa no código.

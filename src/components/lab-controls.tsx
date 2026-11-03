@@ -79,7 +79,7 @@ export function LabGaps({ missing, gaps }: { missing: string[]; gaps: Record<str
 export function LabDone({ items }: { items: string[] }) {
   return (
     <section className="mt-8 rounded-[16px] border border-defense/40 bg-defense/10 p-4">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Checker</p>
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Conferência</p>
       <ul className="mt-3 space-y-2 text-sm text-text">
         {items.map((item) => (
           <li key={item}>{item}</li>

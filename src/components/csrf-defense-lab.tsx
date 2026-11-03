@@ -20,10 +20,10 @@ export function CsrfDefenseLab({
       <section className="mt-8 rounded-[16px] border border-defense/40 bg-defense/10 p-4">
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-defense">Simulação concluída</p>
         <ul className="mt-3 space-y-2 text-sm text-text">
-          <li>Token anti-CSRF acompanha mutações e é validado no servidor.</li>
+          <li>Um token anti-CSRF acompanha o pedido e o servidor confere.</li>
           <li>Cookie de sessão usa SameSite Lax ou Strict neste cenário.</li>
-          <li>Origin, com Referer como fallback definido, é comparado à origem esperada.</li>
-          <li>GET apenas lê; a mutação usa POST com as demais proteções.</li>
+          <li>O cabeçalho Origin (ou Referer, se faltar) é comparado com o endereço esperado.</li>
+          <li>GET só lê dados. A ação que altera dados usa POST, junto com as outras proteções.</li>
         </ul>
       </section>
     );
@@ -39,7 +39,7 @@ export function CsrfDefenseLab({
         <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">Simulação de configuração · transferência</p>
         <p className="mt-3 text-sm text-text">{methodPreview}</p>
         <p className="mt-2 text-xs text-muted">
-          {token ? "Token anti-CSRF validado." : "A mutação não comprova participação no fluxo legítimo."}
+          {token ? "Token anti-CSRF validado." : "Nada prova que o pedido veio do seu formulário."}
           {" · "}
           {origin ? "Origem comparada à esperada." : "Procedência do pedido não conferida."}
           {" · "}
@@ -50,7 +50,7 @@ export function CsrfDefenseLab({
       {missing.length > 0 ? (
         <ul className="space-y-2 text-sm text-danger" role="alert">
           {missing.map((key) => (
-            <li key={key}>{CSRF_LAB_GAPS[key] ?? "Revise como esta configuração reconhece a intenção."}</li>
+            <li key={key}>{CSRF_LAB_GAPS[key] ?? "Revise como esta configuração confirma que o pedido foi intencional."}</li>
           ))}
         </ul>
       ) : null}

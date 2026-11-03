@@ -159,7 +159,7 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "fetch",
-            label: "`fetch(req.body.url)` sem checar esquema, host nem IP resolvido",
+            label: "`fetch(req.body.url)` sem checar protocolo, host nem IP",
             correct: true,
             explain: "A URL do usuário vira o destino do servidor sem nenhuma regra no meio.",
           },
@@ -173,13 +173,13 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "esquema",
-        prompt: "Por que aceitar só `https:` (e talvez `http:`) no esquema?",
+        prompt: "Por que aceitar só `https:` (e talvez `http:`) como protocolo da URL?",
         choices: [
           {
             id: "outros",
-            label: "Outros esquemas, como `file:` ou `gopher:`, leem arquivo local ou falam com outros serviços",
+            label: "Outros protocolos, como `file:` ou `gopher:`, leem arquivo local ou falam com outros serviços",
             correct: true,
-            explain: "Lista permitida de esquema corta uma classe inteira de abuso.",
+            explain: "Uma lista de protocolos permitidos corta uma classe inteira de abuso.",
           },
           {
             id: "seo",

@@ -19,6 +19,6 @@ Referrer-Policy: strict-origin-when-cross-origin
 `script-src 'self' 'unsafe-inline'` parece proteção, mas libera scripts embutidos, inclusive um injetado. A CSP reduz o impacto do XSS (script indevido rodando no seu site). Ela não corrige a falha que permitiu a injeção.
 </Callout>
 
-<Glossary term="Nonce" text="Valor imprevisível, novo a cada resposta, repetido na CSP e nos scripts legítimos. Um script injetado sem esse valor é recusado." />
+<Glossary term="Nonce" text={"Um código aleatório que muda a cada vez que a página é aberta. O site só deixa rodar os scripts que trazem esse código. Um script falso colocado por um atacante não sabe o código e é bloqueado."} example={"O site gera o código K3x9 e escreve nos seus próprios scripts. Um script injetado, sem K3x9, não roda."} />
 
 **Em resumo:** dados mínimos reduzem o que vaza. Políticas explícitas limitam o que o navegador faz.

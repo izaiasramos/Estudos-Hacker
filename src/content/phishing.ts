@@ -75,7 +75,7 @@ export const UNITS: Unit[] = [
   {
     id: "phishing-sinais",
     order: 2,
-    title: "Sinais levantam hipóteses",
+    title: "Sinais geram suspeita",
     summary: "Urgência, origem aparente, pedido e contexto orientam a investigação — não provam autenticidade.",
     kind: "theory",
     gate: true,
@@ -140,7 +140,7 @@ export const UNITS: Unit[] = [
     id: "phishing-classificar",
     order: 3,
     title: "Classificar sem clicar",
-    summary: "Separe evidência, hipótese e ação segura em três mensagens fictícias.",
+    summary: "Em três mensagens fictícias, separe o que você viu, o que suspeita e o que fazer.",
     kind: "exercise",
     gate: true,
     questions: [
@@ -158,7 +158,7 @@ export const UNITS: Unit[] = [
           {
             id: "phishing",
             label: "Phishing sempre, porque todo aviso de login é falso",
-            explain: "Avisos reais existem. Trate sinais como hipóteses e confirme a atividade pelo canal oficial.",
+            explain: "Avisos reais existem. Trate sinais como suspeitas, não como provas, e confirme a atividade pelo canal oficial.",
           },
         ],
       },

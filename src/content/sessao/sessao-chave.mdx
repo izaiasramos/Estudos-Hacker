@@ -2,9 +2,11 @@ Você faz login na Pizzaria, abre outra página e continua logado, sem digitar a
 
 Depois do login, o servidor cria uma **sessão** e entrega ao navegador uma **chave temporária**. Em cada pedido seguinte, o navegador mostra essa chave e o servidor responde: "ah, é a Alice".
 
-<Glossary term={"Sessão"} text={"Um registro temporário no servidor, criado após o login. Liga uma chave a uma identidade e precisa ter prazo de validade e jeito de ser cancelado."} />
+<Diagram name="sessao-fluxo" />
 
-<Glossary term={"Cookie"} text={"Um pequeno dado que o navegador guarda para um site e reenvia sozinho nos pedidos seguintes. O cookie de sessão costuma guardar só a chave, nunca a senha."} />
+<Glossary term="Sessão" text={"O período em que o site lembra que você já fez login. Enquanto a sessão está ativa, você não precisa digitar a senha de novo a cada página."} example={"Você entra no banco e consegue navegar entre as telas sem redigitar a senha. Depois de um tempo parado, a sessão expira."} />
+
+<Glossary term="Cookie" text={"Um bilhetinho que o site pede para o navegador guardar. Nos pedidos seguintes, o navegador entrega o bilhete automaticamente. No caso da sessão, o bilhete contém a chave."} example={"sessao=abc123"} />
 
 <Callout tone="analogia">
 A chave do quarto de hotel não é o hóspede, mas abre a porta para quem a estiver segurando. Com a chave de sessão é igual: se ela vazar, o servidor atende outra pessoa como se fosse você.

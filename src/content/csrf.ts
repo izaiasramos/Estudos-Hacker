@@ -71,7 +71,7 @@ export const UNITS: Unit[] = [
           {
             id: "css",
             label: "Somente a leitura pública de uma página sem sessão",
-            explain: "O caso clássico envolve uma operação autenticada com efeito. Comece pelas mutações sensíveis.",
+            explain: "O caso clássico envolve uma operação autenticada com efeito. Comece pelas ações que mudam dados, como transferir ou apagar.",
           },
         ],
       },
@@ -116,8 +116,8 @@ export const UNITS: Unit[] = [
           },
           {
             id: "hash",
-            label: "Garante sozinho que toda mutação POST foi desejada pelo usuário",
-            explain: "SameSite reduz o envio cross-site do cookie, mas não substitui toda validação de intenção em qualquer arquitetura.",
+            label: "Garante sozinho que todo POST foi mesmo desejado pelo usuário",
+            explain: "O SameSite reduz o envio do cookie em pedidos vindos de outros sites, mas não substitui a conferência de que o pedido foi mesmo intencional.",
           },
         ],
       },
@@ -130,7 +130,7 @@ export const UNITS: Unit[] = [
             id: "link",
             label: "GET deve apenas obter dados e pode ser disparado por navegação, link ou recurso",
             correct: true,
-            explain: "Use POST ou outro método de mutação com as validações necessárias. POST expressa intenção, mas não é proteção suficiente sozinho.",
+            explain: "Use POST (ou outro método que altera dados) junto com as outras validações. POST indica que a ação muda algo, mas sozinho não protege.",
           },
           {
             id: "gzip",
@@ -170,7 +170,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "origin",
-        prompt: "Como Origin e Referer ajudam numa mutação?",
+        prompt: "Como Origin e Referer ajudam a proteger uma ação que muda dados?",
         choices: [
           {
             id: "recusar",
@@ -219,14 +219,14 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "todas",
-            label: "Token validado, SameSite adequado, origem conferida e mutação fora de GET",
+            label: "Token validado, SameSite adequado, origem conferida e ação que muda dados fora do GET",
             correct: true,
             explain: "Esse é o conjunto solicitado na simulação. Em sistemas reais, avalie cada arquitetura: camadas se complementam, e uma defesa válida pode bloquear o ataque mesmo sem todas as demais.",
           },
           {
             id: "captcha",
             label: "Apenas trocar GET por POST",
-            explain: "POST organiza a semântica da mutação, mas formulários de outro site também podem enviá-lo.",
+            explain: "POST mostra que a ação muda algo, mas formulários de outro site também conseguem enviar um POST.",
           },
         ],
       },

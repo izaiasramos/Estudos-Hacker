@@ -15,9 +15,9 @@ Se esse ambiente ficar exposto ou for copiado, as facilidades de teste viram por
 
 O certo é uma resposta única, como "E-mail ou senha inválidos". E ela deve ser igual em tudo que dá para observar, não só no texto: mesmo status HTTP, mesmo formato e tempo parecido.
 
-<Glossary term={"Rate limiting"} text={"Limitar quantas tentativas de login são aceitas num período. Atrapalha quem tenta adivinhar senhas em massa. Funciona melhor olhando mais de um sinal, como a conta e a origem da tentativa."} />
+<Glossary term="Rate limiting" text={"Um limite de tentativas. Depois de errar a senha algumas vezes, o site faz o login esperar. Isso atrapalha robôs que testam milhares de senhas por minuto, e quase não incomoda uma pessoa de verdade."} example={"Depois de 5 senhas erradas, o login só aceita nova tentativa depois de alguns minutos."} />
 
-<Glossary term={"CAPTCHA"} text={"Um desafio do tipo \"prove que você não é um robô\". Pode ajudar depois de comportamento suspeito, mas incomoda o usuário e não substitui hash, política de senha nem rate limiting."} />
+<Glossary term="CAPTCHA" text={"Aquele teste de “prove que você não é um robô”. Ajuda contra robôs, mas incomoda as pessoas e não corrige os outros problemas."} example={"Clicar em todas as imagens que têm semáforo."} />
 
 <Callout tone="armadilha">
 Cada defesa cobre um caminho diferente. Rate limiting freia tentativas feitas pelo login. Hash lento freia testes feitos depois de um vazamento. CAPTCHA é uma camada opcional contra robôs. Uma não faz o trabalho da outra.

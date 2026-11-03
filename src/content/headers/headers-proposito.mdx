@@ -4,10 +4,12 @@ Uma **API** (interface pela qual sistemas trocam dados) costuma responder em **J
 
 Erros também falam. Uma ***stack trace*** (pilha de execução) lista o caminho percorrido até a falha e pode revelar pastas, bibliotecas e consultas. Em produção, o usuário deve receber uma mensagem genérica com um código de referência. O detalhe fica num log protegido. Cabeçalhos como `X-Powered-By` também entregam tecnologia e versão sem necessidade.
 
+<Diagram name="headers" />
+
 <Callout tone="analogia">
 O garçom traz o prato e também a comanda completa da cozinha. Você só queria o prato, mas toda a comanda foi parar na mesa.
 </Callout>
 
 **Na prática:** minimize no servidor. Escolha os campos de saída, simplifique os erros e remova assinaturas desnecessárias.
 
-<Glossary term="Superfície da resposta" text="Tudo o que sai do servidor: status, cabeçalhos e corpo. O cliente pode inspecionar tudo, mesmo que a tela mostre só uma parte." />
+<Glossary term="Superfície da resposta" text={"Tudo o que o servidor manda de volta: o status, os cabeçalhos e o conteúdo. O navegador recebe tudo isso, mesmo que a tela só mostre uma parte."} example={"Se a resposta tem o campo password_hash, ele chegou ao navegador, mesmo que a tela não mostre."} />
