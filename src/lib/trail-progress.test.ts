@@ -158,3 +158,16 @@ describe("shuffleChoices", () => {
     expect(shuffleChoices(items, 42).sort()).toEqual(items.sort());
   });
 });
+
+describe("admin", () => {
+  it("abre todas as unidades com gate sem alterar o progresso", () => {
+    const banco = unitById("banco");
+    const checkpoint = unitById("checkpoint");
+    expect(banco && checkpoint).toBeTruthy();
+    if (!banco || !checkpoint) return;
+    expect(unitStatus(checkpoint, new Map(), true)).toBe("bloqueada");
+    expect(unitStatus(checkpoint, new Map(), true, true)).toBe("agora");
+    expect(isUnlocked(banco, new Map(), false, true)).toBe(true);
+    expect(unitStatus(banco, progressMap({ banco: { status: "done" } }), true, true)).toBe("concluída");
+  });
+});

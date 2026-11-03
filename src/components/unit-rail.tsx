@@ -17,19 +17,22 @@ export function UnitRail({
   currentId,
   progress,
   ethicsDone,
+  admin = false,
   units = UNITS,
   basePath = "/trilha/sql-injection",
 }: {
   currentId?: string;
   progress: Map<string, ProgressRow>;
   ethicsDone: boolean;
+  /** Admin vê todas as unidades abertas. */
+  admin?: boolean;
   units?: Unit[];
   basePath?: string;
 }) {
   const items = [
     { key: "etica", href: "/regras", label: "Ética", status: (ethicsDone ? "concluída" : "agora") as Status, current: false },
     ...units.map((unit) => {
-      const status = unitStatus(unit, progress, ethicsDone) as Status;
+      const status = unitStatus(unit, progress, ethicsDone, admin) as Status;
       const open = status === "concluída" || status === "agora";
       return {
         key: unit.id,
