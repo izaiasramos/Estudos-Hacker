@@ -7,7 +7,7 @@ Depois de reduzir o que sai, o servidor orienta o navegador com **cabeçalhos de
 - **Referrer-Policy:** limita quanto do endereço de origem acompanha a navegação.
 
 <Code caption="Políticas em uma resposta">
-```
+```http
 Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-…' 'strict-dynamic'; frame-ancestors 'self'; object-src 'none'
 Strict-Transport-Security: max-age=63072000; includeSubDomains
 X-Content-Type-Options: nosniff

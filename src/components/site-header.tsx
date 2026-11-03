@@ -10,7 +10,7 @@ export async function SiteHeader() {
   return (
     <>
     {lab ? (
-      <div className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-accent px-5 py-2 text-sm font-semibold text-ink sm:px-8">
+      <div className="sticky top-0 z-30 flex items-center justify-between gap-4 bg-accent px-5 py-2 text-base font-semibold text-ink sm:px-8">
         <p>Ambiente ativo · {minutesLeft(lab)} min</p>
         <form action="/api/lab/session/stop" method="post">
           <button type="submit" className="rounded-full bg-ink px-3 py-1 text-xs text-text">
@@ -19,38 +19,38 @@ export async function SiteHeader() {
         </form>
       </div>
     ) : null}
-    <header className="relative z-20 mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-5 sm:px-8">
+    <header className="relative z-20 mx-auto flex w-full max-w-[90rem] items-center justify-between gap-4 px-5 py-6 sm:px-8">
       <Link
         href={user ? "/inicio" : "/"}
         className="inline-flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
         <span
           aria-hidden
-          className="grid size-7 place-items-center rounded-full border border-accent/50 bg-accent/10"
+          className="grid size-9 place-items-center rounded-full border border-accent/50 bg-accent/10"
         >
-          <span className="size-2 rounded-full bg-accent" />
+          <span className="size-2.5 rounded-full bg-accent" />
         </span>
-        <span className="text-sm font-semibold tracking-tight">ShieldPath</span>
+        <span className="text-base font-semibold tracking-tight">ShieldPath</span>
       </Link>
       <nav className="flex items-center gap-1 sm:gap-2" aria-label="Conta">
         {user ? (
           <>
             <Link
               href="/perfil"
-              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              className="inline-flex h-11 items-center rounded-full px-3 text-base text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
             >
               <span className="sm:hidden">Perfil</span>
               <span className="hidden sm:inline">{user.name}</span>
             </Link>
             <Link
               href="/inicio"
-              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              className="inline-flex h-11 items-center rounded-full px-3 text-base text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
             >
               Início
             </Link>
             <Link
               href="/squad"
-              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              className="inline-flex h-11 items-center rounded-full px-3 text-base text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
             >
               Time
             </Link>
@@ -58,7 +58,7 @@ export async function SiteHeader() {
             {isAdmin(user) ? (
               <Link
                 href="/admin"
-                className="inline-flex h-10 items-center rounded-full px-3 text-sm text-accent transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+                className="inline-flex h-11 items-center rounded-full px-3 text-base text-accent transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
               >
                 Admin
               </Link>
@@ -66,7 +66,7 @@ export async function SiteHeader() {
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"
-                className="inline-flex h-10 items-center rounded-full border border-white/15 px-3 text-sm text-text transition hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+                className="inline-flex h-11 items-center rounded-full border border-white/15 px-3 text-base text-text transition hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
               >
                 Sair
               </button>
@@ -76,13 +76,13 @@ export async function SiteHeader() {
           <>
             <Link
               href="/entrar"
-              className="inline-flex h-10 items-center rounded-full px-3 text-sm text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              className="inline-flex h-11 items-center rounded-full px-3 text-base text-muted transition hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
             >
               Entrar
             </Link>
             <Link
               href="/criar-conta"
-              className="inline-flex h-10 items-center rounded-full border border-white/15 px-3 text-sm text-text transition hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
+              className="inline-flex h-11 items-center rounded-full border border-white/15 px-3 text-base text-text transition hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:px-4"
             >
               Criar conta
             </Link>

@@ -1,7 +1,7 @@
 Na revisão da rota de avatar, acompanhe três valores: os **bytes**, o **nome** e o **endereço de entrega**. Na versão vulnerável, todos continuam nas mãos do cliente.
 
 <Code caption="Upload que confia no cliente">
-```
+```js
 const file = form.get("avatar");
 const destino = path.join("public/uploads", file.name);
 await fs.writeFile(destino, Buffer.from(await file.arrayBuffer()));
@@ -12,7 +12,7 @@ return Response.json({ url: `/uploads/${file.name}` });
 Se o nome for `../../.env`, temos um **path traversal**. O `path.join` monta o caminho, mas não garante que ele fique dentro da pasta esperada. A versão segura tira essas escolhas do cliente:
 
 <Code caption="Upload com as decisões no servidor">
-```
+```js
 const file = form.get("avatar");
 if (file.size > 2_000_000) return erro("tamanho");
 const bytes = Buffer.from(await file.arrayBuffer());

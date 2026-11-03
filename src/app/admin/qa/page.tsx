@@ -17,7 +17,7 @@ export default async function AdminQaPage() {
   return <div className="relative isolate flex min-h-full flex-col">
     <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[420px]" />
     <SiteHeader />
-    <main className="relative mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-8">
+    <main className="relative mx-auto w-full max-w-[90rem] flex-1 px-5 py-8 sm:px-8">
       <Link href="/admin" className="text-sm text-muted hover:text-accent">← Operação</Link>
       <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.22em] text-info">Admin · QA isolado</p>
       <h1 className="mt-3 text-4xl font-semibold">Revisar o curso sem progredir</h1>

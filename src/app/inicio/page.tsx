@@ -50,7 +50,7 @@ export default async function InicioPage() {
     <div className="relative isolate flex min-h-full flex-col">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[720px]" />
       <SiteHeader />
-      <main className="relative mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-8">
+      <main className="relative mx-auto w-full max-w-[90rem] flex-1 px-5 py-8 sm:px-8">
         <p className="text-sm text-muted">
           {user.name}
           <span className="mx-2 text-white/20">·</span>

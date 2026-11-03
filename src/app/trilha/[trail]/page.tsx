@@ -38,7 +38,7 @@ export default async function TrailPage({ params }: { params: Params }) {
     <div className="relative isolate flex min-h-full flex-col">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[640px]" />
       <SiteHeader />
-      <main className="relative mx-auto grid w-full max-w-6xl flex-1 gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+      <main className="relative mx-auto grid w-full max-w-[90rem] flex-1 gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
         <div className="lg:sticky lg:top-6 lg:self-start">
           <div className="flex gap-2 overflow-x-auto pb-2 lg:block lg:overflow-visible">
             <UnitRail progress={progress} ethicsDone admin={isAdmin(user)} units={trail.units} basePath={basePath} />
