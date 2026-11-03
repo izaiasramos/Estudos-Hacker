@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "phishing",
   title: "Phishing interno",
   summary:
-    "Investigue mensagens plausíveis sem clicar, confirme pelo canal oficial e projete barreiras humanas e técnicas.",
+    "Aprenda a analisar mensagens suspeitas sem clicar, confirmar por um canal oficial e montar defesas que não dependam de atenção perfeita.",
 };
 
 export const UNITS: Unit[] = [

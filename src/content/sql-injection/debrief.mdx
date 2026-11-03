@@ -1,29 +1,25 @@
-Vamos reconstruir a cena sem atribuir intenção ao banco.
+Hora de reconstruir a cena, sem culpar o banco. Em quatro passos:
 
 1. O servidor recebeu um valor de entrada.
-2. O código concatenou esse valor ao texto SQL.
-3. A concatenação produziu uma consulta cuja estrutura podia variar com a entrada.
-4. O analisador do banco interpretou a consulta final recebida.
+2. O código colou esse valor no texto SQL.
+3. Com isso, a estrutura da consulta passou a depender da entrada.
+4. O analisador do banco leu o texto final, do jeito que chegou.
 
-O banco não sabe qual trecho “deveria” continuar sendo dado. Essa informação foi perdida quando o servidor transformou instrução e entrada em um texto único.
+O banco não sabe qual pedaço "devia" ser só dado. Essa informação se perdeu quando o servidor juntou instrução e entrada num texto único.
 
 <Callout tone="conceito">
-
-A causa não é o banco decidir desobedecer ao programa. A causa é o programa entregar uma estrutura diferente da pretendida. O banco interpreta essa estrutura conforme a linguagem SQL.
-
+O banco não "desobedeceu" ao programa. Ele fez o que o texto recebido mandou. O erro foi do programa, que entregou uma estrutura diferente da que pretendia.
 </Callout>
 
-Compare os modelos:
+Compare os dois modelos:
 
-- **Concatenação:** primeiro monta um texto variável; depois pede ao banco que descubra sua estrutura.
-- **Parametrização:** primeiro define uma estrutura fixa; depois associa valores aos lugares marcados.
+- **Concatenação:** primeiro monta um texto variável, depois pede ao banco que descubra a estrutura dele.
+- **Parametrização:** primeiro define a estrutura fixa, depois encaixa os valores nas vagas marcadas.
 
-Essa diferença explica tanto o sintoma da listagem simulada quanto a correção futura. Não precisamos memorizar uma entrada especial para entender o problema: basta acompanhar o momento em que um dado passa a participar da instrução.
+Isso explica o sintoma da lista e já aponta o conserto. Não é preciso decorar nenhuma entrada especial. Basta achar o momento em que um dado passou a fazer parte da instrução.
 
 <Callout tone="dev">
-
-Em um debrief real, registre a origem do valor, a função que montou a consulta, a estrutura enviada e o impacto observado. Essa cadeia é mais útil para corrigir e prevenir recorrência do que apenas nomear a vulnerabilidade.
-
+Num relatório de incidente real, registre: de onde veio o valor, qual função montou a consulta, qual estrutura foi enviada e qual foi o impacto. Isso ajuda mais a corrigir e a evitar repetição do que apenas dar nome à vulnerabilidade.
 </Callout>
 
-**Síntese:** o servidor quebrou a fronteira ao concatenar; o banco interpretou a consulta final; a correção é preservar a separação antes do envio.
+**Em resumo:** o servidor perdeu a separação ao concatenar, o banco leu a consulta final e a correção é separar os papéis antes de enviar.

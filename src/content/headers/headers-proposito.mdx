@@ -1,15 +1,13 @@
-A tela do perfil mostra nome e foto, mas a resposta pode trazer muito mais. Quem fez o pedido recebe status, headers e corpo completos, mesmo que a interface esconda parte deles.
+A tela do perfil mostra nome e foto, mas a resposta do servidor pode trazer muito mais. Quem faz o pedido recebe status, cabeçalhos e corpo completos, mesmo que a interface esconda parte deles.
 
-Uma Application Programming Interface (API), interface pela qual sistemas trocam dados, costuma responder em JavaScript Object Notation (JSON), formato textual de pares e listas. Se o JSON inclui `password_hash` ou token de redefinição, esconder o campo na tela não remove o vazamento.
+Uma **API** (interface pela qual sistemas trocam dados) costuma responder em **JSON**, um formato de texto com pares chave e valor. Se esse JSON inclui `password_hash` ou um token de redefinição, esconder o campo na tela não resolve. O dado já saiu.
 
-Erros também falam. Uma *stack trace*, ou pilha de execução, lista as chamadas percorridas até a falha e pode revelar caminhos de arquivo, bibliotecas e consultas. Em produção, o cliente recebe mensagem genérica e um código de correlação; o detalhe fica no log protegido. Headers como `X-Powered-By` ainda podem anunciar tecnologia e versão sem necessidade.
+Erros também falam. Uma ***stack trace*** (pilha de execução) lista o caminho percorrido até a falha e pode revelar pastas, bibliotecas e consultas. Em produção, o usuário deve receber uma mensagem genérica com um código de referência. O detalhe fica num log protegido. Cabeçalhos como `X-Powered-By` também entregam tecnologia e versão sem necessidade.
 
 <Callout tone="analogia">
-
-O garçom traz o prato e também a comanda completa da cozinha. Você só precisava do prato, mas toda a comanda chegou à mesa.
-
+O garçom traz o prato e também a comanda completa da cozinha. Você só queria o prato, mas toda a comanda foi parar na mesa.
 </Callout>
 
-A decisão é minimizar no servidor: selecionar campos de saída, reduzir erros e remover assinaturas desnecessárias.
+**Na prática:** minimize no servidor. Escolha os campos de saída, simplifique os erros e remova assinaturas desnecessárias.
 
-<Glossary term="Superfície da resposta" text="Tudo o que sai do servidor: status, headers e corpo. O cliente pode inspecionar tudo, mesmo que a tela mostre apenas uma parte." />
+<Glossary term="Superfície da resposta" text="Tudo o que sai do servidor: status, cabeçalhos e corpo. O cliente pode inspecionar tudo, mesmo que a tela mostre só uma parte." />

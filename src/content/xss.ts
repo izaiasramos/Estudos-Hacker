@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "xss",
   title: "Cross-Site Scripting (XSS): scripts injetados na página",
   summary:
-    "Investigue quando texto vira código no navegador e decida onde separar dados, HTML e scripts com segurança.",
+    "Descubra quando um texto digitado vira código dentro da página e como evitar que isso aconteça.",
 };
 
 export const UNITS: Unit[] = [

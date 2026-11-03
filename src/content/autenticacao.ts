@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "autenticacao",
   title: "Autenticação quebrada e senhas",
   summary:
-    "Como verificar identidade sem revelar contas, facilitar adivinhação ou transformar um vazamento em uma lista de senhas legíveis.",
+    "Como conferir quem é quem sem entregar a lista de contas, sem facilitar chute de senha e sem transformar um vazamento em um catálogo de senhas legíveis.",
 };
 
 export const UNITS: Unit[] = [

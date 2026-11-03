@@ -1,11 +1,9 @@
-Agora você revisa uma transferência fictícia. Este lab é uma **simulação de decisão e configuração em checklist**: ele não cria um endpoint real, não movimenta valores e não executa código enviado por você.
+**O que fazer:** revise uma transferência fictícia e marque as proteções que, juntas, impedem um pedido forjado: token anti-CSRF validado, cookie com SameSite Lax ou Strict, origem conferida e mutação fora do GET.
 
-O checker pede um conjunto pedagógico completo para este cenário: token anti-CSRF validado, cookie com SameSite Lax ou Strict, origem conferida e mutação fora de GET.
+Este lab é uma **simulação com checklist**. Ele não cria endpoint, não movimenta valores e não executa código seu.
 
 <Callout tone="dev">
-
-Marcar todas as opções demonstra como as camadas se combinam nesta simulação. Em produção, a conclusão de segurança depende do fluxo inteiro: uma camada correta pode barrar o ataque, e cada camada tem limites que as outras ajudam a cobrir.
-
+Marcar tudo mostra como as camadas se combinam neste cenário. Em produção, a conclusão depende do fluxo inteiro: uma camada bem feita pode barrar o ataque, e cada uma tem limites que as outras ajudam a cobrir.
 </Callout>
 
-Se algo faltar, leia o feedback como uma hipótese de revisão: ele explica a função daquela decisão, sem afirmar que a lacuna isolada prova uma exploração.
+Se algo faltar, leia o feedback como uma dica de revisão: ele explica para que serve aquela decisão, sem afirmar que a lacuna sozinha prova um ataque.

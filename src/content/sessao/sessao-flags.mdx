@@ -1,24 +1,55 @@
-Agora compare duas chaves. A primeira pode ser lida por scripts, viajar fora de HTTPS e acompanhar pedidos iniciados por outro site. A segunda recebe três atributos — instruções no cookie — que reduzem esses caminhos.
+Compare duas chaves de sessão. A primeira pode ser lida por scripts, viaja até por conexões sem cadeado (HTTP) e acompanha pedidos feitos por outros sites. A segunda recebe três **atributos**, que são instruções que o servidor anexa ao cookie para reduzir esses riscos.
 
-<Glossary term={"HttpOnly"} text={"Atributo que impede o JavaScript da página de ler o cookie. O navegador ainda pode enviá-lo automaticamente ao servidor."} />
+<Glossary term={"HttpOnly"} text={"Proíbe que o JavaScript da página leia o cookie. O navegador continua enviando o cookie ao servidor normalmente."} />
 
-<Glossary term={"Secure"} text={"Atributo que manda o navegador enviar o cookie somente por conexão HTTPS. Ele não cria HTTPS; o site também precisa estar configurado para usá-lo."} />
+<Glossary term={"Secure"} text={"Manda o navegador enviar o cookie apenas em conexões HTTPS (com cadeado). Ele não ativa o HTTPS: o site precisa estar configurado para isso."} />
 
-<Glossary term={"SameSite"} text={"Atributo que limita quando o cookie acompanha um pedido iniciado em outro site. Strict é mais restritivo; Lax permite alguns casos, como certas navegações comuns; None permite envio entre sites e normalmente exige Secure."} />
+<Glossary term={"SameSite"} text={"Controla se o cookie acompanha pedidos que começaram em outro site. Strict é o mais fechado. Lax libera alguns casos comuns, como clicar em um link. None libera tudo e exige Secure."} />
 
-<Code caption={"Contraste de configuração"}>
-
+<Code caption={"Antes e depois"}>
 ```
 frágil:   sessao=chave
 melhor:   sessao=chave; HttpOnly; Secure; SameSite=Lax
 ```
-
 </Code>
 
-Esses atributos não resolvem todo o ciclo. No login, o servidor deve gerar uma chave nova e invalidar a anterior. No logout, deve invalidar a chave atual. Um prazo de expiração limita sessões esquecidas.
+Os atributos não resolvem o ciclo todo. Também é preciso:
+
+- **No login:** gerar uma chave nova e invalidar a anterior.
+- **No logout:** invalidar a chave atual no servidor.
+- **Sempre:** definir um prazo de expiração, para sessões esquecidas não durarem para sempre.
 
 <Callout tone="dev">
+Para este cenário, use HttpOnly, Secure e SameSite=Lax como base. Escolha Strict se o seu fluxo aguentar uma regra mais fechada. Só use None se o produto realmente precisar enviar o cookie entre sites e tiver outra proteção para isso.
+</Callout>
 
-Decisão para este cenário: use HttpOnly, Secure e SameSite=Lax como base; escolha Strict quando o fluxo aceitar uma política mais restritiva. Só use None quando o produto realmente precisar de envio entre sites e houver proteção adequada para esse fluxo.
+## Mão na massa: veja os atributos no navegador
 
+Crie `sessao.mjs`, rode `node sessao.mjs` e abra `http://localhost:4000`.
+
+<Code caption="sessao.mjs: um servidor que entrega a chave">
+```js
+import { createServer } from "node:http";
+
+createServer((req, res) => {
+  const fraco = "sessao=chave-da-alice";
+  const forte = "sessao=chave-da-alice; HttpOnly; Secure; SameSite=Lax; Max-Age=3600";
+  // Troque 'fraco' por 'forte' na linha abaixo e repita o teste
+  res.setHeader("Set-Cookie", fraco);
+  res.end("<h1>Pizzaria</h1><p>Abra o Console (F12) e digite: document.cookie</p>");
+}).listen(4000, () => console.log("http://localhost:4000"));
+```
+</Code>
+
+**Passo a passo no navegador:**
+
+1. Aperte **F12**, abra a aba **Console** e digite `document.cookie`. A chave aparece: **o JavaScript da página consegue lê-la**. Um script malicioso levaria a chave junto.
+2. Abra a aba **Application** (ou *Armazenamento*) e depois *Cookies*. As colunas HttpOnly, Secure e SameSite estão vazias.
+3. No arquivo, troque `res.setHeader("Set-Cookie", fraco)` por `forte`. Reinicie o servidor (`Ctrl+C`, depois `node sessao.mjs`) e recarregue a página.
+4. No Console, digite `document.cookie` de novo. Agora retorna vazio: o `HttpOnly` escondeu a chave do JavaScript. Em *Application*, as colunas estão preenchidas.
+
+Dá para ver também sem navegador: `curl -i http://localhost:4000` mostra o cabeçalho `Set-Cookie` na resposta.
+
+<Callout tone="dev">
+O `localhost` é uma exceção: navegadores aceitam cookies `Secure` nele mesmo sem HTTPS. Num site real, `Secure` só viaja por HTTPS.
 </Callout>

@@ -1,9 +1,9 @@
-Este lab é uma simulação de decisões para um login fictício. Marcar uma caixa não executa hash, não envia tentativas e não prova que um endpoint real está seguro. O checker apenas compara suas escolhas com o checklist esperado.
+**O que fazer:** marque as decisões que deixam este login fictício seguro. São quatro áreas: como a senha é guardada, como o login responde a falhas, o que o cadastro recusa e como tentativas repetidas são freadas.
 
-Você vai decidir como a senha seria armazenada, como o login responderia a falhas, o que o cadastro recusaria e como tentativas repetidas seriam desaceleradas. Uma resposta coerente mantém mensagem e status iguais para qualquer credencial inválida.
+Este lab é uma **simulação de decisões**. Marcar uma caixa não calcula hash, não envia tentativas e não prova que um sistema real está seguro. O checker só compara o que você marcou com a lista esperada.
+
+Dica: toda credencial inválida deve receber a mesma mensagem e o mesmo status, seja o email inexistente ou a senha errada.
 
 <Callout tone="dev">
-
-O checklist aceita: hash de senha com algoritmo próprio para senhas, resposta de falha coerente, política mínima no cadastro e rate limiting. Verde significa “configuração simulada completa”, não “implementação validada”.
-
+O checklist aceita: hash feito para senhas, resposta de falha igual para todos os casos, regras mínimas no cadastro e rate limiting. Verde significa "configuração simulada completa", não "código validado".
 </Callout>

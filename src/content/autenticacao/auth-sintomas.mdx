@@ -1,24 +1,26 @@
-Agora observe um ambiente de staging — uma cópia usada para testar o sistema antes da produção. Ele ainda aceita `admin` / `admin`, distingue “e-mail inexistente” de “senha errada” e permite tentativas sem pausa. Se esse ambiente ficar exposto ou for copiado, as facilidades de teste viram caminhos reais de entrada.
+Agora olhe um ambiente de **staging**, uma cópia do sistema usada para testes antes de ir para produção. Ele tem três problemas:
 
-<Code caption={"Duas respostas que revelam contas"}>
+- aceita `admin` / `admin`;
+- diz se o email existe ou se a senha está errada;
+- deixa tentar quantas vezes quiser, sem pausa.
 
+Se esse ambiente ficar exposto ou for copiado, as facilidades de teste viram portas de entrada.
+
+<Code caption={"Duas respostas que entregam contas"}>
 ```
 404 → "E-mail não cadastrado"
 401 → "Senha incorreta para este e-mail"
 ```
-
 </Code>
 
-Uma resposta genérica, como “E-mail ou senha inválidos”, reduz essa revelação. Ela deve ser coerente também em outros sinais observáveis do fluxo, não só no texto exibido.
+O certo é uma resposta única, como "E-mail ou senha inválidos". E ela deve ser igual em tudo que dá para observar, não só no texto: mesmo status HTTP, mesmo formato e tempo parecido.
 
-<Glossary term={"Rate limiting"} text={"Limitação da quantidade ou da frequência de tentativas de login. Ela desacelera adivinhação automatizada e deve considerar mais de um sinal, para não depender apenas do endereço de rede ou apenas da conta."} />
+<Glossary term={"Rate limiting"} text={"Limitar quantas tentativas de login são aceitas num período. Atrapalha quem tenta adivinhar senhas em massa. Funciona melhor olhando mais de um sinal, como a conta e a origem da tentativa."} />
 
-<Glossary term={"CAPTCHA"} text={"Desafio usado para dificultar automação. Pode ajudar depois de comportamento suspeito, mas cria atrito e não substitui hash de senha, política de cadastro ou rate limiting."} />
+<Glossary term={"CAPTCHA"} text={"Um desafio do tipo \"prove que você não é um robô\". Pode ajudar depois de comportamento suspeito, mas incomoda o usuário e não substitui hash, política de senha nem rate limiting."} />
 
 <Callout tone="armadilha">
-
-Rate limiting atua nas tentativas feitas pelo login. Hash lento atua nos testes feitos depois de um vazamento do banco. CAPTCHA é uma camada opcional contra automação. Cada defesa cobre um caminho diferente.
-
+Cada defesa cobre um caminho diferente. Rate limiting freia tentativas feitas pelo login. Hash lento freia testes feitos depois de um vazamento. CAPTCHA é uma camada opcional contra robôs. Uma não faz o trabalho da outra.
 </Callout>
 
-A decisão para o cenário é remover credenciais padrão, unificar a resposta de falha e limitar tentativas repetidas sem bloquear usuários legítimos indefinidamente.
+**Na prática:** remova contas padrão, use uma única resposta de falha e limite tentativas repetidas sem trancar o usuário legítimo para sempre.

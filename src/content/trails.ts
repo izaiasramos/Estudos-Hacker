@@ -41,7 +41,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "lab-defensivo",
     checkpointId: "checkpoint",
     units: sqlUnits,
-    sealPending: "O selo espera a inspeção estrutural das duas consultas no laboratório.",
+    sealPending: "Falta a inspeção das duas consultas no laboratório de reparo.",
     seal: {
       badge: "SQL",
       name: "SQL Injection",
@@ -55,7 +55,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "sessao-lab",
     checkpointId: "sessao-checkpoint",
     units: sessionUnits,
-    sealPending: "O selo espera o lab em que a chave passa no checker e o checkpoint.",
+    sealPending: "Faltam o lab da chave de sessão e o checkpoint.",
     seal: {
       badge: "SES",
       name: "Sessão",
@@ -69,7 +69,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "auth-lab",
     checkpointId: "auth-checkpoint",
     units: authUnits,
-    sealPending: "O selo espera o lab de login no checker e o checkpoint.",
+    sealPending: "Faltam o lab de login e o checkpoint.",
     seal: {
       badge: "AUTH",
       name: "Autenticação",
@@ -83,7 +83,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "xss-lab",
     checkpointId: "xss-checkpoint",
     units: xssUnits,
-    sealPending: "O selo espera o lab do painel no checker e o checkpoint.",
+    sealPending: "Faltam o lab do painel e o checkpoint.",
     seal: {
       badge: "XSS",
       name: "XSS",
@@ -97,7 +97,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "csrf-lab",
     checkpointId: "csrf-checkpoint",
     units: csrfUnits,
-    sealPending: "O selo espera o lab de transferência no checker e o checkpoint.",
+    sealPending: "Faltam o lab da transferência e o checkpoint.",
     seal: {
       badge: "CSRF",
       name: "CSRF",
@@ -111,7 +111,7 @@ export const TRAILS: Trail[] = [
     labUnitId: "phishing-lab",
     checkpointId: "phishing-checkpoint",
     units: phishingUnits,
-    sealPending: "O selo espera a caixa do lab classificada e o checkpoint.",
+    sealPending: "Faltam a triagem da caixa de entrada no lab e o checkpoint.",
     seal: {
       badge: "PHI",
       name: "Phishing interno",
@@ -125,7 +125,7 @@ export const TRAILS: Trail[] = [
     units: accessUnits,
     labUnitId: "idor-lab",
     checkpointId: "idor-checkpoint",
-    sealPending: "O selo espera a rota de pedidos fechada no checker e o checkpoint.",
+    sealPending: "Faltam o lab da rota de pedidos e o checkpoint.",
     seal: {
       badge: "IDOR",
       name: "Controle de acesso",
@@ -139,7 +139,7 @@ export const TRAILS: Trail[] = [
     units: headersUnits,
     labUnitId: "headers-lab",
     checkpointId: "headers-checkpoint",
-    sealPending: "O selo espera a resposta do perfil fechada no checker e o checkpoint.",
+    sealPending: "Faltam o lab da resposta do perfil e o checkpoint.",
     seal: {
       badge: "HDR",
       name: "Exposição de dados e headers",
@@ -153,7 +153,7 @@ export const TRAILS: Trail[] = [
     units: ssrfUnits,
     labUnitId: "ssrf-lab",
     checkpointId: "ssrf-checkpoint",
-    sealPending: "O selo espera a prévia de link fechada no checker e o checkpoint.",
+    sealPending: "Faltam o lab da prévia de link e o checkpoint.",
     seal: {
       badge: "SSRF",
       name: "SSRF",
@@ -167,7 +167,7 @@ export const TRAILS: Trail[] = [
     units: uploadUnits,
     labUnitId: "upload-lab",
     checkpointId: "upload-checkpoint",
-    sealPending: "O selo espera o upload de avatar fechado no checker e o checkpoint.",
+    sealPending: "Faltam o lab do upload de avatar e o checkpoint.",
     seal: {
       badge: "UPL",
       name: "Upload inseguro",

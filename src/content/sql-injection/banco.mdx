@@ -1,39 +1,34 @@
-Alice abre a Pizzaria do Lab e procura seus pedidos pelo email. A tela envia o valor ao servidor; o servidor pede os dados ao banco; o banco devolve as linhas encontradas. O ponto decisivo está no pedido que o servidor constrói.
+Alice abre a Pizzaria do Lab e busca os pedidos dela pelo email. Por trás da tela, acontece um vai e vem em três passos: o navegador manda o email ao servidor, o servidor pede os pedidos ao banco de dados e o banco devolve a lista.
+
+O passo que importa é o do meio: **o servidor escreve o pedido que o banco vai ler**.
 
 <Callout tone="conceito">
-
-SQL é a sigla de **Structured Query Language (Linguagem de Consulta Estruturada)**, linguagem usada para consultar e alterar dados em bancos relacionais. Uma **consulta**, também chamada de *query*, é o pedido estruturado enviado ao banco: por exemplo, “busque os pedidos cujo email seja este”.
-
+**SQL** (lê-se "ésse-quê-éle") é a linguagem usada para conversar com bancos de dados. Uma **consulta** (em inglês, *query*) é uma frase nessa linguagem, por exemplo: "traga os pedidos cujo email seja este".
 </Callout>
 
-Nesse pedido existem dois papéis. A **instrução** define a operação, a tabela e o filtro. O email é um **dado**: ele varia a cada busca, mas não deveria mudar a operação. O banco não recebe a intenção de quem programou; ele interpreta a consulta que efetivamente chegou.
+Toda consulta tem duas partes com papéis diferentes:
+
+- **Instrução:** o que fazer. Qual tabela ler, qual filtro aplicar.
+- **Valor:** o dado que muda a cada busca. Aqui, o email.
 
 <Code caption="Uma busca por email">
-
 ```sql
 SELECT id, item FROM pedidos WHERE email = ?
 ```
-
 </Code>
 
-O ponto de interrogação marca o lugar de um valor que será enviado separadamente. Assim, a forma da instrução permanece estável enquanto o email varia.
+O `?` é uma vaga reservada. O email de Alice entra nela por um caminho separado, então a instrução nunca muda, não importa quem esteja buscando.
 
 <InlineMission id="sql-papeis" />
 
 <Callout tone="analogia">
-
-Pense em um formulário com campos impressos. O formulário define o que será feito; Alice apenas preenche um espaço. Se o texto preenchido puder redesenhar o formulário, dado e instrução trocaram de papel.
-
+Pense numa ficha de papel com campos impressos. A ficha diz o que será feito. Alice só escreve o nome dela na linha em branco. Se o texto escrito pudesse reescrever a ficha, o dado teria virado instrução. É exatamente isso que esta trilha ensina a evitar.
 </Callout>
 
-<Glossary term="invariante" text="Regra que deve continuar verdadeira durante todo o fluxo. Nesta trilha: uma entrada permanece dado e não passa a definir a instrução SQL." />
-
-Uma equipe também pode usar um **ORM**, sigla de *Object-Relational Mapping* (Mapeamento Objeto-Relacional). É uma biblioteca que traduz operações do código para consultas ao banco. Ela ajuda quando sua interface segura recebe valores separadamente, mas não torna segura uma consulta SQL que o próprio código concatena.
+Muitos projetos usam um **ORM**, uma biblioteca que monta as consultas por você, a partir de objetos do código. Ele ajuda, mas só enquanto você usa o jeito seguro dele. Se o seu código cola o email dentro do texto SQL, o ORM não impede.
 
 <Callout tone="dev">
-
-Ao revisar código, faça duas perguntas: qual parte define a operação e qual parte veio de fora da função? Se as duas viraram um único texto, há uma fronteira para investigar.
-
+Ao revisar um código, faça duas perguntas: qual parte decide o que fazer, e qual parte veio de fora? Se as duas foram coladas no mesmo texto, achamos o lugar para investigar.
 </Callout>
 
-**Síntese:** o banco interpreta consultas; consultas contêm instruções e valores; a segurança começa mantendo esses papéis separados.
+**Em resumo:** o banco obedece à consulta que recebe. Se instrução e valor chegam misturados, ele não tem como saber quem é quem.

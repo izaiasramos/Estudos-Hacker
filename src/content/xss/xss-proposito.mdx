@@ -1,17 +1,17 @@
-Uma equipe lança comentários no painel de suporte. Na sexta-feira, alguém cola um texto com aparência de imagem quebrada. Na segunda, qualquer agente que abre o chamado vê a tela mudar e uma ação acontece com sua sessão. O comentário não deveria dar ordens ao navegador — mas deu.
+Uma equipe lança comentários no painel de suporte. Na sexta, alguém cola um texto que parece uma imagem quebrada. Na segunda, cada agente que abre o chamado vê a tela mudar, e uma ação é feita **com a sessão dele**. O comentário devia só ser lido. Em vez disso, deu ordens ao navegador.
 
-**Cross-Site Scripting (XSS)** significa *execução de script entre sites*. O nome histórico é menos importante que o modelo mental: dado não confiável entrou em uma página legítima e foi interpretado como HTML ou JavaScript ativo. O efeito ocorre no navegador de quem visita a página, dentro da origem e da sessão daquele aplicativo.
+**Cross-Site Scripting (XSS)** quer dizer "script entre sites". O nome é histórico, então fique com a ideia: um dado de fora entrou numa página legítima e o navegador o tratou como **HTML ou JavaScript de verdade**. O efeito acontece no navegador de quem abre a página, com a sessão daquela pessoa.
 
 <Callout tone="analogia">
-
-Imagine um mural que deveria apenas exibir bilhetes. XSS acontece quando o mural lê um bilhete como instrução: “mova esta porta”, “envie este formulário”. A defesa central é garantir que bilhetes continuem sendo bilhetes.
-
+Imagine um mural feito só para exibir bilhetes. XSS é quando o mural lê um bilhete como ordem: "mova esta porta", "envie este formulário". A defesa é garantir que bilhete continue sendo bilhete.
 </Callout>
 
-Mesmo um cookie `HttpOnly`, que não pode ser lido diretamente por JavaScript, não encerra o problema. Um script na página ainda pode alterar a interface, ler dados visíveis e disparar ações que o navegador autoriza para a sessão atual.
+Cookie `HttpOnly` (que o JavaScript não consegue ler) ajuda, mas não encerra o assunto. Um script na página ainda pode mudar a tela, ler o que está visível e disparar ações que o navegador autoriza para aquela sessão.
+
+Teste seu olho: qual linha abaixo deixa o comentário virar código?
 
 <InlineMission id="xss-caca-codigo" />
 
-<Glossary term={"Contexto de saída"} text={"O lugar onde um valor será inserido: texto HTML, atributo, URL ou JavaScript. Cada contexto exige tratamento próprio; escapar para um contexto não protege automaticamente os outros."} />
+<Glossary term={"Contexto de saída"} text={"O lugar onde um valor vai ser colocado: no texto da página, num atributo, numa URL ou num trecho de JavaScript. Cada lugar tem suas regras, e proteger um não protege os outros."} />
 
-A pergunta que guiará a investigação é simples: **em que ponto o aplicativo deixou de tratar a entrada como dado e passou a tratá-la como código?**
+**A pergunta desta trilha:** em que ponto o aplicativo deixou de tratar a entrada como dado e passou a tratá-la como código?

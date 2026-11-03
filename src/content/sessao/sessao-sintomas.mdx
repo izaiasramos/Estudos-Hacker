@@ -1,23 +1,19 @@
-No cenário da Pizzaria, o inspetor mostra `sessao=chave-da-alice`. Três observações ajudam a localizar decisões ausentes:
+Na Pizzaria, o inspetor do navegador mostra `sessao=chave-da-alice`. Três observações ajudam a descobrir o que está faltando:
 
-1. o JavaScript da página consegue ler a chave;
-2. o navegador envia a mesma chave fora de HTTPS;
-3. o identificador é igual antes e depois do login.
+1. O JavaScript da página consegue ler a chave.
+2. O navegador envia a mesma chave por HTTP, sem cadeado.
+3. A chave é a mesma antes e depois do login.
 
-<Code caption={"O sintoma não diz tudo; ele aponta para uma decisão"}>
-
+<Code caption={"Cada sintoma aponta para uma decisão que faltou"}>
 ```
 script lê o cookie       → falta HttpOnly
 cookie segue por HTTP    → falta Secure
-chave não muda no login  → falta rotação da chave
+chave não muda no login  → falta trocar a chave no login
 ```
-
 </Code>
 
-O primeiro caso expõe a chave a qualquer script que consiga rodar na página. O segundo permite envio por um canal inadequado. O terceiro é fixação de sessão: uma chave conhecida antes do login continua ligada à identidade autenticada depois dele.
+O primeiro caso deixa qualquer script na página ler a chave. O segundo permite que ela viaje por um canal sem proteção. O terceiro é a **fixação de sessão**: se alguém conhecia a chave antes do login, continua conhecendo depois, agora ligada à conta já autenticada.
 
 <Callout tone="conceito">
-
-Nenhuma correção substitui as outras. HttpOnly controla leitura por script; Secure controla o tipo de conexão; SameSite controla parte dos pedidos entre sites; rotação e logout controlam a validade da chave no servidor.
-
+Uma correção não substitui a outra. HttpOnly controla a leitura por script. Secure controla o tipo de conexão. SameSite controla parte dos pedidos vindos de outros sites. Trocar a chave no login e invalidá-la no logout controlam a validade no servidor.
 </Callout>

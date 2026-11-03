@@ -5,7 +5,7 @@ export const sqlInjectionScenes = {
     id: "sql-banco-fluxo",
     type: "flow",
     eyebrow: "Caminho do pedido",
-    title: "Quem transforma o clique em consulta?",
+    title: "Quem escreve a consulta que o banco lê?",
     accessibleSummary:
       "Um formulário envia um valor ao servidor; o servidor monta uma consulta com instrução fixa e valor separado; o banco interpreta a consulta e devolve o resultado.",
     caption: "O servidor preserva o papel de cada parte: a instrução define a busca e a entrada continua sendo dado.",
@@ -20,7 +20,7 @@ export const sqlInjectionScenes = {
     id: "sql-encontro-comparacao",
     type: "compare",
     eyebrow: "Duas montagens",
-    title: "Em qual lado o dado muda de papel?",
+    title: "Em qual versão o email vira parte da instrução?",
     accessibleSummary:
       "A comparação mostra que concatenar o email ao texto SQL mistura dado e instrução, enquanto usar um ponto de parâmetro e enviar o email à parte mantém a consulta fixa.",
     caption: "As duas versões buscam o mesmo email, mas só a parametrizada conserva a entrada como dado.",
@@ -44,10 +44,10 @@ export const sqlInjectionScenes = {
     id: "sql-invariante-fronteira",
     type: "boundary",
     eyebrow: "Fronteira de leitura",
-    title: "O analisador enxerga intenção?",
+    title: "O banco sabe o que você quis dizer?",
     accessibleSummary:
       "O analisador do banco recebe uma estrutura de consulta e distingue instruções de valores pela forma enviada; a parametrização mantém o texto SQL na zona de instrução e a entrada na zona de dado.",
-    caption: "A invariante é estrutural: qualquer entrada permanece valor, independentemente de seu conteúdo.",
+    caption: "A regra é estrutural: qualquer entrada continua sendo valor, não importa o que esteja escrito nela.",
     tone: "accent",
     zones: [
       {
@@ -84,7 +84,7 @@ export const sqlInjectionScenes = {
     id: "sql-tipos-comparacao",
     type: "compare",
     eyebrow: "Formas de observar",
-    title: "O efeito aparece agora, depois ou por pistas?",
+    title: "O efeito aparece na hora, depois ou só por pistas?",
     accessibleSummary:
       "Na forma direta, a resposta exibe o resultado indevido; na forma cega, diferenças de comportamento funcionam como pistas; na segunda ordem, um dado armazenado altera uma consulta posterior que o concatena.",
     caption: "A evidência muda entre as três formas, mas a correção continua sendo separar valores da instrução.",
@@ -143,7 +143,7 @@ export const sqlInjectionScenes = {
     id: "sql-debrief-causalidade",
     type: "flow",
     eyebrow: "Cadeia causal",
-    title: "Onde a intenção se perdeu?",
+    title: "Onde o servidor perdeu a separação?",
     accessibleSummary:
       "Uma entrada chega ao servidor, é concatenada ao texto SQL, altera a estrutura da consulta final e então é interpretada pelo banco como parte da instrução recebida.",
     caption: "O banco não adivinha a intenção original: ele interpreta a estrutura final produzida pelo servidor.",

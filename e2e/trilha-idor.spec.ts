@@ -42,7 +42,7 @@ test("trilha de controle de acesso até o selo", async ({ page, account }) => {
   await answerQuiz(
     page,
     [/WHERE id = \? sem nenhuma condição de dono/, "Da sessão que o servidor emitiu", "404 ou 403, sem o conteúdo do pedido"],
-    { "Em uma frase: qual invariante o IDOR quebra?": "O recurso precisa pertencer ao dono da sessão." },
+    { "Em uma frase: qual regra o IDOR quebra?": "O recurso precisa pertencer ao dono da sessão." },
   );
   await page.getByRole("link", { name: "Seguir — Fechar os pedidos" }).click();
 

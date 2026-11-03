@@ -1,30 +1,57 @@
-Na aba Network, painel do navegador que mostra pedidos e respostas, compare o que a tela precisa com o que realmente chegou. A primeira resposta expõe campos e usa uma política de script fraca.
+Na aba **Network** (o painel do navegador que mostra pedidos e respostas), compare o que a tela precisa com o que realmente chegou. A primeira resposta abaixo expõe campos demais e tem uma política de scripts fraca.
 
 <Code caption="Resposta que fala demais">
-
 ```
 HTTP/1.1 200 OK
 X-Powered-By: Express 4.17.1
 Content-Security-Policy: script-src 'self' 'unsafe-inline'
-
 { "id": 7, "name": "Alice", "password_hash": "$2b$12$…", "reset_token": "9f2c…" }
 ```
-
 </Code>
 
-<Code caption="Resposta reduzida e orientada">
-
+<Code caption="Resposta enxuta e com políticas">
 ```
 HTTP/1.1 200 OK
 Content-Security-Policy: script-src 'self' 'nonce-…' 'strict-dynamic'; frame-ancestors 'self'
 Strict-Transport-Security: max-age=63072000; includeSubDomains
 X-Content-Type-Options: nosniff
-
 { "id": 7, "name": "Alice", "email": "alice@lab.local" }
 ```
-
 </Code>
 
-A decisão não é “limpar no navegador”. A rota seleciona uma lista permitida de campos antes de serializar o JSON, troca a pilha por erro público genérico e adiciona as políticas adequadas à resposta.
+A solução não é "limpar no navegador". A rota escolhe uma lista permitida de campos **antes** de montar o JSON, troca a pilha de erro por uma mensagem pública genérica e adiciona as políticas certas na resposta.
 
-Síntese: se chegou ao cliente, já foi exposto.
+**Em resumo:** se chegou ao cliente, já vazou.
+
+## Mão na massa: inspecione e feche a resposta
+
+**Onde se faz isso?** No terminal com `curl`, ou na aba **Network** do navegador (F12). Precisa do Node.js 22.5 ou mais novo (`node -v` mostra a versão). Tudo roda **só na sua máquina**, em arquivos que você mesmo cria.
+
+<Code caption="headers.mjs: uma rota de perfil que fala demais">
+```js
+import { createServer } from "node:http";
+
+const alice = { id: 7, name: "Alice", email: "alice@lab.local", password_hash: "$2b$12$abc", reset_token: "9f2c" };
+
+createServer((req, res) => {
+  res.setHeader("X-Powered-By", "Express 4.17.1");
+  res.setHeader("Content-Type", "application/json");
+  // INSEGURO: devolve o registro inteiro
+  res.end(JSON.stringify(alice));
+
+  // SEGURO: escolha os campos e adicione as políticas (apague as 2 linhas acima)
+  // res.setHeader("X-Content-Type-Options", "nosniff");
+  // res.setHeader("Strict-Transport-Security", "max-age=63072000; includeSubDomains");
+  // res.end(JSON.stringify({ id: alice.id, name: alice.name, email: alice.email }));
+}).listen(4000, () => console.log("curl -i http://localhost:4000"));
+```
+</Code>
+
+**Passo a passo:**
+
+1. Rode `node headers.mjs`.
+2. Em outro terminal, rode `curl -i http://localhost:4000`. O `-i` mostra também os cabeçalhos.
+3. Na resposta, procure: `X-Powered-By` (entrega a tecnologia e a versão), `password_hash` e `reset_token` no corpo (a tela do perfil nunca precisaria deles).
+4. Para ver como o navegador mostra isso, abra `http://localhost:4000`, aperte F12, vá em **Network**, recarregue e clique na requisição.
+
+**Agora conserte:** apague as duas linhas marcadas como inseguras e descomente o bloco "SEGURO". Reinicie e rode o `curl -i` de novo. O JSON agora traz só `id`, `name` e `email`, e os cabeçalhos de proteção aparecem.

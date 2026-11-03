@@ -1,17 +1,26 @@
-Agora você vai editar as duas funções fictícias do laboratório. A tarefa de negócio não muda: `findUser` busca uma pessoa pelo email e `listOrders` lista somente os pedidos desse email. Mude apenas o caminho do valor: estrutura SQL fixa, `?` como marcador e `email` enviado em argumento separado.
+Sua vez de consertar. Você vai editar duas funções fictícias:
+
+- `findUser` busca uma pessoa pelo email.
+- `listOrders` lista só os pedidos desse email.
+
+**O que fazer:** nas duas funções, troque o email colado no texto por um `?` e passe o `email` numa lista separada, assim:
+
+<Code caption="O formato que o laboratório reconhece">
+```js
+db.query("SELECT ... WHERE email = ?", [email])
+```
+</Code>
+
+A tarefa de negócio não muda. Só muda o caminho do valor até o banco.
 
 <Callout tone="conceito">
-
-Este editor **não executa o JavaScript nem consulta um banco**. Ao enviar, o servidor faz uma inspeção textual limitada: procura as duas funções, rejeita formas conhecidas de concatenação de `email` e verifica o padrão de parâmetro esperado pelo exercício. Uma aprovação confirma somente essa estrutura reconhecida; não demonstra, por execução, que login, senha e listagem funcionam.
-
+Este editor **não roda o seu JavaScript e não consulta um banco**. Ao enviar, o servidor faz uma leitura de texto: procura as duas funções, recusa as formas conhecidas de concatenar o `email` e confere se o padrão com `?` está lá. Verde quer dizer "a estrutura está certa", não "o login funciona".
 </Callout>
 
-A inspeção é deliberadamente estreita. Preserve os nomes `findUser` e `listOrders`, a ordem das funções e a chamada `db.query`. Em código de produção, revisão estrutural e testes comportamentais reais se complementariam; aqui, apenas a primeira parte está implementada.
+A leitura é bem estreita de propósito. Mantenha os nomes `findUser` e `listOrders`, a ordem das funções e a chamada `db.query`. Num projeto real, você combinaria essa revisão de código com testes que executam de verdade. Aqui, só a revisão existe.
 
 <Callout tone="dev">
-
-Use o método já mostrado: `db.query("... ?", [email])`. Corrija as duas funções. Se a inspeção apontar uma delas, leia o feedback como indicação do padrão textual encontrado, não como resultado de uma execução.
-
+Se a inspeção apontar uma das funções, leia a mensagem como "o padrão de texto que eu esperava não está lá", e não como resultado de uma execução.
 </Callout>
 
-**Critério de conclusão:** as duas consultas mantêm a instrução fixa e passam `email` separadamente dentro do formato reconhecido pelo lab.
+**Para concluir:** as duas consultas precisam ter a instrução fixa e o `email` passado em separado.

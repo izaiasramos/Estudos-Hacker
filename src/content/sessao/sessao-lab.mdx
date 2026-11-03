@@ -1,9 +1,9 @@
-Este lab é uma simulação de decisões de configuração. As caixas não executam um servidor, não inspecionam um cookie real e não provam que uma aplicação está protegida. O checker apenas verifica se você selecionou todas as decisões esperadas para o cenário.
+**O que fazer:** configure a chave de sessão e o ciclo dela no servidor, marcando as decisões corretas.
 
-Comece com uma chave sem atributos e um ciclo incompleto. Escolha como ela seria configurada e como o servidor deveria tratá-la no login e no logout.
+Comece imaginando uma chave sem nenhum atributo e um ciclo incompleto. Escolha como ela deve ser configurada e o que o servidor faz no login e no logout.
+
+Este lab é uma **simulação**. As caixas não rodam um servidor nem inspecionam um cookie real. O checker só confere se você marcou todas as decisões esperadas.
 
 <Callout tone="dev">
-
-O checklist aceita: HttpOnly, Secure, SameSite=Lax ou Strict, nova chave no login e invalidação do registro no logout. Um resultado verde significa “decisões selecionadas na simulação”, não “código testado em execução”.
-
+O checklist aceita: HttpOnly, Secure, SameSite=Lax ou Strict, chave nova no login e invalidação do registro no logout. Verde significa "decisões marcadas na simulação", não "código testado".
 </Callout>

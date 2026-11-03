@@ -1,17 +1,21 @@
-Imagine duas respostas ao mesmo login inválido: “e-mail não existe” e “senha errada”. Antes de entrar, alguém já consegue descobrir quais contas estão cadastradas. Autenticação não é só acertar uma senha; é verificar identidade sem revelar atalhos úteis a quem tenta abusar do fluxo.
+Imagine duas mensagens de erro para o mesmo login errado: "este email não existe" e "senha incorreta". Parece educado. Mas quem tenta entrar acabou de descobrir **quais emails têm conta**. Antes de acertar a senha, já tem uma lista para trabalhar.
 
-<Glossary term={"Autenticação"} text={"Processo de verificar uma prova de identidade, como uma senha ou o controle de um dispositivo."} />
+Autenticação não é só conferir uma senha. É conferir quem a pessoa é sem entregar pistas de graça.
 
-Depois da autenticação, o servidor costuma criar uma sessão: um registro temporário que mantém a identidade entre pedidos. Autorização vem depois e decide o que essa identidade pode ler, alterar ou excluir. Entrar como Ana não significa poder abrir os dados de Bruno.
+<Glossary term={"Autenticação"} text={"Verificar se alguém é quem diz ser, com uma prova como senha ou confirmação em um dispositivo."} />
 
-<Glossary term={"OAuth"} text={"Padrão para uma aplicação receber autorização limitada para acessar recursos em outro serviço, sem receber a senha desse serviço. Botões de login com um provedor costumam combinar OAuth com uma etapa própria de identificação."} />
+Três conceitos andam juntos e são fáceis de confundir:
 
-<Glossary term={"Segundo fator (2FA)"} text={"Segunda prova de autenticação, de categoria diferente da senha, pedida além dela — por exemplo, confirmar em um dispositivo sob controle da pessoa. Se a senha vazar, ainda falta essa outra prova."} />
+1. **Autenticação:** prova quem você é (a senha).
+2. **Sessão:** lembra quem você é nas próximas telas, para não pedir a senha a cada clique.
+3. **Autorização:** decide o que você pode fazer. Entrar como Ana não dá acesso aos dados do Bruno.
 
 <Callout tone="analogia">
-
-A senha é a prova entregue na recepção; a sessão é o crachá temporário recebido depois; a autorização é a regra que abre apenas algumas portas. Confundir os três esconde falhas diferentes.
-
+A senha é o documento mostrado na recepção. A sessão é o crachá temporário que você recebe. A autorização é a regra que abre só algumas portas. Confundir os três esconde falhas diferentes.
 </Callout>
 
-A decisão desta trilha é proteger todo o fluxo: prova armazenada, respostas de erro, cadastro e repetição de tentativas.
+<Glossary term={"OAuth"} text={"Padrão que permite a um aplicativo acessar recursos seus em outro serviço sem receber a senha desse serviço. O botão \"Entrar com Google\" costuma usar OAuth."} />
+
+<Glossary term={"Segundo fator (2FA)"} text={"Uma segunda prova de identidade, além da senha, como um código no celular. Se a senha vazar, o atacante ainda precisa dessa segunda prova."} />
+
+**O que vamos proteger nesta trilha:** como a senha é guardada, o que o login responde quando falha, quais senhas o cadastro aceita e o que acontece quando alguém tenta muitas vezes.

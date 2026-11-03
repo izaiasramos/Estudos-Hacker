@@ -1,24 +1,69 @@
-Siga o caminho do comentário. Se ele chega pela busca e volta na mesma resposta, o caso é **XSS refletido**. Se fica salvo em um ticket e atinge visitantes depois, é **XSS armazenado**. Se um script do próprio front-end lê um valor da URL e o escreve de modo inseguro na página, é **XSS baseado no DOM**.
+Siga o caminho do comentário. Dependendo de como ele chega e volta, o XSS ganha um nome:
 
-**DOM**, ou *Document Object Model* (Modelo de Objetos do Documento), é a representação em objetos que o navegador constrói para a página. JavaScript consulta e altera essa árvore para criar textos, links e componentes.
+- **Refletido:** o comentário vem pela busca e volta na mesma resposta.
+- **Armazenado:** o comentário fica salvo (num chamado, por exemplo) e atinge quem abrir depois.
+- **Baseado no DOM:** um script da própria página lê um valor da URL e o escreve na tela de forma insegura.
 
-O contraste decisivo está na API usada:
+**DOM** (*Document Object Model*) é a versão em objetos da página que o navegador monta. O JavaScript usa essa estrutura para criar textos, links e botões.
 
-<Code caption={"A mesma entrada, duas decisões diferentes"}>
+A diferença que decide tudo está na função usada para escrever na tela:
 
+<Code caption={"Mesma entrada, duas decisões"}>
 ```js
-painel.innerHTML = comentario;   // analisa a string como HTML
-painel.textContent = comentario; // cria somente um nó de texto
+painel.innerHTML = comentario;   // lê o texto como HTML
+painel.textContent = comentario; // mostra só como texto
 ```
-
 </Code>
 
-`innerHTML` é um **sink perigoso** quando recebe dado não confiável: ele pede ao navegador para analisar marcação. `textContent` preserva a intenção de exibir texto. Frameworks como React também escapam valores interpolados como texto por padrão, mas essa proteção pode ser contornada por APIs explícitas de HTML, como `dangerouslySetInnerHTML`.
+`innerHTML` é um **ponto perigoso** (*sink*) quando recebe dado não confiável, porque pede ao navegador que interprete HTML. `textContent` só coloca texto. Frameworks como o React também tratam valores como texto por padrão, mas APIs como `dangerouslySetInnerHTML` desligam essa proteção (o nome já avisa).
 
 <Callout tone="conceito">
-
-Refletido, armazenado e baseado no DOM descrevem o trajeto. A falha é a mesma: uma fronteira de confiança foi quebrada e dados passaram a controlar a estrutura ou o comportamento da página.
-
+Refletido, armazenado e baseado no DOM descrevem apenas o caminho. A falha é a mesma: um dado de fora passou a controlar a estrutura ou o comportamento da página.
 </Callout>
 
-Ao revisar código, não pare no local em que a entrada chegou. Acompanhe o valor até o ponto de saída e pergunte qual interpretação aquela API solicita ao navegador.
+Ao revisar um código, não pare onde a entrada chega. Siga o valor até o ponto onde ele é escrito na tela e pergunte: o que essa função está pedindo ao navegador para fazer com ele?
+
+## Mão na massa: provoque um XSS na sua própria página
+
+**Onde se faz isso?** No navegador, numa página sua. Não precisa de servidor: um arquivo HTML basta.
+
+1. Crie o arquivo `painel.html` com o código abaixo.
+2. Abra-o no navegador (clique duas vezes ou arraste para a janela).
+
+<Code caption="painel.html: um painel com duas formas de exibir o comentário">
+```html
+<!doctype html>
+<meta charset="utf-8">
+<h1>Painel de comentários</h1>
+<input id="entrada" size="50" value="Oi, adorei a pizza!">
+<button id="enviar">Publicar</button>
+<h2>Inseguro (innerHTML)</h2><div id="inseguro"></div>
+<h2>Seguro (textContent)</h2><div id="seguro"></div>
+<script>
+  document.getElementById("enviar").onclick = () => {
+    const comentario = document.getElementById("entrada").value;
+    document.getElementById("inseguro").innerHTML = comentario;
+    document.getElementById("seguro").textContent = comentario;
+  };
+</script>
+```
+</Code>
+
+**Teste 1: comentário normal.** Clique em *Publicar*. Os dois lados mostram o mesmo texto.
+
+**Teste 2: comentário "esperto".** Troque o conteúdo do campo por esta linha e clique em *Publicar*:
+
+```html
+<img src=x onerror="document.body.style.background='tomato'">
+```
+
+- No lado **inseguro** (`innerHTML`), a página fica vermelha. O navegador leu o comentário como HTML, tentou carregar uma imagem inexistente e executou o `onerror`. Isso é XSS: texto virou código.
+- No lado **seguro** (`textContent`), você vê o texto cru e nada executa.
+
+**O que isso mostra:** a linha `innerHTML = comentario` é o ponto perigoso. Para texto simples, a correção é trocar por `textContent = comentario`.
+
+<Callout tone="dev">
+Num ataque real, o `onerror` não pintaria a tela: leria dados visíveis ou dispararia ações com a sessão da vítima. Teste só na sua própria página ou em ambiente autorizado.
+</Callout>
+
+**Seu desafio:** no **Console** (F12), digite `document.getElementById("inseguro").innerHTML` e compare com o lado seguro.

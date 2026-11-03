@@ -1,13 +1,16 @@
-Alice entra na própria conta e troca `/pedidos/101` por `/pedidos/103`. O login continua válido, mas o servidor entrega o pedido de Bruno. Esse é um caso de controle de acesso quebrado, primeira categoria do Top 10 do Open Worldwide Application Security Project (OWASP), organização aberta que reúne referências práticas de segurança.
+Alice entra na própria conta e troca `/pedidos/101` por `/pedidos/103` na barra do navegador. O login continua válido, mas o servidor entrega o pedido do Bruno.
 
-Insecure Direct Object Reference (IDOR), ou referência direta insegura a objeto, acontece quando a rota recebe um identificador — de pedido, fatura ou perfil — e usa esse valor sem conferir se a identidade da sessão pode acessar aquele recurso. Autenticação responde “quem é?”; autorização responde “pode fazer isso neste recurso?”.
+Isso é **controle de acesso quebrado**, a categoria nº 1 do Top 10 do **OWASP** (organização aberta que publica referências práticas de segurança).
+
+Esse caso específico se chama **IDOR** (*Insecure Direct Object Reference*, ou "referência direta insegura a objeto"). Acontece quando a rota recebe um identificador (de pedido, fatura, perfil) e o usa sem conferir se **essa pessoa** pode acessar **esse recurso**.
+
+- **Autenticação** responde: "quem é você?"
+- **Autorização** responde: "você pode fazer isso, neste recurso?"
 
 <Callout tone="analogia">
-
-O porteiro confere o crachá na entrada, mas qualquer crachá abre todas as salas. Entrar no prédio não dá direito à sala do vizinho.
-
+O porteiro confere seu crachá na entrada, mas qualquer crachá abre todas as salas. Entrar no prédio não dá direito a entrar na sala do vizinho.
 </Callout>
 
-A decisão fica no servidor: toda leitura ou alteração combina o recurso pedido com o dono ou o papel autorizado. Saber o identificador nunca é permissão.
+A decisão fica no servidor: toda leitura ou alteração cruza o recurso pedido com o dono ou com o papel autorizado. Saber o identificador nunca é permissão.
 
-<Glossary term={"Invariante"} text={"Regra que deve continuar verdadeira em todos os caminhos: cada acesso confere, no servidor, se a identidade da sessão tem direito ao recurso específico."} />
+<Glossary term={"Regra central"} text={"Em toda rota, o servidor confere se a identidade da sessão tem direito àquele recurso específico. Sem exceção."} />
