@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { locateUnit } from "@/content/trails";
-import { canSeeTrail } from "@/lib/access";
+import { canSeeTrail, isAdmin } from "@/lib/access";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
 import { completeLab, recordLabResult } from "@/lib/trail-progress";
@@ -32,13 +32,13 @@ export async function handleChecklistLab(
   const missing = missingDefenses(await request.formData());
   const destination = new URL(`${basePath}/${unitId}`, request.url);
   if (missing.length > 0) {
-    const recorded = await recordLabResult(user.id, unitId, false, true);
+    const recorded = await recordLabResult(user.id, unitId, false, true, isAdmin(user));
     if ("error" in recorded) return redirectTo(request, basePath);
     destination.searchParams.set("falta", missing.join(","));
     return NextResponse.redirect(destination, 303);
   }
 
-  const result = await completeLab(user.id, unitId, true);
+  const result = await completeLab(user.id, unitId, true, isAdmin(user));
   if ("error" in result) return redirectTo(request, basePath);
   if (result.sealed) return redirectTo(request, `${basePath}/selo`);
   destination.searchParams.set("ok", "1");

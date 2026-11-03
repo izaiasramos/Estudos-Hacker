@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/access";
 import { reviewQueries } from "@/lib/lab-check";
 import { sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
@@ -20,12 +21,12 @@ export async function POST(request: Request) {
   const source = String(form.get("source") ?? "");
   const review = reviewQueries(source);
   if (!review.ok) {
-    const recorded = await recordLabResult(user.id, "lab-defensivo", false, true);
+    const recorded = await recordLabResult(user.id, "lab-defensivo", false, true, isAdmin(user));
     if ("error" in recorded) return NextResponse.json({ ok: false }, { status: 403 });
     return NextResponse.json({ ok: true, passed: false, tests: review.tests, sealed: false, mode: recorded.mode });
   }
 
-  const saved = await completeLab(user.id, "lab-defensivo", true);
+  const saved = await completeLab(user.id, "lab-defensivo", true, isAdmin(user));
   if ("error" in saved) {
     return NextResponse.json({ ok: false }, { status: 403 });
   }

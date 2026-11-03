@@ -12,7 +12,7 @@ import { UnitScene } from "@/components/unit-scenes";
 import { sceneFor } from "@/content/scenes";
 import type { Unit } from "@/content/sql-injection";
 import { trailBySlug } from "@/content/trails";
-import { canSeeTrail } from "@/lib/access";
+import { canSeeTrail, isAdmin } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import { getLearningPath, LEARNING_LEVEL_LABELS } from "@/lib/learning-path";
 import {
@@ -56,7 +56,7 @@ export default async function UnitPage({
   const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);
   const learningPath = await getLearningPath(user.id, trail.slug);
-  const status = unitStatus(unit, progress, true);
+  const status = unitStatus(unit, progress, true, isAdmin(user));
   if (status === "bloqueada") redirect(basePath);
 
   const query = await searchParams;
@@ -64,7 +64,7 @@ export default async function UnitPage({
   const wrong = readResponses(query.resp);
   const passedNow = query.ok !== undefined && done;
   const attempts = progress.get(unit.id)?.attempts ?? 0;
-  const following = nextUnit(progress, true, trail.slug);
+  const following = nextUnit(progress, true, trail.slug, isAdmin(user));
   const lab = labSlots(unit.id, {
     userId: user.id,
     done,
@@ -79,11 +79,11 @@ export default async function UnitPage({
       <SiteHeader />
       <div className="relative mx-auto flex w-full min-w-0 max-w-6xl flex-1 flex-col px-4 py-6 sm:px-8">
         <div className="mb-6 w-full min-w-0 max-w-full lg:hidden">
-          <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
+          <UnitRail currentId={unit.id} progress={progress} ethicsDone admin={isAdmin(user)} units={trail.units} basePath={basePath} />
         </div>
         <div className="grid min-w-0 flex-1 gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="sticky top-6 hidden self-start lg:block">
-            <UnitRail currentId={unit.id} progress={progress} ethicsDone units={trail.units} basePath={basePath} />
+            <UnitRail currentId={unit.id} progress={progress} ethicsDone admin={isAdmin(user)} units={trail.units} basePath={basePath} />
           </aside>
           <article
             className={`mx-auto min-w-0 w-full overflow-hidden rounded-[20px] border border-line bg-surface/90 px-5 py-8 shadow-[0_24px_70px_rgba(0,0,0,0.2)] sm:px-9 sm:py-10 ${

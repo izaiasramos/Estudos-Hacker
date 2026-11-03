@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { locateUnit } from "@/content/trails";
-import { canSeeTrail } from "@/lib/access";
+import { canSeeTrail, isAdmin } from "@/lib/access";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
 import { gradeUnit } from "@/lib/trail-progress";
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     answers[question.id] = String(form.get(question.id) ?? "");
   }
 
-  const result = await gradeUnit(user.id, unitId, answers, true);
+  const result = await gradeUnit(user.id, unitId, answers, true, isAdmin(user));
   if ("error" in result) {
     return redirectTo(request, `/trilha/${trail.slug}`);
   }

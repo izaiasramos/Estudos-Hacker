@@ -61,12 +61,19 @@ function gatedUnits(slug = "sql-injection") {
   return trailBySlug(slug)?.units.filter((unit) => unit.gate) ?? [];
 }
 
-export function isUnlocked(unit: Unit, progress: Map<string, ProgressRow>, ethicsDone: boolean) {
+/** `admin` abre todas as unidades com gate, sem alterar o progresso gravado. Serve para QA. */
+export function isUnlocked(
+  unit: Unit,
+  progress: Map<string, ProgressRow>,
+  ethicsDone: boolean,
+  admin = false,
+) {
   if (!unit.gate) return false;
   const located = locateUnit(unit.id);
   const gated = located ? located.trail.units.filter((item) => item.gate) : [];
   const index = gated.findIndex((item) => item.id === unit.id);
   if (index < 0) return false;
+  if (admin) return true;
   if (index === 0) return ethicsDone;
   const previous = gated[index - 1];
   return isUnitDone(previous.id, progress, ethicsDone);
@@ -76,10 +83,12 @@ export function nextUnit(
   progress: Map<string, ProgressRow>,
   ethicsDone: boolean,
   slug = "sql-injection",
+  admin = false,
 ) {
   return (
     gatedUnits(slug).find(
-      (unit) => !isUnitDone(unit.id, progress, ethicsDone) && isUnlocked(unit, progress, ethicsDone),
+      (unit) =>
+        !isUnitDone(unit.id, progress, ethicsDone) && isUnlocked(unit, progress, ethicsDone, admin),
     ) ?? null
   );
 }
@@ -88,9 +97,10 @@ export function unitStatus(
   unit: Unit,
   progress: Map<string, ProgressRow>,
   ethicsDone: boolean,
+  admin = false,
 ) {
   if (isUnitDone(unit.id, progress, ethicsDone)) return "concluída";
-  if (isUnlocked(unit, progress, ethicsDone)) return "agora";
+  if (isUnlocked(unit, progress, ethicsDone, admin)) return "agora";
   return "bloqueada";
 }
 
@@ -117,11 +127,11 @@ export function accountLevel(seals: number) {
   return "Jr";
 }
 
-export async function markUnitRead(userId: string, unitId: string, ethicsDone: boolean) {
+export async function markUnitRead(userId: string, unitId: string, ethicsDone: boolean, admin = false) {
   const unit = unitById(unitId);
   if (!unit?.gate) return { error: "unidade" as const };
   const progress = await listProgress(userId);
-  if (!isUnlocked(unit, progress, ethicsDone)) return { error: "bloqueada" as const };
+  if (!isUnlocked(unit, progress, ethicsDone, admin)) return { error: "bloqueada" as const };
   const current = progress.get(unit.id);
   if (current?.status === "done") return { ok: true as const };
   const award = unit.kind === "theory" || unit.kind === "checkpoint" ? READ_XP : 0;
@@ -148,6 +158,7 @@ export async function gradeUnit(
   unitId: string,
   answers: Record<string, string>,
   ethicsDone: boolean,
+  admin = false,
 ) {
   const unit = unitById(unitId);
   if (!unit?.gate || unit.questions.length === 0) return { error: "unidade" as const };
@@ -156,7 +167,7 @@ export async function gradeUnit(
   const result = await withTx(async () => {
     await lockAttemptSequence(userId, unit.id);
     const progress = await listProgress(userId);
-    if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+    if (!isUnlocked(unit, progress, ethicsDone, admin) && progress.get(unit.id)?.status !== "done") {
       return { error: "bloqueada" as const };
     }
     const current = progress.get(unit.id);
@@ -211,6 +222,7 @@ export async function recordLabResult(
   unitId: string,
   passed: boolean,
   ethicsDone: boolean,
+  admin = false,
 ): Promise<
   | { error: "unidade" | "bloqueada" }
   | { ok: true; trail: Trail; mode: AttemptMode; sealed: boolean }
@@ -221,7 +233,7 @@ export async function recordLabResult(
   const result = await withTx(async () => {
     await lockAttemptSequence(userId, unit.id);
     const progress = await listProgress(userId);
-    if (!isUnlocked(unit, progress, ethicsDone) && progress.get(unit.id)?.status !== "done") {
+    if (!isUnlocked(unit, progress, ethicsDone, admin) && progress.get(unit.id)?.status !== "done") {
       return { error: "bloqueada" as const };
     }
     const current = progress.get(unit.id);
@@ -259,8 +271,8 @@ export async function recordLabResult(
   return { ...result, sealed };
 }
 
-export async function completeLab(userId: string, unitId: string, ethicsDone: boolean) {
-  return recordLabResult(userId, unitId, true, ethicsDone);
+export async function completeLab(userId: string, unitId: string, ethicsDone: boolean, admin = false) {
+  return recordLabResult(userId, unitId, true, ethicsDone, admin);
 }
 
 /** Regra pura do selo: lab defensivo e checkpoint concluídos, selo ainda não emitido. */

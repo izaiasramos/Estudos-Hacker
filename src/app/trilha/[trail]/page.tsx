@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { UnitRail } from "@/components/unit-rail";
 import { trailAfter, trailBySlug } from "@/content/trails";
-import { canSeeTrail } from "@/lib/access";
+import { canSeeTrail, isAdmin } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 import { getLearningPath, LEARNING_LEVEL_LABELS, type LearningLevel } from "@/lib/learning-path";
 import { hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
@@ -30,7 +30,7 @@ export default async function TrailPage({ params }: { params: Params }) {
   const basePath = `/trilha/${trail.slug}`;
   const progress = await listProgress(user.id);
   const learningPath = await getLearningPath(user.id, trail.slug);
-  const upcoming = nextUnit(progress, true, trail.slug);
+  const upcoming = nextUnit(progress, true, trail.slug, isAdmin(user));
   const seal = hasTrailSeal(progress, trail.sealId);
   const after = trailAfter(trail.slug);
 
@@ -41,7 +41,7 @@ export default async function TrailPage({ params }: { params: Params }) {
       <main className="relative mx-auto grid w-full max-w-6xl flex-1 gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
         <div className="lg:sticky lg:top-6 lg:self-start">
           <div className="flex gap-2 overflow-x-auto pb-2 lg:block lg:overflow-visible">
-            <UnitRail progress={progress} ethicsDone units={trail.units} basePath={basePath} />
+            <UnitRail progress={progress} ethicsDone admin={isAdmin(user)} units={trail.units} basePath={basePath} />
           </div>
         </div>
         <div>
