@@ -11,9 +11,12 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const sessionId = String(form.get("session") ?? "");
+  const requestedReturn = String(form.get("returnTo") ?? "");
+  const returnTo = /^\/admin\/usuarios\/[a-zA-Z0-9-]+$/.test(requestedReturn) ? requestedReturn : "/admin";
   const stopped = sessionId ? await stopLabById(sessionId) : false;
   console.info("[admin] lab derrubado", { by: user?.id, sessionId, stopped });
-  return redirectTo(request, stopped ? "/admin?ok=lab#labs" : "/admin?erro=lab#labs");
+  const separator = returnTo.includes("?") ? "&" : "?";
+  return redirectTo(request, `${returnTo}${separator}${stopped ? "ok=lab" : "erro=lab"}${returnTo === "/admin" ? "#labs" : ""}`);
 }
 
 export function GET() {

@@ -65,8 +65,12 @@ export default async function AdminPage({
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">Admin</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight">Operação</h1>
         <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-muted">
-          Números agregados. Nenhuma resposta de quiz nem progresso individual aparece aqui.
+          Métricas, usuários, ambientes ativos e ferramentas de revisão editorial.
         </p>
+        <nav aria-label="Ferramentas administrativas" className="mt-6 flex flex-wrap gap-3">
+          <Link href="/admin/usuarios" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 text-sm font-bold text-ink">Gerenciar usuários</Link>
+          <Link href="/admin/qa" className="inline-flex min-h-11 items-center rounded-full border border-info px-5 text-sm font-bold text-info">Central de QA</Link>
+        </nav>
 
         {message ? (
           <p

@@ -1,9 +1,9 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
 **Produto (nome provisório):** ShieldPath  
-**Versão:** 0.28  
-**Data:** 2026-10-08  
-**Status:** produção em https://estudos-hacker.vercel.app com Postgres no Supabase. Trilhas, quiz, lab embutido, progresso e squad compartilhados.  
+**Versão:** 0.29
+**Data:** 2026-10-26
+**Status:** beta público em https://estudos-hacker.vercel.app com Postgres no Supabase. Dez trilhas, quiz, simulações didáticas embutidas, progresso, squad, competições e áudio estão disponíveis. Migrações, identidade, isolamento remoto e operação ainda têm pendências em `docs/backlog.md`.
 **Público:** desenvolvedores júnior que querem entender ataques para proteger sistemas
 
 ---
@@ -118,7 +118,7 @@ Para “memorizar o passo a passo” sem virar um dump de exploit:
 | L5 | Corrigir | aplica o patch no código do lab | testes de regressão + teste de segurança passam |
 | L6 | Ensinar | responde 1 pergunta aberta: “como você explicaria isso a um júnior?” | rubrica simples / revisão entre pares (pós-MVP) |
 
-L4 e L5 acontecem em containers efêmeros. O aluno nunca aponta a ferramenta para a internet aberta.
+L4 e L5 têm duas implementações distintas. Em produção, as atividades atuais são simulações/checkers didáticos no monólito e não executam código arbitrário do aluno. Com `LAB_RUNTIME=local`, a Pizzaria pode usar container efêmero; esse modo local não comprova isolamento em produção. O aluno nunca aponta a ferramenta para a internet aberta.
 
 ### 6.3 O que “mão na massa” significa aqui
 
@@ -314,7 +314,7 @@ Copy da UI: profissional, direto, sem “você é um hacker elite”. Preferir �
 | `admin` | publicar conteúdo, ver métricas agregadas, derrubar lab zumbi |
 | `mentor` (v1.1) | abre e encerra o time. O ranking, a nota e as tentativas são os mesmos para todo o grupo |
 
-**No código:** `users.role` guarda `learner` ou `admin`. Mentor não é papel na tabela: é quem abriu o time (`squads.mentor_id`). Não existe tela para dar papel; muda só por `scripts/set-role.mjs`. Toda checagem de papel acontece no servidor (`src/lib/access.ts`).
+**No código:** `users.role` guarda `learner` ou `admin`. Mentor não é papel na tabela: é quem abriu o time (`squads.mentor_id`). O painel `/admin/usuarios` permite buscar contas, consultar progresso/tentativas/lab e alterar papel com proteção do próprio admin e do último administrador. `/admin/qa` permite revisar qualquer unidade, prova/gabarito e abrir a Pizzaria embedded sem cumprir gates nem gravar progresso. Toda checagem de papel acontece no servidor (`src/lib/access.ts`). Suspensão e auditoria persistente continuam no backlog.
 
 ---
 
@@ -367,7 +367,7 @@ Editor de código do lab L5: no MVP, pode ser **Web IDE embutido** (ex.: recorte
 
 ### 12.3 Laboratório da pizzaria (modo embutido)
 
-Por padrão, a Pizzaria do Lab roda **dentro do próprio Next.js**, em `/lab/pizzaria`. O iframe da trilha aponta para esse caminho no mesmo domínio. Funciona na Vercel e no `npm run dev`, sem Docker.
+Por padrão, a Pizzaria do Lab roda **dentro do próprio Next.js**, em `/lab/pizzaria`. Esse modo é uma **simulação didática embutida**: funciona na Vercel e no `npm run dev`, sem Docker, mas não oferece isolamento de processo ou rede e não pode executar código arbitrário do aluno.
 
 Fluxo:
 
@@ -514,7 +514,7 @@ Orçamento de motion na landing e na home: animações de entrada somam no máxi
 | Testes do L5 | cada teste acende em sequência; o último, se verde, dispara “vetor fechado” | o aluno vê a defesa acontecer |
 | Selo | badge entra em 3 peças (anel, ícone, nome) em ~900 ms e fica no perfil | fim de trilha merece cena curta |
 
-Fora do MVP: cursor custom gigante, partículas no mouse, tilt 3D em todo card, áudio, WebGL pesado. Se sobrar fôlego depois do selo funcionar, um único canvas na landing (trilha em perspectiva) pode entrar — nunca no player de leitura.
+Fora do MVP original: cursor custom gigante, partículas no mouse, tilt 3D em todo card e WebGL pesado. **Entregue após o MVP:** player global recolhido, músicas CC0 por contexto, volume, pausa, upload local e efeitos de acerto/erro. O áudio ainda precisa de preferência explícita e auditoria de acessibilidade conforme `A11Y-01` em `docs/backlog.md`.
 
 ### 15.5 Landing
 
@@ -706,9 +706,11 @@ Andamento em 2026-10-08. O que está marcado já roda no app.
 - [x] Lab defensivo: o aluno separa o valor da instrução e os testes do app corrigido ficam verdes. O código enviado não é executado no servidor.
 - [x] Selo de SQL Injection, só com o lab defensivo e o checkpoint.
 
-### Fase 2 — Lab remoto de verdade
+### Fase 2 — Simulação remota e runtime local
 
-- [x] Orquestrador: um ambiente por aluno, 75 minutos, container sem privilégio e sem saída para a internet. Se o Docker não subir, o mesmo app roda preso em 127.0.0.1.
+- [x] Produção/Vercel: sessão de 75 minutos e Pizzaria embutida no monólito. É uma simulação didática, sem isolamento de processo ou rede.
+- [x] Desenvolvimento com `LAB_RUNTIME=local`: tenta container sem privilégio, read-only e sem saída; se Docker falhar, usa processo em `127.0.0.1`.
+- [ ] Produção: worker/runtime remoto realmente isolado, com egress deny, limites, TTL independente e reconciliação operacional (`OPS-01` e `LAB-01`).
 - [x] Painel “Ambiente ativo · encerrar” em todas as telas logadas.
 - [x] Checker HTTP contra a Pizzaria do Lab: login da Alice, senha errada recusada, listagem sem o pedido do Bruno.
 - [x] Sair da conta encerra o ambiente.
@@ -726,6 +728,8 @@ Andamento em 2026-10-08. O que está marcado já roda no app.
 - [x] A nota é a média das unidades já pontuadas. A ordem segue essa média. No empate, menos tentativas fica na frente. Quem abre o time é quem pode encerrá-lo.
 
 ### O que falta
+
+O backlog priorizado e os critérios de aceite ficam em [`docs/backlog.md`](docs/backlog.md). Ele consolida isolamento/reclassificação dos labs, migrações, release, recuperação e verificação de e-mail, vínculo Google/local, sessões revogáveis, CSRF/`APP_URL`, cron dos labs, observabilidade, testes de produção, acessibilidade/áudio, teste com usuário, documentação e evolução do admin/QA.
 
 Quem chega no repositório encontra instalação, variáveis e o fluxo de pull request no `README.md`.
 
@@ -750,7 +754,7 @@ Quem chega no repositório encontra instalação, variáveis e o fluxo de pull r
 - [ ] Recuperação de senha por e-mail.
 - [ ] Verificação de e-mail no cadastro. Não há SMTP.
 - [x] Conteúdo em MDX: o texto de cada unidade mora em `src/content/<trilha>/<unidade>.mdx` (`@next/mdx`), com os componentes `<Callout tone="...">`, `<Glossary term="..." text="..." />` e `<Code caption="...">` com bloco ``` dentro (`src/mdx-components.tsx`). Título, resumo, tipo e quiz continuam em `src/content/<trilha>.ts`, porque a nota é calculada no servidor a partir deles. `npm test` confere que toda unidade tem `.mdx`, que ele compila e que só usa componentes conhecidos.
-- [x] Admin mínimo (11.3) em `/admin`, só para `role = 'admin'`; para os outros a página e `POST /api/admin/lab/stop` respondem 404. Mostra contas, quem passou pelas regras, quem estudou em 7 dias, o funil por trilha (começaram, chegaram ao lab, lab fechado, taxa do lab e selos, só em contagem agregada) e os labs no ar, com botão para derrubar (mais de 60 min aparece como possível zumbi). Publicar é pelo Git: `status: "rascunho"` na entrada de `TRAILS` esconde a trilha de quem não é admin (páginas 404, quiz, leitura e lab recusados, e ela sai de início, perfil, time e "Próxima trilha"). Papel muda só por script: `DATABASE_URL=... node scripts/set-role.mjs <email> admin`.
+- [x] Admin em `/admin`: métricas agregadas, labs ativos, gestão de usuários em `/admin/usuarios` e central de QA em `/admin/qa`. A gestão permite busca, detalhe de progresso/tentativas, papel e encerramento de lab; protege autoalteração e o último admin. QA abre qualquer unidade, inclusive bloqueada/rascunho, mostra prova e gabarito e inicia a Pizzaria embedded sem gravar progresso. Publicar continua pelo Git: `status: "rascunho"` em `TRAILS`. Suspensão e auditoria persistente permanecem no backlog.
 - [x] Vitest na lógica pura: checkers dos labs, nota do quiz, streak, desbloqueio, regra do selo, nível, limite de login, acesso de admin/rascunho, funil e o conteúdo MDX de todas as unidades. Comando: `npm test`.
 - [x] Playwright no app: landing, cadastro, regras, trilha SQL, trilhas de controle de acesso, headers, SSRF e upload até o selo e perfil (nome, reduzir movimento, exclusão). Comando: `npm run test:e2e` (sobe o Postgres; app na porta 3100). Cada teste apaga a conta que criou, pelo próprio app.
 - [x] Cenas da seção 15.4: traço de luz na aresta até o nó atual (arestas concluídas acesas, nó atual com anel pulsando), quiz certo assenta com borda lima e quiz errado faz shake de 6px uma vez, boot do lab em três etapas ("isolando rede", "subindo app", "pronto") que avançam com marcos reais: resposta do servidor e carga do iframe. Sem JavaScript, o botão faz o POST normal.
@@ -786,7 +790,7 @@ O MVP está pronto quando um colega que **não escreveu o conteúdo** consegue, 
 5. ver o badge na home;
 6. não encontrar na UI nenhum incentivo a testar site de terceiros.
 
-**Andamento (2026-10-08):** os seis itens funcionam na Vercel com o lab embutido (seção 12.3). As outras seis trilhas também vão até o selo na Vercel. Falta a rodada com um colega que não escreveu o conteúdo, que é o que fecha o critério.
+**Andamento (2026-10-26):** os fluxos estão publicados na Vercel com a simulação embutida (seção 12.3). SQL Injection e outras nove trilhas chegam ao selo. Falta a rodada com uma pessoa que não escreveu o conteúdo; até essa evidência, o produto permanece em beta.
 
 ---
 

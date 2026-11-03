@@ -67,13 +67,13 @@ O que cada comando faz:
 
 Os dados ficam no volume Docker `shieldpath-pg`. O container volta sozinho quando o Docker reinicia. Se o `DATABASE_URL` apontar para um banco fora da máquina, o `npm run dev` não sobe container nenhum.
 
-Abra essa URL, crie uma conta com e-mail e senha e aceite as regras. As tabelas nascem sozinhas na primeira requisição que usa o banco.
+Abra essa URL, crie uma conta com e-mail e senha e aceite as regras. As tabelas são criadas automaticamente na primeira requisição que usa o banco. Esse comportamento facilita desenvolvimento, mas está registrado como dívida (`DATA-01` em `docs/backlog.md`): produção deve migrar para schema versionado e etapa pré-deploy.
 
 `npm run db:import` não faz parte da instalação de quem clona. Esse comando só copia um SQLite antigo (`data/shieldpath.db`) quando esse arquivo existe e o Postgres ainda está vazio.
 
 Para parar o banco: `npm run db:stop`. Para subir só o banco: `npm run db:up`. Para ver o log: `npm run db:logs`. Para ver se o container está de pé: `docker compose ps`.
 
-O laboratório da pizzaria (unidade 6 da trilha SQL) abre em `/lab/pizzaria`, no mesmo site. Funciona na Vercel sem Docker extra. Se quiser o container isolado na máquina, coloque `LAB_RUNTIME=local` no `.env`.
+O laboratório da pizzaria (unidade 6 da trilha SQL) abre em `/lab/pizzaria`, no mesmo site. Na Vercel ele é uma **simulação didática embutida**, sem isolamento de processo/rede e sem executar código do aluno. Para testar o container isolado apenas na máquina, coloque `LAB_RUNTIME=local` no `.env`. O isolamento remoto de produção está no backlog.
 
 ## Variáveis
 
@@ -175,7 +175,8 @@ O primeiro commit de um pull request pode ficar vermelho no histórico. O que im
 | `src/content` | Trilhas: metadados e quiz em `.ts`, texto em `<trilha>/*.mdx` |
 | `src/proxy.ts` | CSP com nonce e HSTS em toda página |
 | `scripts` | Subir o banco, mudar papel de conta, importar SQLite antigo |
-| `docs/stacks.md` | Stacks e fluxos |
+| `docs/stacks.md` | Stacks e fluxos atuais |
+| `docs/backlog.md` | Pendências priorizadas e critérios de aceite |
 | `src/lib` | Sessão, banco, progresso, time e laboratório |
 | `labs/pizzaria` | App fictício do laboratório |
 | `.github/workflows/ci.yml` | O check que o pull request dispara |

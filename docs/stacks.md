@@ -64,7 +64,7 @@ O container tem `restart: unless-stopped`: ele volta sozinho quando o Docker rei
 ### Banco (Postgres)
 
 1. A primeira consulta abre o pool (`src/lib/db.ts`, até 10 conexões).
-2. Antes dela, roda o `SCHEMA_SQL` uma vez por processo: `CREATE TABLE IF NOT EXISTS` e `ALTER TABLE … ADD COLUMN IF NOT EXISTS`. Não há ferramenta de migração; coluna nova entra nesse SQL.
+2. Antes dela, roda o `SCHEMA_SQL` uma vez por processo: `CREATE TABLE IF NOT EXISTS` e `ALTER TABLE … ADD COLUMN IF NOT EXISTS`. Esse é o mecanismo legado atual, não uma estratégia de migração segura para produção. A substituição por migrations versionadas, pré-deploy e readiness estrita está em `DATA-01` de `docs/backlog.md`.
 3. As consultas usam `?` e o código troca por `$1, $2…`. Valor nunca entra concatenado na string.
 
 Tabelas: `users`, `progress`, `lab_sessions`, `squads`, `squad_members`, `login_failures` (detalhe na seção 13 da `SPEC.md`).
@@ -89,11 +89,11 @@ Tabelas: `users`, `progress`, `lab_sessions`, `squads`, `squad_members`, `login_
 
 | Modo | Quando | Como funciona |
 | --- | --- | --- |
-| Embutido (padrão) | sempre, inclusive na Vercel | `lab_sessions` com `runtime = embedded`; o iframe abre `/lab/pizzaria` no mesmo domínio |
+| Simulação embutida (padrão) | sempre, inclusive na Vercel | `lab_sessions` com `runtime = embedded`; o iframe abre `/lab/pizzaria` no mesmo domínio. Não há isolamento de processo/rede nem execução de código do aluno |
 | Docker (`LAB_RUNTIME=local`) | só na máquina | builda a imagem `shieldpath-pizzaria` de `labs/pizzaria`, roda com `--cap-drop=ALL`, `--read-only`, 128 MB, rede `shieldpath-labs` sem saída, porta só em `127.0.0.1` |
 | Processo (`LAB_RUNTIME=local` sem Docker) | reserva | `node labs/pizzaria/server.mjs` numa porta livre em `127.0.0.1` |
 
-O lab expira em 75 minutos. Admin vê e derruba os labs no ar em `/admin`.
+O lab expira em 75 minutos. Admin vê e derruba os labs no ar em `/admin`. A limpeza atual é oportunista: acontece quando outra operação consulta os labs. Um cron independente e a reconciliação de órfãos estão em `LAB-01` de `docs/backlog.md`.
 
 ### Headers de segurança
 
@@ -112,7 +112,7 @@ Em `next dev`, a CSP libera `'unsafe-eval'` e estilo inline, que o React usa par
 | Unidade (Vitest) | `npm test` | nada (não toca no banco) |
 | E2E (Playwright) | `npm run build && npm run test:e2e` | Postgres (o `pretest:e2e` sobe) e o Chromium (`npx playwright install chromium`, uma vez) |
 
-O Playwright sobe o app com `npm run start` na porta **3100**, para não esbarrar num `npm run dev` aberto na 3000. Cada teste cria uma conta nova e a apaga no fim pelo próprio app.
+O Playwright sobe o app com `npm run start` na porta **3100**, para não esbarrar num `npm run dev` aberto na 3000. Esses E2E validam o build local/CI, não a URL publicada. Cada teste cria uma conta nova e a apaga no fim pelo próprio app. Smoke pós-deploy está planejado em `QA-01` e `OPS-02` de `docs/backlog.md`.
 
 ### CI (GitHub Actions)
 
