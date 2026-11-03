@@ -194,7 +194,7 @@ function Quiz({
     <section
       id="quiz"
       className={`quiz-shell mt-12 scroll-mt-24 rounded-[24px] border border-line-strong bg-ink/55 p-5 sm:p-7 ${
-        passedNow ? "quiz-settle" : wrong.size > 0 ? "border-danger/50" : ""
+        passedNow ? "quiz-settle" : wrong.size > 0 ? "quiz-shake border-danger/50" : ""
       }`}
     >
       <div className="flex items-center gap-3">
