@@ -17,7 +17,7 @@ base.describe("smoke", () => {
     await expect(
       page.getByRole("heading", {
         level: 1,
-        name: "Injeção em SQL (Linguagem de Consulta Estruturada)",
+        name: "SQL Injection: quando o dado vira comando",
         exact: true,
       }),
     ).toBeVisible();

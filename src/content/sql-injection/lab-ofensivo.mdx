@@ -1,19 +1,63 @@
-O primeiro painel desta unidade é uma **simulação guiada**: nomes, emails, pedidos e resultado são fictícios e predefinidos, e nenhuma consulta é executada para produzi-lo. Abaixo dele, a Pizzaria do Lab pode abrir uma sessão executável separada; as verificações dessa sessão fazem requisições à aplicação do ambiente autorizado e exibem respostas observadas. Nenhum desses recursos executa o código que você editará no laboratório defensivo.
+Este é um laboratório de **observação**. Você vai ler um caso pronto e descobrir o que deu errado, sem digitar nada contra ninguém.
 
-A regra do cenário é: Alice deve ver apenas seus pedidos. O painel compara essa regra com um resultado simulado em que aparece um pedido atribuído a Bruno. Ao lado, uma inspeção já preparada informa que `findUser` e `listOrders` concatenam `email` ao texto SQL.
+O painel abaixo é uma **simulação guiada**. Nomes, emails, pedidos e resultados são fictícios e já estão prontos. Nenhuma consulta é executada para gerá-los.
+
+A regra do cenário é: Alice só pode ver os pedidos dela. O painel mostra três peças:
+
+1. **O requisito:** só pedidos da Alice.
+2. **O resultado simulado:** aparece também um pedido do Bruno.
+3. **A inspeção do código:** `findUser` e `listOrders` colam o `email` dentro do texto SQL.
 
 <Callout tone="conceito">
-
-A simulação não prova o comportamento de um sistema externo nem reproduz uma exploração real. Ela oferece três peças para raciocinar: requisito, resultado divergente e padrão inseguro no código.
-
+A simulação não reproduz um ataque real nem prova nada sobre sistemas externos. Ela só te dá material para raciocinar: o que era esperado, o que apareceu e onde o código falhou.
 </Callout>
 
-O contraste sustenta uma hipótese coerente: o filtro que chegou ao banco não preservou a busca exata por email. A inspeção estrutural mostra onde agir: as duas funções misturam o valor à instrução, mesmo que apenas uma delas tenha um sintoma visível no painel.
+Juntas, as três peças sustentam uma hipótese: o filtro que chegou ao banco não manteve a busca exata por email. A inspeção mostra onde agir. As duas funções misturam o valor com a instrução, mesmo que só uma delas tenha mostrado o sintoma.
+
+Mais abaixo, a Pizzaria do Lab pode abrir uma sessão executável separada, onde você faz verificações no ambiente autorizado. Ela é independente do código que você vai corrigir no próximo laboratório.
 
 <Callout tone="dev">
-
-Não há um passo oculto nem motivo para tentar entradas em outro alvo. Responda com base no material mostrado. A prática de implementação acontece na unidade defensiva e permanece dentro deste ambiente autorizado.
-
+Não existe passo escondido. Responda com base no que está na tela. A prática de corrigir fica para o laboratório seguinte.
 </Callout>
 
-**Decisão prática:** corrigir `findUser` e `listOrders`, mantendo a mesma finalidade de negócio e enviando `email` como parâmetro separado.
+**Na prática:** o conserto será mexer em `findUser` e `listOrders`, mantendo a mesma função de negócio e enviando o `email` como parâmetro separado.
+
+## Mão na massa: veja a falha acontecer no seu computador
+
+**Onde se faz isso?** Num arquivo de servidor, não no console do navegador. SQL Injection acontece no código que fala com o banco, então vamos escrever um mini "servidor" de pedidos com um banco SQLite em memória. Precisa do Node.js 22.5 ou mais novo (`node -v` mostra a versão). Tudo roda **só na sua máquina**, em arquivos que você mesmo cria.
+
+1. Crie uma pasta `praticar-sql` e, dentro dela, o arquivo `inseguro.mjs`.
+2. Cole o código abaixo.
+3. No terminal, rode `node inseguro.mjs`.
+
+<Code caption="inseguro.mjs: a busca que cola o email no SQL">
+```js
+import { DatabaseSync } from "node:sqlite";
+
+const db = new DatabaseSync(":memory:");
+db.exec(`
+  CREATE TABLE pedidos (id INTEGER, email TEXT, item TEXT);
+  INSERT INTO pedidos VALUES (1, 'alice@exemplo.test', 'Margherita');
+  INSERT INTO pedidos VALUES (2, 'bruno@exemplo.test', 'Calabresa');
+`);
+
+// INSEGURO: o email é colado dentro do texto SQL
+function listarPedidos(email) {
+  const sql = "SELECT item, email FROM pedidos WHERE email = '" + email + "'";
+  console.log("SQL enviado:", sql);
+  return db.prepare(sql).all().map((linha) => `${linha.email}: ${linha.item}`);
+}
+
+console.log(listarPedidos("alice@exemplo.test"));
+// Um "email" que muda a frase SQL:
+console.log(listarPedidos("alice@exemplo.test' OR '1'='1"));
+```
+</Code>
+
+**O que observar:** a primeira chamada mostra só a Alice. Na segunda, o "email" tem um pedaço extra (`' OR '1'='1`). Olhe a linha "SQL enviado": o texto virou outra frase, cujo filtro é verdadeiro para todas as linhas. Resultado: o pedido do Bruno aparece na lista da Alice.
+
+<Callout tone="dev">
+Na vida real, esse "email" viria de um campo de formulário, e a função `listarPedidos` estaria dentro da rota do servidor. A mecânica é idêntica. Pratique **apenas** nos arquivos que você criou ou em ambientes autorizados.
+</Callout>
+
+**Seu desafio:** adicione uma coluna `senha` à tabela e mude só o texto passado à função para fazer a busca mostrar dados que ela não devia. Depois siga para a unidade de defesa e conserte.

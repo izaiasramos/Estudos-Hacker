@@ -1,17 +1,55 @@
-Bloquear a palavra `localhost` parece resolver o caso óbvio. Não resolve: outro nome pode chegar ao mesmo IP, um IP pode ter representações diferentes e um destino público pode redirecionar para dentro.
+Bloquear a palavra `localhost` parece resolver o caso óbvio, mas não resolve: outro nome pode apontar para o mesmo IP, um IP tem várias formas de escrita e um site público pode redirecionar para dentro.
 
-Domain Name System (DNS), sistema de nomes de domínio, traduz um nome como `exemplo.com` em um ou mais IPs. A regra segura permite apenas os esquemas necessários, resolve o nome, recusa todos os candidatos internos, loopback ou link-local e conecta exatamente ao destino validado. Se a biblioteca resolver o nome outra vez durante a conexão, surge uma janela em que a resposta DNS pode mudar. A implementação precisa fixar a conexão ao IP conferido, preservando o nome original para validação do certificado TLS e para o cabeçalho de host.
+O **DNS** (sistema de nomes de domínio) traduz um nome como `exemplo.com` em um ou mais IPs. A regra segura segue estes passos:
 
-Cada redirecionamento é uma URL nova: prefira não seguir; se seguir, repita todo o processo e imponha um limite de saltos. Quando o produto conhece os destinos, uma lista permitida de hosts é mais forte que tentar listar tudo o que é proibido.
+1. Permita só os protocolos necessários.
+2. Resolva o nome e recuse todo IP interno, de loopback ou link-local.
+3. Conecte exatamente ao IP que foi validado.
+
+O passo 3 tem uma pegadinha: se a biblioteca resolver o nome de novo na hora de conectar, a resposta do DNS pode ter mudado entre a validação e a conexão. A implementação precisa fixar a conexão no IP conferido, mantendo o nome original para o certificado TLS e para o cabeçalho de host.
+
+**Redirecionamentos** são URLs novas. O ideal é não segui-los. Se seguir, repita todo o processo a cada salto e imponha um limite de saltos. Quando o produto já conhece os destinos possíveis, uma **lista permitida de sites** é mais forte do que tentar listar tudo que é proibido.
 
 <Callout tone="armadilha">
-
-“Resolvi e validei” não basta se o cliente HTTP resolver novamente. Validar um IP e conectar por outro mantém a falha.
-
+"Eu resolvi e validei" não basta se o cliente HTTP resolver outra vez. Validar um IP e conectar em outro mantém a falha.
 </Callout>
 
-Amazon Web Services (AWS) oferece o Instance Metadata Service version 2 (IMDSv2), serviço de metadados de instância versão 2. Ele exige um token temporário para consultar dados da máquina e reduz ataques simples, mas não substitui bloquear o endereço link-local `169.254.169.254` nem restringir a saída de rede.
+Na AWS, o **IMDSv2** exige um token temporário para consultar os dados da máquina, o que dificulta ataques simples. Mas ele não substitui bloquear o endereço `169.254.169.254` nem restringir a saída de rede.
 
-<Glossary term="Serviço de metadados" text="Endpoint interno usado por plataformas de nuvem para fornecer dados da máquina e, em alguns casos, credenciais temporárias. Não deve ser alcançável por uma busca controlada pelo usuário." />
+<Glossary term="Serviço de metadados" text="Serviço interno que provedores de nuvem oferecem para informar dados da máquina e, às vezes, credenciais temporárias. Nunca deve ser alcançável por uma busca controlada pelo usuário." />
 
-Síntese: valide o destino real, conecte ao que validou e trate cada salto como uma nova decisão.
+**Em resumo:** valide o destino real, conecte no que validou e trate cada redirecionamento como uma nova decisão.
+
+## Mão na massa: valide o destino antes de buscar
+
+Salve como `validar-url.mjs` e rode `node validar-url.mjs`. A função confere o protocolo e resolve o nome para IP antes de decidir.
+
+<Code caption="validar-url.mjs: só HTTPS e só IP público">
+```js
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
+
+function ipInterno(ip) {
+  return /^(127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|0\.)/.test(ip) || ip === "::1";
+}
+
+export async function urlPermitida(texto) {
+  const url = new URL(texto);
+  if (url.protocol !== "https:") return false;
+  const ips = isIP(url.hostname) ? [url.hostname] : (await lookup(url.hostname, { all: true })).map((r) => r.address);
+  return ips.every((ip) => !ipInterno(ip));
+}
+
+console.log(await urlPermitida("https://example.com"));   // true
+console.log(await urlPermitida("http://127.0.0.1:9000")); // false (HTTP e IP interno)
+console.log(await urlPermitida("https://127.1/"));        // false: o Node entende 127.1 como 127.0.0.1
+```
+</Code>
+
+**O que observar:** o `127.1` é um jeito curto de escrever `127.0.0.1`, e o Node o converte. Barrar a palavra `localhost` não pegaria isso. Conferir o **IP resolvido** pega.
+
+**Seu desafio:** ligue essa função à prévia do `ssrf.mjs`: chame `urlPermitida(alvo)` antes do `fetch` e devolva erro se der `false`. Depois repita o teste com `http://127.0.0.1:9000`.
+
+<Callout tone="armadilha">
+Este exemplo mostra a validação, mas ainda tem a brecha do DNS: o `fetch` resolve o nome outra vez na hora de conectar. Em produção, conecte ao IP validado ou isole a busca numa rede sem acesso interno.
+</Callout>

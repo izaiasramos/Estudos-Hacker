@@ -1,19 +1,78 @@
-O endpoint de transferência precisa reconhecer mais que uma sessão. Quatro decisões se complementam.
+O endpoint de transferência precisa reconhecer mais do que a sessão. Quatro decisões se complementam.
 
-Um **token anti-CSRF** é um valor imprevisível associado à sessão ou ao formulário. O aplicativo legítimo o inclui na mutação, e o servidor o valida. Outra origem pode tentar enviar um formulário, mas, por causa da política de mesma origem, normalmente não consegue ler o token da página legítima para reproduzi-lo.
+**1. Token anti-CSRF.** É um valor imprevisível ligado à sessão ou ao formulário. O aplicativo legítimo o inclui no envio, e o servidor confere. Um site de fora pode até mandar um formulário, mas normalmente não consegue ler o token da página legítima para copiá-lo.
 
-**SameSite** é um atributo do cookie que controla seu envio em contextos entre sites. Aqui, **site** não é sinônimo de origem: de forma prática, considera o esquema e o domínio registrável, sem distinguir porta. Assim, `https://app.exemplo.com` e `https://painel.exemplo.com` são origens diferentes, mas continuam no mesmo site. SameSite não barra esse segundo caso; token ou validação de Origin ainda podem fazê-lo.
+**2. SameSite.** É um atributo do cookie que controla se ele viaja em pedidos vindos de outros sites. Atenção: **site** não é o mesmo que **origem**. Na prática, site considera o protocolo e o domínio principal, ignorando a porta. Então `https://app.exemplo.com` e `https://painel.exemplo.com` são origens diferentes, mas o mesmo site. O SameSite não separa esses dois, mas um token ou a conferência de Origin separam.
 
-`Strict` é mais restritivo; `Lax` permite alguns fluxos de navegação, mas bloqueia o cookie em muitos pedidos cross-site, como um `POST` de formulário externo. `None` permite envio cross-site e exige `Secure`. A escolha precisa considerar os fluxos legítimos do produto.
+- `Strict`: o mais fechado.
+- `Lax`: permite alguns fluxos de navegação, mas bloqueia o cookie em muitos pedidos de outros sites, como um `POST` de formulário externo.
+- `None`: permite envio entre sites e exige `Secure`.
 
-Os cabeçalhos **Origin** e **Referer** ajudam o servidor a verificar de onde o pedido foi iniciado. `Origin` informa a origem. `Referer` normalmente informa a URL da página anterior e pode ser usado como fallback conforme política explícita. Compare com uma lista exata de origens permitidas; não aceite apenas porque um texto “contém” o domínio. Decida também o que fazer quando o cabeçalho esperado estiver ausente.
+Escolha pensando nos fluxos legítimos do seu produto.
 
-Por fim, **GET** e **POST** expressam intenções diferentes. GET deve obter dados sem alterar estado. POST envia uma operação que pode alterar estado. Mover a mutação para POST evita disparos por simples links e recursos, mas **POST sozinho não impede CSRF**: um site externo também pode enviar formulários POST.
+**3. Origin e Referer.** São cabeçalhos que dizem de onde o pedido partiu. `Origin` informa a origem. `Referer` costuma informar a página anterior. Compare com uma lista exata de origens permitidas. Não aceite só porque o texto "contém" o seu domínio. Decida também o que fazer quando o cabeçalho não vier.
+
+**4. GET e POST.** O GET deve apenas ler. O POST envia uma ação que muda estado. Mover a mutação para POST evita disparos por um simples link ou imagem, mas **POST sozinho não impede CSRF**: um site externo também consegue enviar formulários POST.
 
 <Callout tone="conceito">
-
-Defesa em profundidade não significa que todas as camadas precisam falhar para toda conclusão, nem que todo sistema usa exatamente o mesmo conjunto. Uma validação correta pode barrar o ataque; as demais cobrem limites, erros de configuração e diferentes fluxos.
-
+Defesa em camadas não significa que todas precisam falhar para o ataque passar, nem que todo sistema usa o mesmo conjunto. Uma camada bem feita já pode barrar o pedido. As outras cobrem limites, erros de configuração e fluxos diferentes.
 </Callout>
 
-A decisão de arquitetura é documentar qual camada reconhece a intenção, qual restringe o cookie e qual reduz superfícies acidentais.
+**Na prática:** saiba responder qual camada reconhece a intenção, qual restringe o cookie e qual reduz brechas acidentais.
+
+## Mão na massa: feche a transferência
+
+Salve como `csrf-seguro.mjs`. É o mesmo banco, agora com as camadas desta unidade: cookie `SameSite=Strict`, só aceita `POST`, confere o cabeçalho `Origin` e exige um token de uso único.
+
+<Code caption="csrf-seguro.mjs: banco com defesas em camadas">
+```js
+import { createServer } from "node:http";
+import { randomBytes } from "node:crypto";
+
+let saldo = 1000;
+const tokens = new Set();
+
+createServer((req, res) => {
+  const url = new URL(req.url, "http://localhost:4000");
+  const logado = (req.headers.cookie ?? "").includes("sessao=alice");
+
+  if (url.pathname === "/entrar") {
+    res.setHeader("Set-Cookie", "sessao=alice; HttpOnly; SameSite=Strict; Path=/");
+    return res.end("Logada. Saldo: " + saldo);
+  }
+  // A página legítima pega um token e o envia junto com o POST
+  if (url.pathname === "/token" && logado) {
+    const token = randomBytes(16).toString("hex");
+    tokens.add(token);
+    return res.end(token);
+  }
+  if (url.pathname === "/transferir") {
+    const origemOk = req.headers.origin === "http://localhost:4000";
+    const token = url.searchParams.get("token");
+    if (req.method !== "POST" || !logado || !origemOk || !tokens.delete(token)) {
+      res.statusCode = 403;
+      return res.end("Recusado");
+    }
+    saldo -= Number(url.searchParams.get("valor"));
+    return res.end("Transferido! Saldo: " + saldo);
+  }
+  res.end("Saldo: " + saldo);
+}).listen(4000);
+```
+</Code>
+
+**Teste pelo terminal** (com o servidor rodando, num segundo terminal):
+
+```bash
+curl -s -c cookies.txt http://localhost:4000/entrar
+# Pedido forjado, como o do site de fora: GET, sem token
+curl -s -b cookies.txt "http://localhost:4000/transferir?valor=500"
+# Pedido legítimo: pega o token e envia por POST com a Origin certa
+TOKEN=$(curl -s -b cookies.txt http://localhost:4000/token)
+curl -s -b cookies.txt -X POST -H "Origin: http://localhost:4000" \
+  "http://localhost:4000/transferir?valor=100&token=$TOKEN"
+```
+
+O primeiro pedido volta `Recusado`. O segundo volta `Transferido! Saldo: 900`.
+
+**Seu desafio:** tente repetir o segundo pedido com o mesmo token. Ele já foi usado, então deve ser recusado.

@@ -1,23 +1,19 @@
-Uma consulta concatenada chega ao banco como um texto único. Para executá-la, o banco usa um **analisador** — também chamado de *parser* — que reconhece a estrutura da linguagem: o que é comando, nome de tabela, operador e valor textual.
+Quando o servidor cola tudo num texto só, o banco recebe uma frase única. Para entendê-la, ele usa um **analisador** (*parser*), que lê o texto e separa o que é comando, o que é nome de tabela, o que é valor.
 
-Se a entrada foi colada nesse texto, certos conteúdos podem alterar os limites que o analisador enxerga. Esse é o mecanismo da **SQL Injection**: uma entrada que deveria ocupar apenas o papel de dado passa a influenciar a estrutura da instrução SQL.
+O problema é que o analisador lê só o texto final. Ele não sabe que o servidor *queria* buscar "exatamente este email". Se a entrada tiver o formato certo, ela pode mudar onde o analisador marca o fim de um valor e o começo de um comando.
+
+Esse é o mecanismo da **SQL Injection**: uma entrada que deveria ser só dado passa a influenciar a instrução.
 
 <Callout tone="analogia">
-
-Na consulta parametrizada, a instrução é um formulário pronto e o valor preenche um campo. Na concatenação, todos recebem a mesma caneta para escrever tanto no campo quanto nas regras do formulário.
-
+Na consulta parametrizada, a instrução é um formulário pronto e o valor preenche um único campo. Na concatenada, todo mundo recebe a mesma caneta para escrever tanto no campo quanto nas regras do formulário.
 </Callout>
 
-O servidor pode ter a intenção de “buscar exatamente este email”. O banco, porém, não recebe essa intenção como informação adicional. Ele recebe uma estrutura final e a interpreta conforme as regras do SQL.
+A solução muda o modelo, não o filtro. Em vez de tentar barrar entradas ruins, a consulta parametrizada avisa o banco antes: "essa é a estrutura, os valores vêm depois". Assim, o conteúdo do valor não importa, porque ele nunca é lido como comando.
 
 <Callout tone="dev">
-
-Em uma revisão autorizada, siga a origem dos valores usados em consultas. Eles podem vir do corpo de uma requisição, de um parâmetro no endereço, de um cabeçalho ou até do próprio banco. Procure concatenação com `+`, interpolação em template string ou qualquer montagem textual equivalente.
-
+Em uma revisão autorizada, siga a origem dos valores usados em consultas. Eles podem vir do corpo de uma requisição, de um endereço, de um cabeçalho ou até do próprio banco. Procure `+`, interpolação em template string (aquela com crase) ou qualquer outra forma de montar SQL como texto.
 </Callout>
 
-Bloquear uma pequena lista de caracteres deixa duas responsabilidades misturadas e exige prever todas as variações possíveis. Parametrizar muda o modelo: o banco conhece previamente a estrutura e recebe os valores em posições definidas.
+<Glossary term="consulta parametrizada" text="Consulta cuja estrutura SQL é fixa e cujos valores são enviados separadamente. O banco nunca lê o valor como parte da instrução." />
 
-<Glossary term="consulta parametrizada" text="Consulta cuja estrutura SQL permanece fixa e cujos valores são enviados separadamente por parâmetros. O conteúdo do parâmetro não é reinterpretado como parte da instrução." />
-
-**Síntese:** o analisador do banco interpreta a estrutura recebida. Portanto, a correção deve controlar essa estrutura, e não tentar adivinhar toda entrada que poderia alterá-la.
+**Em resumo:** o banco só enxerga o texto final. Por isso, a correção é controlar a estrutura desse texto, não tentar adivinhar quais entradas são perigosas.

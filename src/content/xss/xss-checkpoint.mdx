@@ -1,11 +1,13 @@
-Volte ao chamado do início: um comentário ganhou poder porque foi interpretado como parte ativa da página. Você seguiu o dado, diferenciou os caminhos refletido, armazenado e baseado no DOM, e escolheu defesas para cada necessidade.
+Volte ao chamado do começo: um comentário ganhou poder porque o navegador o leu como parte ativa da página. Você seguiu o caminho do dado, viu os três tipos (refletido, armazenado e baseado no DOM) e escolheu defesas para cada necessidade.
 
-A síntese é: **dados não confiáveis permanecem dados**. Para texto, use saída conforme o contexto e APIs seguras do DOM. Para HTML necessário, sanitize com lista permitida. Acrescente CSP — inclusive nonce quando adequado — para conter execução não autorizada, sem tratá-la como blindagem absoluta.
+A regra central é: **dado de fora continua sendo dado**.
+
+- Para texto, use saída adequada ao contexto e APIs seguras do DOM.
+- Para HTML necessário, use um sanitizador com lista permitida.
+- Some uma CSP (com nonce quando fizer sentido) para conter scripts não autorizados, sem tratá-la como escudo total.
 
 <Callout tone="conceito">
-
-A defesa principal elimina a confusão entre conteúdo e código. A defesa em profundidade reduz o dano se outra barreira falhar.
-
+A defesa principal impede a confusão entre conteúdo e código. A defesa em camadas reduz o estrago se outra barreira falhar.
 </Callout>
 
-Duas decisões encerram a investigação. O selo depende desta síntese e da simulação de configuração concluída no lab.
+O selo depende desta síntese e do lab de configuração concluído.

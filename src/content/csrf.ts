@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "csrf",
   title: "Falsificação de pedidos entre sites (CSRF)",
   summary:
-    "Investigue como outro site tenta usar uma sessão já aberta e combine camadas para reconhecer a intenção legítima.",
+    "Entenda como um site de fora tenta usar a sua sessão já aberta, e como o servidor confirma que foi você mesmo quem pediu.",
 };
 
 export const UNITS: Unit[] = [

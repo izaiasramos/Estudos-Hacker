@@ -1,11 +1,14 @@
-Retome a transferência do início. O atacante tentou usar a sessão que o navegador já conhecia; o servidor precisava distinguir credencial válida de intenção legítima.
+Volte à transferência do começo. O atacante tentou usar a sessão que o navegador já conhecia. O servidor precisava distinguir **credencial válida** de **intenção legítima**.
 
-A síntese é: **proteja mutações com evidências e restrições complementares**. Token anti-CSRF comprova participação no fluxo legítimo. SameSite restringe quando o cookie acompanha pedidos entre sites. Origin e Referer permitem verificar a procedência declarada. GET permanece livre de efeitos; POST expressa mutação, mas não é defesa suficiente sozinho.
+A regra central é: **proteja ações que mudam algo com mais de uma evidência**.
+
+- O **token anti-CSRF** prova que o pedido veio do fluxo legítimo.
+- O **SameSite** restringe quando o cookie acompanha pedidos de outros sites.
+- **Origin e Referer** permitem conferir de onde o pedido diz que veio.
+- O **GET** nunca muda estado. O **POST** indica mutação, mas sozinho não basta.
 
 <Callout tone="conceito">
-
-Defesa em profundidade soma garantias. Não exige afirmar que todas as camadas precisam existir ou falhar em qualquer arquitetura: investigue qual camada bloqueia cada caminho e onde estão seus limites.
-
+Defesa em camadas soma garantias. Você não precisa de todas em qualquer arquitetura. O que importa é saber qual camada barra cada caminho e onde estão os limites dela.
 </Callout>
 
-As próximas duas decisões verificam se você consegue aplicar esse modelo. O selo depende deste checkpoint e da simulação de configuração concluída no lab.
+O selo depende deste checkpoint e do lab de configuração concluído.

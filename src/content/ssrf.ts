@@ -5,7 +5,7 @@ export const TRAIL = {
   slug: "ssrf",
   title: "Falsificação de requisições pelo servidor (SSRF)",
   summary:
-    "Controle o destino que o servidor busca: valide o endereço, resolva o nome, conecte ao Internet Protocol address (IP) conferido e trate cada redirecionamento como uma nova decisão.",
+    "Controle aonde o servidor vai buscar coisas: valide o endereço, confira o IP real e trate cada redirecionamento como uma nova decisão.",
 };
 
 export const UNITS: Unit[] = [

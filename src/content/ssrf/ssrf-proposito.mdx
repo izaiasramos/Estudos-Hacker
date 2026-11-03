@@ -1,13 +1,11 @@
-Uma prévia de link parece simples: o usuário cola um endereço e o servidor busca título e imagem. Mas o pedido parte de dentro da infraestrutura, onde pode alcançar bancos, painéis e serviços invisíveis para a internet.
+Uma prévia de link parece simples: a pessoa cola um endereço e o servidor busca o título e a imagem. O detalhe é que **o pedido parte de dentro da infraestrutura**, onde ele pode alcançar bancos de dados, painéis e serviços que a internet não enxerga.
 
-Server-Side Request Forgery (SSRF), ou falsificação de requisição pelo lado do servidor, ocorre quando alguém influencia esse destino sem controles suficientes. A Uniform Resource Locator (URL) identifica o recurso; o servidor usa Hypertext Transfer Protocol (HTTP) ou sua versão protegida, HTTPS, para buscá-lo.
+**SSRF** (*Server-Side Request Forgery*, "falsificação de requisição pelo lado do servidor") acontece quando alguém consegue influenciar esse destino sem que o servidor imponha limites. O endereço é uma **URL**, e o servidor a busca por **HTTP** (ou HTTPS, a versão com criptografia).
 
 <Callout tone="analogia">
-
-Você pede ao recepcionista, que tem acesso a todos os andares, para buscar uma encomenda. Sem regras de destino, pode mandá-lo até a sala do cofre.
-
+Você pede ao recepcionista, que tem acesso a todos os andares, para buscar uma encomenda. Sem regras sobre aonde ele pode ir, ele pode acabar na sala do cofre.
 </Callout>
 
-Um Internet Protocol address (IP), endereço numérico de rede, pode apontar para a internet ou para destinos internos. Por isso a decisão não termina no texto da URL: o servidor precisa controlar esquema, destino resolvido, redirecionamentos e resposta.
+Todo destino tem um **endereço IP**, um número de rede que pode apontar para a internet ou para dentro da infraestrutura. Por isso, olhar o texto da URL não basta. O servidor precisa controlar o protocolo, o destino real, os redirecionamentos e o que devolve na resposta.
 
-<Glossary term="Rede interna" text="Destinos acessíveis apenas dentro da infraestrutura, como loopback, faixas privadas e endereços link-local. O servidor pode alcançá-los mesmo quando o usuário externo não pode." />
+<Glossary term="Rede interna" text="Destinos que só são acessíveis de dentro da infraestrutura, como o próprio servidor (loopback), faixas privadas e endereços link-local. O servidor alcança esses lugares mesmo quando um usuário de fora não alcançaria." />

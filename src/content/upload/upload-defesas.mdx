@@ -1,17 +1,23 @@
-A rota recebe `foto.png`, mas o conteúdo começa como uma página HTML. A extensão e o Content-Type concordam entre si e ainda assim mentem. O servidor precisa tomar as decisões.
+A rota recebe `foto.png`, mas o conteúdo na verdade é uma página HTML. A extensão e o `Content-Type` concordam entre si e mesmo assim mentem. Quem decide é o servidor, em cinco passos:
 
-Primeiro, imponha limite antes de carregar o arquivo inteiro. Depois, compare a assinatura dos bytes com uma lista permitida e, para imagens, decodifique e gere um novo Portable Network Graphics (PNG) ou Joint Photographic Experts Group (JPEG). Reprocessar grava pixels válidos em vez de copiar conteúdo ativo escondido.
+1. **Limitar o tamanho** antes de carregar o arquivo inteiro.
+2. **Conferir a assinatura** dos bytes (o início do arquivo) contra uma lista permitida de formatos.
+3. **Reprocessar a imagem:** decodificar e gerar um novo PNG ou JPEG. Isso grava pixels válidos em vez de copiar conteúdo ativo escondido.
+4. **Gerar o nome** no servidor. O original, se precisar, fica só como texto.
+5. **Entregar por uma origem separada**, que não recebe cookies nem credenciais da aplicação.
 
-O nome salvo é gerado pelo servidor; o original, se necessário, fica apenas como texto. A entrega usa uma origem separada que não recebe cookies nem outras credenciais da aplicação — por exemplo, um armazenamento publicado por esse domínio isolado. Para conteúdo destinado a download, `Content-Disposition: attachment` pede ao navegador que baixe em vez de abrir. `X-Content-Type-Options: nosniff` ordena que o navegador respeite o Content-Type declarado, sem tentar adivinhar outro formato.
+Dois cabeçalhos ajudam na entrega: `Content-Disposition: attachment` pede ao navegador que baixe o arquivo em vez de abri-lo, e `X-Content-Type-Options: nosniff` obriga o navegador a respeitar o `Content-Type` declarado.
+
+Teste se você sabe a ordem certa:
 
 <InlineMission id="upload-pipeline" />
 
 <Callout tone="armadilha">
-
-`accept="image/*"` ajuda a interface, e a extensão ajuda a orientar. Quem envia uma requisição direta pode alterar ambos; por isso não são critérios de segurança.
-
+`accept="image/*"` ajuda a interface, e a extensão ajuda a orientar. Mas quem envia o pedido direto pode alterar os dois, então não são critérios de segurança.
 </Callout>
 
-<Glossary term="Assinatura de arquivo" text="Sequência inicial de bytes característica de um formato. Ajuda a identificar o conteúdo, mas imagens ainda devem ser decodificadas e reprocessadas." />
+<Glossary term="Assinatura de arquivo" text="Sequência de bytes no início do arquivo que é típica de cada formato. Ajuda a identificar o conteúdo, mas imagens ainda devem ser decodificadas e reprocessadas." />
 
-SVG exige decisão explícita: para avatar, recuse ou converta para PNG. Síntese: limite, valide conteúdo, gere nome e isole a entrega.
+**SVG** exige uma decisão clara: para avatar, recuse ou converta para PNG.
+
+**Em resumo:** limite, valide o conteúdo, gere o nome e isole a entrega.

@@ -5,7 +5,7 @@ export const TRAIL = {
   slug: "upload",
   title: "Upload inseguro",
   summary:
-    "Acompanhe o arquivo da entrada à entrega: limite bytes, valide e reprocesse o conteúdo, gere o nome e isole a origem.",
+    "Acompanhe um arquivo da chegada à entrega: limite o tamanho, confira o conteúdo, gere o nome no servidor e isole onde ele é servido.",
 };
 
 export const UNITS: Unit[] = [

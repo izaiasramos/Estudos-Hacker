@@ -1,26 +1,65 @@
-Se um banco vaza e as senhas estão legíveis, o invasor pode testá-las imediatamente neste e em outros serviços. Guardar a senha de forma reversível só muda o caminho até o mesmo desastre.
+Se o banco vaza e as senhas estão legíveis, o atacante já pode testá-las neste e em outros sites. Guardar a senha de um jeito que dá para "desfazer" é o mesmo erro com mais passos.
 
-<Glossary term={"Hash de senha"} text={"Resultado de uma transformação de mão única usada para verificar uma senha sem guardar a senha original. No login, o sistema testa a senha digitada contra o hash armazenado."} />
+A saída é guardar uma **impressão digital** da senha, e não a senha.
 
-<Glossary term={"Salt"} text={"Valor aleatório e único adicionado a cada senha antes do cálculo do hash. Ele pode ficar junto do hash e evita que senhas iguais produzam resultados iguais."} />
+<Glossary term={"Hash de senha"} text={"O resultado de uma conta de mão única feita com a senha. Dá para conferir se a senha digitada gera o mesmo resultado, mas não dá para voltar do resultado à senha."} />
 
-<Glossary term={"bcrypt, scrypt e Argon2"} text={"Famílias de algoritmos próprios para hash de senha. Eles tornam cada tentativa deliberadamente custosa; a aplicação escolhe um deles e configura seu custo conforme a plataforma."} />
+<Glossary term={"Salt"} text={"Um valor aleatório, diferente para cada senha, misturado antes de calcular o hash. Garante que duas pessoas com a mesma senha tenham hashes diferentes."} />
 
-<Code caption={"Contraste conceitual"}>
+<Glossary term={"bcrypt, scrypt e Argon2"} text={"Algoritmos feitos especialmente para guardar senhas. São propositalmente lentos, para que testar milhões de palpites custe caro ao atacante."} />
 
+<Code caption={"Errado vs. certo"}>
 ```
-errado: guardar senhaDigitada
+errado: guardar a senha digitada
 certo:  guardar algoritmo + parâmetros + salt + hash
 ```
-
 </Code>
 
-No login, a biblioteca do algoritmo lê os dados armazenados e verifica a senha digitada. Não é necessário — nem correto — recuperar a senha original.
+No login, a biblioteca do algoritmo lê esses dados guardados e confere a senha digitada. Você nunca precisa recuperar a senha original, e nem deve.
 
 <Callout tone="dev">
-
-Hash não torna uma senha fraca impossível de descobrir. Quem obtém o banco pode testar palpites sem passar pelo login. Por isso, o cadastro também deve barrar senhas muito curtas, óbvias ou presentes em listas de senhas comuns.
-
+Hash não salva senha fraca. Quem tem o banco pode testar palpites sem passar pelo login. Por isso o cadastro também deve recusar senhas curtas, óbvias ou que estejam em listas de senhas comuns, como "123456".
 </Callout>
 
-A decisão é usar uma biblioteca atual para bcrypt, scrypt ou Argon2, com salt único e custo adequado, além de revisar esses parâmetros com o tempo.
+**Na prática:** use uma biblioteca atual de bcrypt, scrypt ou Argon2, com salt único por senha, e revise o custo de tempos em tempos.
+
+## Mão na massa: compare os dois jeitos de guardar senha
+
+Salve como `senha.mjs` e rode `node senha.mjs`. Ele usa o módulo `crypto`, que já vem com o Node. Nada a instalar.
+
+<Code caption="senha.mjs: texto puro vs. salt + hash">
+```js
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+
+// ERRADO: guarda a senha como o usuário digitou
+const bancoRuim = { alice: "pizza123" };
+console.log("Se o banco vazar:", bancoRuim); // a senha está ali, legível
+
+// CERTO: guarda salt + hash
+function criarRegistro(senha) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(senha, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+function conferir(senha, registro) {
+  const [salt, hash] = registro.split(":");
+  const tentativa = scryptSync(senha, salt, 64);
+  return timingSafeEqual(tentativa, Buffer.from(hash, "hex"));
+}
+
+const registro = criarRegistro("pizza123");
+console.log("Se o banco vazar:", registro); // não dá para ler a senha daqui
+console.log("Senha certa:", conferir("pizza123", registro));
+console.log("Senha errada:", conferir("pizza124", registro));
+// Mesma senha, outro salt: registros diferentes
+console.log("Iguais?", criarRegistro("pizza123") === criarRegistro("pizza123"));
+```
+</Code>
+
+**O que observar:**
+
+- No primeiro banco vazado, a senha aparece inteira.
+- No segundo, só há `salt:hash`. Quem rouba isso precisa testar palpites um a um, e cada palpite custa tempo (o `scrypt` é lento de propósito).
+- A última linha imprime `false`: mesma senha, salts diferentes, registros diferentes.
+
+**Seu desafio:** troque `"pizza123"` por `"123456"` e pense: o hash protege essa senha de quem testa palpites comuns? Não protege. Por isso o cadastro precisa recusar senhas óbvias.

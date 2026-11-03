@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "sessao",
   title: "Sessão",
   summary:
-    "Como um site reconhece você depois do login — e quais decisões impedem que outra pessoa reutilize essa identidade.",
+    "Como um site reconhece você depois do login, e o que impede outra pessoa de usar a sua \"chave\".",
 };
 
 export const UNITS: Unit[] = [

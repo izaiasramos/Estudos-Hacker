@@ -1,17 +1,15 @@
-Você começou com uma situação concreta: Alice deveria ver apenas os próprios pedidos. Depois construiu o modelo mental — o banco interpreta a consulta recebida —, comparou concatenação com parametrização e distinguiu sintomas de evidências.
+Lembra do começo? Alice só devia ver os próprios pedidos. Desde então você aprendeu como o banco lê uma consulta, comparou concatenação com parametrização e separou sintoma de evidência.
 
-Antes de responder, percorra a cadeia completa:
+Antes de responder, repasse a cadeia inteira:
 
-1. uma entrada chega ao servidor como dado;
-2. a concatenação pode fazê-la participar da estrutura SQL;
-3. o banco interpreta a consulta final, não a intenção original;
-4. parâmetros mantêm a instrução fixa e os valores separados;
-5. validação, menor privilégio e WAF são camadas úteis, mas não substituem essa separação.
+1. A entrada chega ao servidor como dado.
+2. A concatenação pode colocá-la dentro da estrutura SQL.
+3. O banco lê a consulta final, não a intenção de quem a escreveu.
+4. Parâmetros mantêm a instrução fixa e os valores separados.
+5. Validação, menor privilégio e WAF ajudam, mas não substituem essa separação.
 
 <Callout tone="conceito">
-
-O checkpoint confirma seu modelo mental. O selo também depende do laboratório defensivo, cuja aprovação é uma inspeção estrutural do código enviado — não uma execução do JavaScript nem um teste real de banco.
-
+O checkpoint confirma o seu raciocínio. O selo também exige o laboratório de reparo, que faz uma inspeção do texto do código enviado. Ele não executa JavaScript nem testa um banco de verdade.
 </Callout>
 
-Use as perguntas para justificar decisões, não apenas reconhecer palavras. Se uma alternativa estiver errada, o feedback explica qual parte da cadeia ela confunde.
+Use as perguntas para justificar decisões, não só para reconhecer palavras. Se errar, o feedback mostra qual parte da cadeia você confundiu.

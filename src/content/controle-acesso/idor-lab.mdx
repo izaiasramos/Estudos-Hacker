@@ -1,9 +1,17 @@
-Alice está autenticada na Pizzaria do Lab, mas a rota fictícia `/pedidos/:id` também entrega o pedido de Bruno. O painel simula o resultado de cada configuração; ele não executa a rota nem testa uma aplicação real.
+**O que fazer:** Alice está logada na Pizzaria do Lab, mas a rota fictícia `/pedidos/:id` também entrega o pedido do Bruno. Escolha as camadas que fecham essa brecha e envie ao checker.
 
-Use o checklist para decidir onde cada regra pertence. UUID dificulta adivinhar um identificador, mas não conta como autorização. O conjunto aprovado exige filtro pelo dono da sessão, papel conferido no servidor, negação por padrão, lista permitida de campos e resposta 403 ou 404 sem dados para recurso alheio.
+O painel mostra o resultado de cada configuração. Ele não executa a rota nem testa uma aplicação real.
+
+O conjunto aprovado exige:
+
+- filtro pelo dono da sessão;
+- papel conferido no servidor;
+- negação por padrão;
+- lista permitida de campos;
+- resposta 403 ou 404, sem dados, para recurso de outra pessoa.
+
+Lembre: UUID dificulta adivinhar o identificador, mas não conta como autorização.
 
 <Callout tone="dev">
-
-Observe o contraste no painel, escolha as camadas e envie a configuração ao checker. “Verde” significa que as decisões esperadas foram marcadas nesta simulação.
-
+Observe o contraste no painel, escolha as camadas e envie. "Verde" significa que as decisões esperadas foram marcadas nesta simulação.
 </Callout>

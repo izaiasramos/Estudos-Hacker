@@ -1,9 +1,14 @@
-A resposta fictícia `GET /api/perfil` começa devolvendo o registro inteiro de Alice, uma pilha de erro e a versão do framework, sem políticas de proteção. O painel simula como cada decisão muda a resposta; não envia pedidos nem verifica um servidor real.
+**O que fazer:** a resposta fictícia `GET /api/perfil` começa devolvendo o registro inteiro da Alice, uma pilha de erro e a versão do framework, sem nenhuma política de proteção. Configure duas frentes: **diminuir o que sai** e **instruir o navegador**.
 
-Configure duas frentes: minimizar informações e instruir o navegador. O conjunto aprovado usa lista permitida de campos, erro genérico, remove `X-Powered-By` e combina CSP com nonce, HSTS, `nosniff` e `frame-ancestors` restrito.
+O conjunto aprovado inclui:
+
+- lista permitida de campos;
+- erro genérico;
+- remoção do `X-Powered-By`;
+- CSP com nonce, HSTS, `nosniff` e `frame-ancestors` restrito.
+
+O painel simula como cada decisão muda a resposta. Ele não envia pedidos nem verifica um servidor real.
 
 <Callout tone="dev">
-
-Marcar opções declara uma configuração para o checker. O estado verde confirma apenas que esta simulação contém todas as decisões esperadas.
-
+Marcar as opções declara uma configuração para o checker. Verde confirma apenas que esta simulação tem todas as decisões esperadas.
 </Callout>

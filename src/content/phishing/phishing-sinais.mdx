@@ -1,15 +1,46 @@
-Você não precisa decidir pela aparência. Primeiro, separe sinais que aumentam a suspeita.
+Não decida pela aparência. Primeiro, procure sinais que aumentam a desconfiança:
 
-**Pressão:** urgência, ameaça ou oportunidade curta tenta impedir a pausa. **Origem aparente:** nome conhecido e logo podem ser copiados; um domínio parecido, como `shieldpath-login.com` no lugar de `shieldpath.app`, é um alerta. **Pedido incompatível:** senha, código ou aprovação por um canal que a organização diz não usar. **Contexto quebrado:** anexo ou tarefa que você não esperava.
+- **Pressão:** urgência, ameaça ou oferta com prazo curto. Existem para impedir que você pare e pense.
+- **Origem aparente:** nome conhecido e logo são fáceis de copiar. Um endereço parecido, como `shieldpath-login.com` no lugar de `shieldpath.app`, é sinal de alerta.
+- **Pedido fora do normal:** senha, código ou aprovação por um canal que a empresa diz não usar.
+- **Contexto estranho:** um anexo ou tarefa que você não esperava.
 
-<Glossary term={"Domínio lookalike"} text={"Endereço registrado para parecer visualmente com o domínio oficial. Pequenas diferenças podem passar despercebidas, por isso não use o link recebido para confirmar."} />
+<Glossary term={"Domínio lookalike"} text={"Endereço registrado para parecer o oficial. Uma letra trocada passa batido. Por isso, nunca use o link recebido para conferir se ele é verdadeiro."} />
 
-Esses sinais mudam a probabilidade, **nunca provam autenticidade**. Uma mensagem legítima pode ser urgente; uma mensagem de phishing pode ter texto perfeito, domínio comprometido e contexto interno convincente.
+Esses sinais mudam a probabilidade, mas **nunca provam que a mensagem é legítima**. Uma mensagem verdadeira pode ser urgente. Uma falsa pode ter texto perfeito, vir de um domínio comprometido e citar um assunto interno real.
 
 <Callout tone="conceito">
-
-Sinal gera hipótese. Confirmação exige um caminho independente: abra o app instalado, digite o endereço oficial conhecido ou use um contato já verificado. Não clique no link da mensagem para descobrir se o link é seguro.
-
+Sinal gera suspeita. Confirmação exige um caminho independente: abra o app instalado, digite o endereço oficial que você já conhece ou ligue para um contato já verificado. Clicar no link para descobrir se ele é seguro é o erro clássico.
 </Callout>
 
-Se a mensagem pede uma ação sensível, procure o mesmo evento no aplicativo. Se envolve uma pessoa ou setor, contate-o pelo diretório corporativo, não pelo telefone ou botão fornecido na mensagem. Depois, reporte pelo canal oficial para que outras pessoas também sejam protegidas.
+Se a mensagem pede uma ação sensível, procure o mesmo evento no aplicativo. Se cita uma pessoa ou setor, procure o contato no diretório da empresa, não no telefone ou botão da mensagem. Depois, **reporte** pelo canal oficial para proteger os colegas.
+
+## Mão na massa: confira um link como um analista
+
+**Onde se faz isso?** Num script ou no console do navegador (F12). O truque é nunca clicar: ler o **domínio** com código. Salve como `links.mjs` e rode `node links.mjs`.
+
+<Code caption="links.mjs: o domínio real de cada link">
+```js
+const oficial = "shieldpath.app";
+const links = [
+  "https://shieldpath.app/login",
+  "https://shieldpath-login.com/entrar",
+  "https://shieldpath.app.verifica-conta.net/login",
+  "https://shie1dpath.app/login",
+];
+
+for (const link of links) {
+  const host = new URL(link).hostname;
+  const ok = host === oficial || host.endsWith("." + oficial);
+  console.log(ok ? "confere   " : "SUSPEITO  ", host);
+}
+```
+</Code>
+
+**O que observar:**
+
+- `shieldpath-login.com` é outro domínio, com cara de oficial.
+- `shieldpath.app.verifica-conta.net` começa com o nome certo, mas o domínio de verdade é o que vem no **fim**: `verifica-conta.net`.
+- `shie1dpath.app` troca a letra `l` pelo número `1`.
+
+**Seu desafio:** adicione dois links seus ao array, um que passe e outro que falhe, e preveja o resultado antes de rodar.

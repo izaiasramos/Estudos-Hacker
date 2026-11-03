@@ -5,7 +5,7 @@ export const TRAIL = {
   slug: "headers",
   title: "Exposição de dados e cabeçalhos HTTP",
   summary:
-    "Decida o mínimo que uma resposta revela e use políticas explícitas para limitar o que o navegador pode fazer com ela.",
+    "Descubra o que seu servidor entrega sem querer e como usar cabeçalhos de segurança para limitar o que o navegador pode fazer com a resposta.",
 };
 
 export const UNITS: Unit[] = [

@@ -8,6 +8,7 @@ const components = {
   Code,
   Glossary,
   InlineMission,
+  h2: (props) => <h2 {...props} className="mt-10 border-t border-white/10 pt-6 text-xl font-semibold tracking-tight text-text" />,
   pre: (props) => (
     <pre
       {...props}

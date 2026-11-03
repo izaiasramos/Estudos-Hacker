@@ -1,9 +1,14 @@
-A prévia fictícia da Pizzaria do Lab começa buscando qualquer URL colada no chat. O painel simula o resultado de cinco endereços; não faz requisições reais nem testa a rede.
+**O que fazer:** a prévia fictícia da Pizzaria do Lab começa buscando qualquer URL colada no chat. Escolha as camadas que a fecham.
 
-Decida as camadas: somente HTTPS, IP resolvido fora de faixas internas, redirecionamento recusado ou revisto, e resposta resumida com limites de tamanho e tempo. Bloquear palavras como `localhost` é um distrator deliberado e não conta como defesa.
+As camadas esperadas são:
+
+- somente HTTPS;
+- IP resolvido fora das faixas internas;
+- redirecionamento recusado ou revalidado;
+- resposta resumida, com limite de tamanho e de tempo.
+
+O painel simula o resultado de cinco endereços. Ele não faz requisições reais nem testa a rede. Bloquear palavras como `localhost` é uma isca deliberada e não conta como defesa.
 
 <Callout tone="dev">
-
-O checker avalia as opções marcadas. Na implementação real, “conferir o IP” inclui conectar exatamente ao IP validado, sem deixar o cliente resolver o nome novamente.
-
+O checker avalia as opções que você marcou. Na implementação real, "conferir o IP" inclui conectar exatamente nesse IP, sem deixar o cliente resolver o nome outra vez.
 </Callout>

@@ -1,33 +1,60 @@
-Na revisão da rota de avatar, acompanhe três valores: bytes, nome e endereço de entrega. Na versão vulnerável, todos continuam sob controle do cliente.
+Na revisão da rota de avatar, acompanhe três valores: os **bytes**, o **nome** e o **endereço de entrega**. Na versão vulnerável, todos continuam nas mãos do cliente.
 
 <Code caption="Upload que confia no cliente">
-
 ```
 const file = form.get("avatar");
 const destino = path.join("public/uploads", file.name);
 await fs.writeFile(destino, Buffer.from(await file.arrayBuffer()));
 return Response.json({ url: `/uploads/${file.name}` });
 ```
-
 </Code>
 
-Usar `../../.env` no nome tenta um path traversal: `path.join` monta o caminho, mas não garante que ele permaneça na pasta esperada. O contraste elimina a escolha do cliente:
+Se o nome for `../../.env`, temos um **path traversal**. O `path.join` monta o caminho, mas não garante que ele fique dentro da pasta esperada. A versão segura tira essas escolhas do cliente:
 
-<Code caption="Upload com decisões do servidor">
-
+<Code caption="Upload com as decisões no servidor">
 ```
 const file = form.get("avatar");
 if (file.size > 2_000_000) return erro("tamanho");
-
 const bytes = Buffer.from(await file.arrayBuffer());
 if (!ehPngOuJpeg(bytes)) return erro("tipo");
-
 const png = await reprocessarImagem(bytes);
 const id = crypto.randomUUID();
 await storage.put(`avatars/${id}.png`, png, { contentType: "image/png" });
 return Response.json({ url: `https://arquivos.exemplo.com/avatars/${id}.png` });
 ```
-
 </Code>
 
-O limite ideal também é aplicado durante a leitura do fluxo, antes de aceitar todos os bytes. O nome original nunca vira caminho. Síntese: o servidor decide o que entra, quanto entra, onde fica e como volta.
+O ideal é aplicar o limite de tamanho durante a leitura, antes de aceitar todos os bytes. O nome original nunca vira caminho.
+
+**Em resumo:** o servidor decide o que entra, quanto entra, onde fica e como volta.
+
+## Mão na massa: veja o nome e o conteúdo mentirem
+
+**Onde se faz isso?** Num script Node seu. Ele reproduz as duas decisões que o servidor errou: confiar no nome e confiar no tipo. Salve como `upload.mjs` e rode `node upload.mjs`.
+
+<Code caption="upload.mjs: path traversal e assinatura de arquivo">
+```js
+import path from "node:path";
+import { randomUUID } from "node:crypto";
+
+const nomeEnviado = "../../.env"; // o cliente escolhe o nome
+
+console.log("Inseguro:", path.join("public/uploads", nomeEnviado));
+// -> ".env": saiu de public/uploads e caiu na raiz do projeto!
+
+const png = Buffer.from([0x89, 0x50, 0x4e, 0x47]); // assinatura real de PNG
+const html = Buffer.from("<script>alert(1)</script>");
+const ehPng = (b) => b.subarray(0, 4).equals(png);
+console.log("Arquivo 'foto.png' com conteúdo HTML é PNG?", ehPng(html)); // false
+
+console.log("Seguro:", path.join("public/uploads", `${randomUUID()}.png`));
+```
+</Code>
+
+**O que observar:**
+
+- O nome `../../.env` faz o `path.join` sair da pasta `public/uploads`. Num servidor real, o arquivo seria gravado fora do lugar previsto.
+- Um conteúdo HTML pode vir com nome `foto.png`. A **assinatura** (os primeiros bytes) não bate com a de um PNG, então a checagem de conteúdo o recusa.
+- O nome gerado pelo servidor (`UUID.png`) não carrega nada que o cliente controle.
+
+**Seu desafio:** mude `nomeEnviado` para `"foto.png"` e veja que um nome comum funciona. Depois pergunte: o que impediria alguém de mandar HTML com esse nome? (Resposta: a checagem de assinatura e o reprocessamento da imagem.)

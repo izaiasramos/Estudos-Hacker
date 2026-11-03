@@ -1,26 +1,57 @@
-Na revisão da prévia de link, procure um cliente HTTP cujo destino venha do corpo ou da query. Esta versão entrega ao usuário tanto a escolha do destino quanto o conteúdo recebido:
+Na revisão da prévia de link, procure um cliente HTTP cujo destino vem do corpo ou da query do pedido. Esta versão deixa o usuário escolher o destino **e** receber o conteúdo:
 
 <Code caption="Prévia que busca qualquer URL">
-
 ```
 const resposta = await fetch(req.body.url);
 return Response.json({ html: await resposta.text() });
 ```
-
 </Code>
 
-O contraste seguro é uma sequência de decisões, não uma troca cosmética de chamada:
+A versão segura não é uma troca de uma linha. É uma sequência de decisões:
 
-1. interpretar a URL e aceitar apenas o esquema necessário;
-2. resolver todos os IPs e recusar internos, loopback e link-local;
-3. conectar ao IP que foi validado, sem uma segunda resolução do nome, mantendo o hostname para TLS;
-4. não seguir redirecionamentos automaticamente; validar cada novo destino se o produto precisar segui-los;
-5. limitar tempo e bytes e devolver apenas título, descrição e imagem.
+1. Interpretar a URL e aceitar só o protocolo necessário.
+2. Resolver todos os IPs e recusar os internos, de loopback e link-local.
+3. Conectar ao IP validado, sem resolver o nome de novo, mantendo o hostname para o TLS.
+4. Não seguir redirecionamentos sozinho. Se o produto precisar, validar cada novo destino.
+5. Limitar tempo e tamanho, e devolver só título, descrição e imagem.
 
 <Callout tone="dev">
-
-A API padrão de `fetch` não oferece, de modo portátil, uma opção simples para fixar a conexão no IP validado e ao mesmo tempo preservar corretamente hostname e TLS. Por isso não mostramos um trecho “pronto” enganoso: use um cliente ou agente que dê esse controle, ou isole a busca numa rede sem acesso interno.
-
+O `fetch` padrão não oferece uma forma simples e portátil de fixar a conexão no IP validado preservando hostname e TLS. Por isso não mostramos um trecho "pronto" que enganaria. Use um cliente ou agente HTTP que dê esse controle, ou isole a busca numa rede sem acesso interno.
 </Callout>
 
-JavaScript Object Notation (JSON) é apenas o formato da resposta; ele não torna o destino seguro. Síntese: o IP usado na conexão deve ser o mesmo que passou na validação.
+O formato JSON da resposta não deixa o destino mais seguro.
+
+**Em resumo:** o IP usado na conexão tem de ser o mesmo que passou na validação.
+
+## Mão na massa: faça o servidor buscar algo que você não alcança
+
+**Onde se faz isso?** Num servidor seu. Ele roda dois serviços: um "interno" (porta 9000, só acessível da própria máquina) e uma prévia de link (porta 4000). Precisa do Node.js 22.5 ou mais novo (`node -v` mostra a versão). Tudo roda **só na sua máquina**, em arquivos que você mesmo cria.
+
+<Code caption="ssrf.mjs: uma prévia de link que busca qualquer URL">
+```js
+import { createServer } from "node:http";
+
+// Serviço "interno": só deveria ser acessível de dentro do servidor
+createServer((req, res) => res.end("SEGREDO-INTERNO: chave-do-banco-123")).listen(9000, "127.0.0.1");
+
+// Prévia de link INSEGURA: busca qualquer URL que o usuário mandar
+createServer(async (req, res) => {
+  const alvo = new URL(req.url, "http://x").searchParams.get("url");
+  try {
+    const resposta = await fetch(alvo);
+    res.end(await resposta.text());
+  } catch { res.end("erro"); }
+}).listen(4000, () => console.log("http://localhost:4000/?url=https://example.com"));
+```
+</Code>
+
+**Passo a passo:**
+
+1. Rode `node ssrf.mjs`.
+2. Teste o uso normal: `curl "http://localhost:4000/?url=https://example.com"`. A prévia devolve a página.
+3. Agora peça ao servidor para buscar o serviço interno: `curl "http://localhost:4000/?url=http://127.0.0.1:9000"`.
+4. A resposta é `SEGREDO-INTERNO...`. Você usou o servidor como ponte para um lugar que o usuário de fora não deveria ver.
+
+<Callout tone="dev">
+Em nuvem, o alvo clássico é o endereço de metadados `169.254.169.254`, que pode entregar credenciais temporárias da máquina. É o mesmo mecanismo, com um alvo mais valioso.
+</Callout>

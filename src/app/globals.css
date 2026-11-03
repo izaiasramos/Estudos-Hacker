@@ -437,21 +437,6 @@ html[data-motion="reduce"] .rise {
   transform: none;
 }
 
-.unit-scene-node::before,
-.unit-scene-zone::before,
-.unit-scene-side::before,
-.unit-scene-option::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--scene-color);
-  transform: none;
-  transform-origin: left;
-}
-
 .unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-node,
 .unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-zone,
 .unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-side,
@@ -460,12 +445,7 @@ html[data-motion="reduce"] .rise {
   transform: translateY(8px);
 }
 
-.unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-node::before,
-.unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-zone::before,
-.unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-side::before,
-.unit-scene[data-scene-ready="true"]:not([data-scene-visible="true"]) .unit-scene-option::before {
-  transform: scaleX(0);
-}
+
 
 .unit-scene[data-scene-visible="true"] .unit-scene-node,
 .unit-scene[data-scene-visible="true"] .unit-scene-zone,

@@ -4,7 +4,7 @@ export const TRAIL = {
   slug: "controle-acesso",
   title: "Controle de acesso e referência direta insegura (IDOR)",
   summary:
-    "Autenticar identifica a pessoa; autorizar decide quais recursos ela pode ler ou alterar. Aprenda a combinar dono, papel e negação por padrão.",
+    "Estar logado não dá direito a tudo. Aprenda a conferir, no servidor, quem é o dono de cada coisa e o que cada pessoa pode fazer.",
 };
 
 export const UNITS: Unit[] = [
@@ -221,7 +221,7 @@ export const UNITS: Unit[] = [
       {
         kind: "text",
         id: "frase",
-        prompt: "Em uma frase: qual invariante o IDOR quebra?",
+        prompt: "Em uma frase: qual regra o IDOR quebra?",
         min: 18,
         stems: ["dono", "pertence", "autoriza", "permiss", "sessão", "sessao", "usuário", "usuario"],
         explain: "O servidor precisa conferir se o recurso pertence à identidade da sessão (ou ao papel dela), não só se a sessão existe.",

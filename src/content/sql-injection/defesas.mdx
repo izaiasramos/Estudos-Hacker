@@ -1,35 +1,59 @@
-A defesa principal decorre diretamente do modelo mental: fixe a estrutura SQL e envie valores por parâmetros. No driver usado pelo laboratório, `?` marca o lugar e `[email]` leva o valor separadamente.
+A defesa principal vem direto do que você já viu: **estrutura SQL fixa e valores enviados por parâmetros**. No driver que o laboratório usa, o `?` marca a vaga e o `[email]` leva o valor por um canal à parte.
 
-<Code caption="Mesma busca, com papéis separados">
-
+<Code caption="A mesma busca, com os papéis separados">
 ```js
 db.query("SELECT id FROM usuarios WHERE email = ?", [email])
 ```
-
 </Code>
 
-Um **ORM** — biblioteca de Mapeamento Objeto-Relacional — costuma oferecer métodos que constroem SQL a partir de objetos ou argumentos. Use a interface que trata valores como parâmetros. Inserir manualmente uma variável em uma string SQL continua inseguro, mesmo dentro de um projeto que usa ORM.
+Se o projeto usa um **ORM** (biblioteca que monta consultas a partir do código), use os métodos dele que recebem valores como parâmetros. Colar uma variável dentro de uma string SQL continua sendo inseguro, mesmo dentro de um projeto que usa ORM.
 
-Além da correção principal, há camadas que reduzem risco e impacto:
+Além da defesa principal, existem camadas extras que reduzem risco e estrago. Teste se você sabe qual é qual:
 
 <InlineMission id="sql-camadas" />
 
-<Glossary term="menor privilégio" text="Princípio de conceder à conta do aplicativo somente as permissões necessárias para sua função. Se algo falhar, o alcance possível fica menor." />
+<Glossary term="menor privilégio" text="Dar à conta do aplicativo só as permissões de que ela precisa. Se algo der errado, o estrago possível fica menor." />
 
-Validar o formato da entrada também é útil. A validação responde “este valor faz sentido para esta função?”. A parametrização responde uma pergunta diferente: “este valor pode mudar a estrutura SQL?”. As duas podem coexistir, mas só a segunda fecha esta fronteira.
+**Validar** o formato da entrada também ajuda. Ela responde: "este valor faz sentido aqui?" (um email, por exemplo, tem formato conhecido). A parametrização responde outra pergunta: "este valor pode mudar a estrutura SQL?". As duas podem conviver, mas só a segunda fecha a brecha.
 
-<Glossary term="WAF" text="Sigla de Web Application Firewall (Firewall de Aplicação Web): camada diante da aplicação que examina requisições e tenta bloquear padrões suspeitos antes que cheguem ao código." />
+<Glossary term="WAF" text="Web Application Firewall (firewall de aplicação web): uma camada na frente do site que examina os pedidos e tenta bloquear padrões suspeitos antes de chegarem ao código." />
 
 <Callout tone="armadilha">
-
-Um WAF não transforma uma consulta concatenada em parametrizada. Ele pode bloquear parte do tráfego, mas pode não reconhecer todas as formas, não cobre necessariamente dados já armazenados e não corrige a causa no código.
-
+Um WAF não transforma uma consulta concatenada em parametrizada. Ele pode barrar parte do tráfego, mas pode deixar passar variações, não protege dados que já estavam guardados e não corrige a causa no código.
 </Callout>
 
 <Callout tone="dev">
-
-Ordem de decisão: primeiro elimine a concatenação de valores no SQL; depois confirme regras de negócio com validação; limite a conta do banco; use monitoramento e WAF como camadas adicionais. Não troque a defesa estrutural por uma barreira periférica.
-
+Ordem de prioridade: 1) tire a concatenação do SQL; 2) valide as regras de negócio; 3) dê ao banco uma conta com permissões mínimas; 4) use monitoramento e WAF como reforço. Não troque a defesa estrutural por uma barreira de fora.
 </Callout>
 
-**Síntese:** parâmetros corrigem a causa; validação melhora a entrada; menor privilégio reduz impacto; WAF adiciona observação e bloqueio parcial.
+**Em resumo:** parâmetros corrigem a causa, validação melhora a entrada, menor privilégio reduz o estrago e o WAF ajuda de longe.
+
+## Mão na massa: conserte o arquivo
+
+Crie `seguro.mjs` com a correção. O banco e os dados são os mesmos. Só a função mudou: a instrução é fixa e o email vai como parâmetro.
+
+<Code caption="seguro.mjs: a mesma busca, com parâmetro">
+```js
+import { DatabaseSync } from "node:sqlite";
+
+const db = new DatabaseSync(":memory:");
+db.exec(`
+  CREATE TABLE pedidos (id INTEGER, email TEXT, item TEXT);
+  INSERT INTO pedidos VALUES (1, 'alice@exemplo.test', 'Margherita');
+  INSERT INTO pedidos VALUES (2, 'bruno@exemplo.test', 'Calabresa');
+`);
+
+// SEGURO: a instrução é fixa e o email vai separado
+function listarPedidos(email) {
+  const sql = "SELECT item, email FROM pedidos WHERE email = ?";
+  return db.prepare(sql).all(email).map((linha) => `${linha.email}: ${linha.item}`);
+}
+
+console.log(listarPedidos("alice@exemplo.test"));
+console.log(listarPedidos("alice@exemplo.test' OR '1'='1")); // []: nenhum email assim existe
+```
+</Code>
+
+**Rode `node seguro.mjs` e compare:** a busca da Alice continua funcionando, e o texto estranho agora é tratado como um email qualquer que não existe (`[]`). Nenhum filtro de caracteres foi necessário.
+
+**Seu desafio:** volte a concatenar e veja a falha reaparecer. Isso fixa a diferença entre os dois jeitos.

@@ -1,19 +1,21 @@
-Você faz login na Pizzaria, abre outra página e continua reconhecido sem digitar a senha de novo. O servidor precisa ligar cada novo pedido à identidade que já foi autenticada. Para isso, cria uma sessão e entrega ao navegador uma chave temporária.
+Você faz login na Pizzaria, abre outra página e continua logado, sem digitar a senha de novo. Como o servidor sabe que é você?
 
-<Glossary term={"Sessão"} text={"Registro temporário mantido pelo servidor depois da autenticação. Ele liga uma chave a uma identidade e deve ter prazo e forma de revogação."} />
+Depois do login, o servidor cria uma **sessão** e entrega ao navegador uma **chave temporária**. Em cada pedido seguinte, o navegador mostra essa chave e o servidor responde: "ah, é a Alice".
 
-<Glossary term={"Cookie"} text={"Pequeno dado que o navegador guarda para um site e pode reenviar automaticamente nos pedidos seguintes. Um cookie de sessão costuma carregar só a chave da sessão, nunca a senha."} />
+<Glossary term={"Sessão"} text={"Um registro temporário no servidor, criado após o login. Liga uma chave a uma identidade e precisa ter prazo de validade e jeito de ser cancelado."} />
+
+<Glossary term={"Cookie"} text={"Um pequeno dado que o navegador guarda para um site e reenvia sozinho nos pedidos seguintes. O cookie de sessão costuma guardar só a chave, nunca a senha."} />
 
 <Callout tone="analogia">
-
-A chave do quarto de hotel não é o hóspede. Mesmo assim, enquanto for válida, quem a apresenta consegue abrir a porta. Uma chave de sessão vazada cria o mesmo problema: o servidor pode atender outra pessoa como se fosse você.
-
+A chave do quarto de hotel não é o hóspede, mas abre a porta para quem a estiver segurando. Com a chave de sessão é igual: se ela vazar, o servidor atende outra pessoa como se fosse você.
 </Callout>
 
-Autenticação, sessão e autorização ocupam momentos diferentes. A autenticação verifica quem está entrando. A sessão mantém essa identidade entre pedidos. A autorização decide o que a identidade pode fazer em cada recurso.
+Lembrete rápido da diferença entre os termos:
+
+- **Autenticação:** confere quem está entrando.
+- **Sessão:** lembra quem entrou.
+- **Autorização:** decide o que essa pessoa pode fazer.
 
 <Callout tone="armadilha">
-
-A decisão prática é simples: trate a chave como segredo temporário. Não a coloque em locais feitos para o JavaScript ler, não a reutilize depois de um novo login e invalide-a no logout.
-
+Trate a chave como segredo temporário. Não a deixe onde o JavaScript da página consegue ler, não a reaproveite depois de um novo login e cancele-a no logout.
 </Callout>

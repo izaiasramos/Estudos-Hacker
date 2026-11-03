@@ -1,15 +1,13 @@
-Um avatar parece ser apenas bytes, até o servidor servi-lo como página, usar seu nome como caminho ou tentar carregar gigabytes na memória. O risco nasce das decisões tomadas depois que o arquivo chega.
+Um avatar parece ser só um monte de bytes, até o servidor servi-lo como página, usar o nome dele como caminho de pasta ou tentar carregar gigabytes na memória. O risco não está no upload em si. Está no que o servidor decide fazer depois que o arquivo chega.
 
-Tudo no pedido é controlado por quem envia: nome, extensão, Content-Type — o rótulo de formato declarado no protocolo — e conteúdo. Nenhum desses valores, sozinho, prova o tipo real.
+Quase tudo no pedido é controlado por quem envia: o nome, a extensão, o `Content-Type` (o rótulo de formato declarado) e o conteúdo. Nenhum desses, sozinho, prova qual é o tipo real do arquivo.
 
-Scalable Vector Graphics (SVG), formato vetorial baseado em Extensible Markup Language (XML), pode conter script. Se HTML ou SVG ativo for servido na origem da aplicação, pode ocorrer Cross-Site Scripting (XSS), execução de script indevido com os privilégios daquela origem.
+**SVG** é um formato de imagem baseado em texto (XML) que pode conter script. Se um HTML ou SVG ativo for servido na mesma origem da sua aplicação, pode ocorrer **XSS**: um script rodando com os mesmos privilégios do seu site.
 
 <Callout tone="armadilha">
-
-O atributo `HttpOnly` impede JavaScript de ler o valor de um cookie. Ainda assim, o navegador pode enviar esse cookie automaticamente em pedidos compatíveis; o script pode realizar ações autenticadas e ler respostas permitidas pela sessão. `HttpOnly` reduz roubo direto do cookie, mas não neutraliza conteúdo ativo na origem do site.
-
+`HttpOnly` impede que o JavaScript **leia** o cookie. Mas o navegador ainda envia o cookie sozinho, e um script pode fazer ações autenticadas e ler respostas permitidas pela sessão. `HttpOnly` reduz o roubo direto do cookie, mas não neutraliza conteúdo ativo na origem do site.
 </Callout>
 
-<Glossary term="Path traversal" text="Manipulação de caminho, por exemplo com `../`, para sair da pasta prevista e gravar ou ler outro local do disco." />
+<Glossary term="Path traversal" text="Truque com caminhos, como usar `../` no nome, para sair da pasta prevista e gravar ou ler em outro lugar do disco." />
 
-A decisão segura separa rótulo de prova: o servidor limita, inspeciona, renomeia e controla como o arquivo será entregue.
+**Na prática:** o servidor separa rótulo de prova. Ele limita o tamanho, inspeciona o conteúdo, renomeia o arquivo e controla como ele é entregue.

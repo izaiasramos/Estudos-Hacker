@@ -1,24 +1,24 @@
-No cenário autorizado da Pizzaria do Lab, Alice e Bruno têm pedidos fictícios. A regra de negócio é simples: ao buscar pelo email de Alice, a lista deve conter apenas pedidos dela.
+Na Pizzaria do Lab, Alice e Bruno têm pedidos de mentira. A regra é simples: ao buscar pelo email de Alice, só os pedidos dela podem aparecer.
 
-Uma falha de SQL Injection pode deixar sinais diferentes. Um erro técnico pode indicar que o banco não conseguiu interpretar a consulta montada. Uma lista ampla demais pode indicar que a consulta foi interpretada, mas o filtro efetivo não correspondeu ao esperado. Um fluxo de autenticação também pode tomar uma decisão baseada em linhas que não deveria ter encontrado.
+Quando uma consulta está vulnerável, os sinais variam:
+
+- **Um erro técnico:** o banco não conseguiu entender a consulta montada.
+- **Uma lista grande demais:** a consulta funcionou, mas o filtro não filtrou o que devia.
+- **Um login que aceita quem não devia:** a decisão foi tomada com linhas que não deveriam existir no resultado.
 
 <Callout tone="conceito">
-
-Um **sintoma** é algo observável; uma **hipótese** é uma explicação possível. “A resposta foi 500” é sintoma. “A entrada alterou a estrutura SQL” é hipótese. Para ligá-los, precisamos de evidências como o erro técnico da consulta, a relação com uma entrada específica e o ponto de concatenação no código.
-
+**Sintoma** é o que você observa. **Hipótese** é a sua explicação para ele. "A resposta foi erro 500" é sintoma. "A entrada mexeu na estrutura SQL" é hipótese. Para ligar uma à outra, você precisa de evidência: o erro registrado pelo servidor, a entrada que o provocou e o ponto do código onde a consulta é montada.
 </Callout>
 
-Compare duas situações:
+Compare dois casos:
 
-- A busca por um valor específico falha, e o registro do servidor aponta erro ao interpretar SQL. A hipótese de consulta malformada ganhou apoio.
-- Qualquer página falha com um erro 500 genérico. Ainda não há base para concluir que o problema está no SQL.
+- Uma busca específica falha e o log do servidor reclama de SQL mal formado. Sua hipótese ganhou apoio.
+- O site inteiro dá erro 500 sem detalhe. Ainda não dá para culpar o SQL. Pode ser qualquer coisa.
+
+No exercício, o contraste é mais claro: era para aparecer só Alice e apareceu também um pedido de Bruno. O próximo passo não é dar um nome dramático ao problema. É abrir o código e seguir o caminho do email até o filtro.
 
 <Callout tone="dev">
-
-Em sistema real, preserve registros, limite a exposição de detalhes ao usuário e siga o processo de incidente da equipe. Não faça testes em aplicações de terceiros. Nesta trilha, toda observação prática fica restrita ao ambiente fictício e autorizado.
-
+Em um sistema real, guarde os logs, não mostre detalhes técnicos ao usuário e siga o processo de incidente da sua equipe. Nunca teste aplicações de terceiros. Neste curso, tudo acontece em ambiente fictício e autorizado.
 </Callout>
 
-A listagem de Alice oferece um contraste mais direto: resultado esperado, somente os pedidos dela; resultado simulado, também um pedido de Bruno. A próxima decisão não é procurar um rótulo mais dramático, e sim revisar o caminho do email até o filtro SQL.
-
-**Síntese:** um sinal isolado não fecha diagnóstico. Relacione entrada, consulta e resultado; então confirme no código onde a fronteira foi perdida.
+**Em resumo:** um sinal isolado não fecha o diagnóstico. Ligue entrada, consulta e resultado, e confirme no código onde a separação foi perdida.

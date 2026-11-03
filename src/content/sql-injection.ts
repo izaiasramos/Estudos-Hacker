@@ -44,8 +44,8 @@ export type Unit = {
 
 export const TRAIL = {
   slug: "sql-injection",
-  title: "Injeção em SQL (Linguagem de Consulta Estruturada)",
-  summary: "Entenda como um dado pode alterar uma consulta e como manter instrução e valor separados.",
+  title: "SQL Injection: quando o dado vira comando",
+  summary: "Veja como um dado digitado pode mudar o que o banco executa, e como impedir isso separando instrução de valor.",
 };
 
 export const UNITS: Unit[] = [
@@ -53,7 +53,7 @@ export const UNITS: Unit[] = [
     id: "banco",
     order: 1,
     title: "Do pedido à consulta",
-    summary: "O caminho entre um formulário, o servidor e o banco de dados.",
+    summary: "O caminho de um clique até o banco de dados, e quem escreve a consulta no meio.",
     kind: "theory",
     gate: true,
     questions: [
@@ -127,7 +127,7 @@ export const UNITS: Unit[] = [
     id: "encontro",
     order: 2,
     title: "Onde a entrada encontra o SQL",
-    summary: "Compare duas formas de montar a mesma busca.",
+    summary: "Duas formas de montar a mesma busca: uma insegura, uma segura.",
     kind: "exercise",
     gate: true,
     questions: [
@@ -201,7 +201,7 @@ export const UNITS: Unit[] = [
     id: "invariante",
     order: 3,
     title: "Como o banco lê a consulta",
-    summary: "Construa o modelo mental por trás da falha e da correção.",
+    summary: "Entenda por que o banco não sabe o que você quis dizer, só o que você escreveu.",
     kind: "theory",
     gate: true,
     questions: [
@@ -275,7 +275,7 @@ export const UNITS: Unit[] = [
     id: "sintomas",
     order: 4,
     title: "Dos sintomas à hipótese",
-    summary: "Use evidências do ambiente autorizado sem confundir sinal com prova.",
+    summary: "Aprenda a diferenciar o que você viu (sintoma) do que você suspeita (hipótese).",
     kind: "exercise",
     gate: true,
     questions: [
@@ -349,7 +349,7 @@ export const UNITS: Unit[] = [
     id: "tipos",
     order: 5,
     title: "Três formas de observar o efeito",
-    summary: "Direta, cega e de segunda ordem descrevem evidências diferentes do mesmo erro de fronteira.",
+    summary: "Direta, cega e de segunda ordem: três jeitos de perceber o mesmo erro.",
     kind: "theory",
     gate: true,
     questions: [
@@ -423,7 +423,7 @@ export const UNITS: Unit[] = [
     id: "lab-ofensivo",
     order: 6,
     title: "Laboratório: inspecionar o problema",
-    summary: "Leia uma simulação controlada e conecte sintoma, código e hipótese.",
+    summary: "Leia um caso pronto e ligue o sintoma ao trecho de código que o causou.",
     kind: "lab",
     gate: true,
     questions: [
@@ -497,7 +497,7 @@ export const UNITS: Unit[] = [
     id: "debrief",
     order: 7,
     title: "Reconstruindo o que aconteceu",
-    summary: "Explique a falha pelo caminho dos dados, sem atribuir intenção ao banco.",
+    summary: "Refaça o caminho do dado, passo a passo, e veja onde a separação se perdeu.",
     kind: "theory",
     gate: true,
     questions: [
@@ -538,7 +538,7 @@ export const UNITS: Unit[] = [
     id: "defesas",
     order: 8,
     title: "Defesa principal e camadas de redução",
-    summary: "Parametrize consultas e diferencie a correção principal das camadas de redução.",
+    summary: "Parametrize as consultas e saiba separar a correção principal das camadas extras.",
     kind: "theory",
     gate: true,
     questions: [
@@ -607,7 +607,7 @@ export const UNITS: Unit[] = [
     id: "lab-defensivo",
     order: 9,
     title: "Laboratório: reparar as consultas",
-    summary: "Mantenha a tarefa de negócio e separe o email da estrutura SQL.",
+    summary: "Conserte duas funções: o email vai separado, a consulta continua a mesma.",
     kind: "lab",
     gate: true,
     questions: [],
@@ -616,7 +616,7 @@ export const UNITS: Unit[] = [
     id: "checkpoint",
     order: 10,
     title: "Checkpoint",
-    summary: "Conecte causa, interpretação, defesa e conclusão prática.",
+    summary: "Una causa, defesa e conclusão antes do selo.",
     kind: "checkpoint",
     gate: true,
     questions: [
@@ -629,7 +629,7 @@ export const UNITS: Unit[] = [
             id: "fronteira",
             label: "A entrada permanece dado e não define a estrutura da instrução",
             correct: true,
-            explain: "Essa é a invariante central. Quando ela falha, o texto controlado pela entrada pode mudar a consulta interpretada.",
+            explain: "Essa é a regra central da trilha. Quando ela falha, o texto controlado pela entrada pode mudar a consulta interpretada.",
           },
           {
             id: "https",
