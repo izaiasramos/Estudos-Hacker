@@ -17,21 +17,21 @@ export type LabTest = {
 const STRUCTURAL_RESULTS: LabTest[] = [
   {
     id: "login",
-    name: "Estrutura reconhecida em findUser",
+    name: "findUser: formato com ? reconhecido",
     state: "pass",
-    detail: "A inspeção textual encontrou a forma parametrizada esperada em findUser; o login não foi executado.",
+    detail: "O formato com ? está certo em findUser. O login não foi executado (é só uma leitura do texto).",
   },
   {
     id: "senha",
     name: "Recusa de senha incorreta",
     state: "skip",
-    detail: "Não executada neste exercício. Esse comportamento exigiria um teste real da aplicação.",
+    detail: "Não executado neste exercício. Isso exigiria um teste de verdade da aplicação.",
   },
   {
     id: "lista",
-    name: "Estrutura reconhecida em listOrders",
+    name: "listOrders: formato com ? reconhecido",
     state: "pass",
-    detail: "A inspeção textual encontrou a forma parametrizada esperada em listOrders; a consulta não foi executada no banco.",
+    detail: "O formato com ? está certo em listOrders. A consulta não foi executada no banco (é só uma leitura do texto).",
   },
 ];
 
@@ -69,13 +69,13 @@ export function reviewQueries(source: string) {
     if (!body) continue;
     if (mixesValue(body)) {
       problems.push(
-        `${name}: a inspeção ainda encontrou email concatenado ou interpolado no texto da consulta.`,
+        `${name}: o email ainda está colado dentro do texto da consulta (com + ou interpolação). Troque por ? e passe o email à parte.`,
       );
       break;
     }
     if (!expected.test(body)) {
       problems.push(
-        `${name}: preserve a busca do exercício e passe email separadamente neste formato: ${example}.`,
+        `${name}: mantenha a mesma busca e passe o email separado, neste formato: ${example}.`,
       );
       break;
     }
@@ -83,11 +83,11 @@ export function reviewQueries(source: string) {
 
   const frontier: LabTest = {
     id: "fronteira",
-    name: "Separação estrutural nas duas funções",
+    name: "Valor separado da instrução nas duas funções",
     state: problems.length === 0 ? "pass" : "fail",
     detail:
       problems[0] ??
-      "A inspeção textual reconheceu instrução fixa e email separado em findUser e listOrders.",
+      "Tudo certo: as duas funções usam instrução fixa e enviam o email separado.",
   };
 
   const tests =
@@ -99,7 +99,7 @@ export function reviewQueries(source: string) {
             ...test,
             state: "skip" as const,
             detail:
-              "Ainda não avaliado: corrija primeiro o problema indicado na separação estrutural.",
+              "Ainda não avaliado: corrija primeiro o erro indicado acima.",
           })),
         ];
 

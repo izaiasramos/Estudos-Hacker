@@ -2,10 +2,12 @@ Uma prévia de link parece simples: a pessoa cola um endereço e o servidor busc
 
 **SSRF** (*Server-Side Request Forgery*, "falsificação de requisição pelo lado do servidor") acontece quando alguém consegue influenciar esse destino sem que o servidor imponha limites. O endereço é uma **URL**, e o servidor a busca por **HTTP** (ou HTTPS, a versão com criptografia).
 
+<Diagram name="ssrf" />
+
 <Callout tone="analogia">
 Você pede ao recepcionista, que tem acesso a todos os andares, para buscar uma encomenda. Sem regras sobre aonde ele pode ir, ele pode acabar na sala do cofre.
 </Callout>
 
 Todo destino tem um **endereço IP**, um número de rede que pode apontar para a internet ou para dentro da infraestrutura. Por isso, olhar o texto da URL não basta. O servidor precisa controlar o protocolo, o destino real, os redirecionamentos e o que devolve na resposta.
 
-<Glossary term="Rede interna" text="Destinos que só são acessíveis de dentro da infraestrutura, como o próprio servidor (loopback), faixas privadas e endereços link-local. O servidor alcança esses lugares mesmo quando um usuário de fora não alcançaria." />
+<Glossary term="Rede interna" text={"A parte da infraestrutura que a internet não enxerga, como bancos de dados e painéis de administração. O servidor da empresa consegue falar com ela, mas você, de fora, não."} example={"127.0.0.1 é o próprio servidor falando consigo mesmo."} />

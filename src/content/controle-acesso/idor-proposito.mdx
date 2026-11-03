@@ -7,10 +7,12 @@ Esse caso específico se chama **IDOR** (*Insecure Direct Object Reference*, ou 
 - **Autenticação** responde: "quem é você?"
 - **Autorização** responde: "você pode fazer isso, neste recurso?"
 
+<Diagram name="idor" />
+
 <Callout tone="analogia">
 O porteiro confere seu crachá na entrada, mas qualquer crachá abre todas as salas. Entrar no prédio não dá direito a entrar na sala do vizinho.
 </Callout>
 
 A decisão fica no servidor: toda leitura ou alteração cruza o recurso pedido com o dono ou com o papel autorizado. Saber o identificador nunca é permissão.
 
-<Glossary term={"Regra central"} text={"Em toda rota, o servidor confere se a identidade da sessão tem direito àquele recurso específico. Sem exceção."} />
+<Glossary term="Regra central" text={"Toda vez que alguém pede algo, o servidor confere: “essa pessoa tem direito a ESSE item?”. Saber o número do item não basta."} example={"Estar logada não dá direito de ler o pedido de outra pessoa."} />

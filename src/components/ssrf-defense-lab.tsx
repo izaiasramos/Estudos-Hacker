@@ -16,7 +16,7 @@ export function SsrfDefenseLab({ done, missing }: { done: boolean; missing: stri
       <LabDone
         items={[
           "Só HTTPS entra.",
-          "O IP resolvido não pode ser interno, loopback ou link-local, e a conexão usa exatamente o destino conferido.",
+          "O IP do destino não pode ser interno (como 127.0.0.1 ou 169.254.x.x), e a conexão usa exatamente o IP conferido.",
           "Redirect não é seguido sem nova checagem.",
           "Volta só o resumo da página, com limite de tamanho e tempo.",
         ]}

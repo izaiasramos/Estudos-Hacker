@@ -65,7 +65,7 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "fronteira",
-        prompt: "Qual decisão preserva a fronteira central contra XSS?",
+        prompt: "Qual decisão mantém o dado de fora sempre como texto, protegendo contra XSS?",
         choices: [
           {
             id: "separar",
@@ -91,7 +91,7 @@ export const UNITS: Unit[] = [
     id: "xss-tipos",
     order: 2,
     title: "Siga o caminho do dado",
-    summary: "Refletido, armazenado ou baseado no DOM: muda o trajeto, não a fronteira quebrada.",
+    summary: "Refletido, armazenado ou baseado no DOM: muda o caminho, mas o erro de fundo é o mesmo.",
     kind: "theory",
     gate: true,
     questions: [
@@ -144,7 +144,7 @@ export const UNITS: Unit[] = [
       {
         kind: "text",
         id: "invariante",
-        prompt: "Em uma frase: qual fronteira o XSS quebra?",
+        prompt: "Em uma frase: o que o XSS quebra?",
         min: 20,
         stems: ["confi", "markup", "script", "dado", "codif", "escape"],
         explain: "A síntese esperada é: dado não confiável nunca deve ser interpretado como HTML ou JavaScript executável.",
@@ -261,7 +261,7 @@ export const UNITS: Unit[] = [
           {
             id: "csp-so",
             label: "Somente CSP com nonce",
-            explain: "Nonce fortalece a política de scripts, mas não torna segura toda injeção de HTML nem corrige um sink perigoso.",
+            explain: "Nonce fortalece a política de scripts, mas não torna segura toda injeção de HTML nem corrige uma função perigosa como `innerHTML`.",
           },
           {
             id: "hidden",
@@ -284,7 +284,7 @@ export const UNITS: Unit[] = [
           {
             id: "leitura",
             label: "Apenas reconhecer os nomes refletido e armazenado",
-            explain: "Os nomes localizam o caminho. A competência está em preservar a fronteira entre dado e código.",
+            explain: "Os nomes localizam o caminho. O que importa é manter o dado como dado e nunca deixá-lo virar código.",
           },
         ],
       },

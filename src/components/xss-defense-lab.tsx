@@ -31,7 +31,7 @@ export function XssDefenseLab({
 
   const preview = safeDom
     ? "Comentário: <img ...> (os caracteres aparecem como texto)"
-    : "Comentário entregue a uma API que interpreta HTML";
+    : "Comentário enviado a uma função que lê HTML";
 
   return (
     <form action="/api/trilha/xss-lab" method="post" className="mt-8 space-y-4">

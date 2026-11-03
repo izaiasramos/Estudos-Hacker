@@ -242,7 +242,7 @@ export const UNITS: Unit[] = [
             id: "papel",
             label: "Porque o valor ainda ocupa o mesmo texto da instrução e a correção depende de prever todas as formas perigosas",
             correct: true,
-            explain: "Separar estruturalmente é mais forte do que tentar adivinhar cada conteúdo problemático: o valor deixa de definir a gramática da consulta.",
+            explain: "Separar valor e instrução é mais forte do que tentar adivinhar cada conteúdo perigoso: o valor deixa de ter qualquer poder sobre a forma da consulta.",
           },
           {
             id: "orm",
@@ -453,13 +453,13 @@ export const UNITS: Unit[] = [
       {
         kind: "choice",
         id: "onde",
-        prompt: "Segundo a inspeção estrutural apresentada, quais pontos precisam de correção?",
+        prompt: "Segundo a inspeção do código mostrada no lab, quais pontos precisam de correção?",
         choices: [
           {
             id: "as-duas",
             label: "findUser e listOrders, porque ambas concatenam email no texto SQL",
             correct: true,
-            explain: "Corrigir apenas o sintoma visível deixaria a mesma fronteira quebrada no outro ponto. As duas consultas precisam parametrizar o valor.",
+            explain: "Corrigir apenas onde o problema apareceu deixaria o mesmo erro no outro ponto. As duas consultas precisam parametrizar o valor.",
           },
           {
             id: "css",
@@ -469,7 +469,7 @@ export const UNITS: Unit[] = [
           {
             id: "uma",
             label: "Somente listOrders, porque foi onde a simulação mostrou o sintoma",
-            explain: "Um sintoma visível não torna a outra concatenação segura. findUser repete o mesmo padrão estrutural.",
+            explain: "Um sintoma visível não torna a outra concatenação segura. findUser repete o mesmo erro de montagem.",
           },
         ],
       },
@@ -482,7 +482,7 @@ export const UNITS: Unit[] = [
             id: "fechar",
             label: "Parametrizar as duas consultas no laboratório defensivo e submeter à inspeção",
             correct: true,
-            explain: "A prática autorizada continua no ambiente da trilha. O editor verificará a separação estrutural, não executará o código enviado.",
+            explain: "A prática autorizada continua no ambiente da trilha. O editor vai conferir se valor e instrução estão separados no texto do código, sem executá-lo.",
           },
           {
             id: "outro",
@@ -527,7 +527,7 @@ export const UNITS: Unit[] = [
       {
         kind: "text",
         id: "explica",
-        prompt: "Em duas ou três frases, explique onde a fronteira quebrou e por que o banco interpretou uma instrução diferente.",
+        prompt: "Em duas ou três frases, explique onde a separação entre dado e instrução se perdeu e por que o banco interpretou uma instrução diferente.",
         min: 40,
         stems: ["instru", "comando", "frase", "consulta"],
         explain: "Uma boa síntese liga causa e efeito: o servidor concatenou uma entrada ao texto da consulta; isso permitiu mudar sua estrutura; o banco interpretou a instrução final recebida, não a intenção original.",
@@ -550,7 +550,7 @@ export const UNITS: Unit[] = [
           {
             id: "waf",
             label: "Manter a concatenação e depender do WAF para reconhecer toda entrada perigosa",
-            explain: "Um WAF pode bloquear alguns pedidos, mas não muda o código que mistura os papéis. A consulta continua estruturalmente vulnerável.",
+            explain: "Um WAF pode bloquear alguns pedidos, mas não muda o código que mistura os papéis. A consulta continua vulnerável.",
           },
           {
             id: "param",
@@ -597,7 +597,7 @@ export const UNITS: Unit[] = [
           {
             id: "sim",
             label: "Sim. Depois da validação, concatenar o valor ao SQL é seguro",
-            explain: "A validação pode mudar ou ser contornada em outro fluxo. A fronteira robusta não depende do conteúdo: ela separa valor e instrução.",
+            explain: "A validação pode mudar ou ser contornada em outro fluxo. A proteção confiável não depende do conteúdo do valor: ela separa valor e instrução.",
           },
         ],
       },
@@ -665,7 +665,7 @@ export const UNITS: Unit[] = [
             id: "separa",
             label: "A instrução ficou fixa e cada entrada é passada pelo método como parâmetro",
             correct: true,
-            explain: "Essa revisão verifica a causa estrutural. Testes comportamentais reais podem complementar a evidência, mas não substituem a separação no código.",
+            explain: "Essa revisão ataca a causa do problema. Testes que rodam o código de verdade podem complementar a evidência, mas não substituem a separação no código.",
           },
           {
             id: "waf",
@@ -681,7 +681,7 @@ export const UNITS: Unit[] = [
         choices: [
           {
             id: "nao",
-            label: "Aprovar no laboratório defensivo a inspeção estrutural das duas consultas",
+            label: "Aprovar no laboratório defensivo a inspeção das duas consultas",
             correct: true,
             explain: "O checkpoint confirma o modelo mental. O gate prático exige que findUser e listOrders mantenham o email fora do texto SQL.",
           },

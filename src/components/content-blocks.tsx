@@ -22,24 +22,22 @@ export function Callout({ tone, children }: { tone: CalloutTone; children: React
 }
 
 /**
- * `<Glossary term="Invariante" text="..." />`. O texto vai em atributo, não em filhos,
- * porque o painel é inline (fica dentro de um parágrafo).
+ * `<Glossary term="Salt" text="..." example="..." />`. Cartão com a palavra nova em linguagem
+ * simples, sempre visível. Escreva o texto como se explicasse para alguém que nunca viu o termo.
  */
-export function Glossary({ term, text }: { term: string; text: string }) {
+export function Glossary({ term, text, example }: { term: string; text: string; example?: string }) {
   return (
-    <p>
-      <span className="glossary">
-        <button
-          type="button"
-          className="underline decoration-dotted underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          {term}
-        </button>
-        <span className="glossary-panel" role="tooltip">
-          {text}
-        </span>
-      </span>
-    </p>
+    <div className="my-5 rounded-[14px] border border-info/30 bg-info/5 px-5 py-4">
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-info">Palavra nova</p>
+      <p className="mt-1 text-lg font-semibold text-text">{term}</p>
+      <p className="mt-1 text-base leading-7 text-muted">{text}</p>
+      {example ? (
+        <p className="mt-2 text-base leading-7 text-muted">
+          <span className="font-semibold text-text">Exemplo: </span>
+          {example}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

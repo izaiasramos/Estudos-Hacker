@@ -16,7 +16,7 @@ O passo 3 tem uma pegadinha: se a biblioteca resolver o nome de novo na hora de 
 
 Na AWS, o **IMDSv2** exige um token temporário para consultar os dados da máquina, o que dificulta ataques simples. Mas ele não substitui bloquear o endereço `169.254.169.254` nem restringir a saída de rede.
 
-<Glossary term="Serviço de metadados" text="Serviço interno que provedores de nuvem oferecem para informar dados da máquina e, às vezes, credenciais temporárias. Nunca deve ser alcançável por uma busca controlada pelo usuário." />
+<Glossary term="Serviço de metadados" text={"Um endereço especial dentro dos servidores na nuvem que informa dados da própria máquina e, às vezes, senhas temporárias. Só deveria ser acessível de dentro."} example={"O endereço 169.254.169.254, famoso em ataques SSRF."} />
 
 **Em resumo:** valide o destino real, conecte no que validou e trate cada redirecionamento como uma nova decisão.
 

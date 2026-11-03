@@ -14,6 +14,6 @@ A solução muda o modelo, não o filtro. Em vez de tentar barrar entradas ruins
 Em uma revisão autorizada, siga a origem dos valores usados em consultas. Eles podem vir do corpo de uma requisição, de um endereço, de um cabeçalho ou até do próprio banco. Procure `+`, interpolação em template string (aquela com crase) ou qualquer outra forma de montar SQL como texto.
 </Callout>
 
-<Glossary term="consulta parametrizada" text="Consulta cuja estrutura SQL é fixa e cujos valores são enviados separadamente. O banco nunca lê o valor como parte da instrução." />
+<Glossary term="consulta parametrizada" text={"Uma consulta ao banco em que a pergunta vem pronta, com vagas marcadas (?), e os valores são entregues à parte. O valor nunca é lido como parte da pergunta."} example={"SELECT * FROM pedidos WHERE email = ?  e depois  [\"alice@exemplo.test\"]"} />
 
 **Em resumo:** o banco só enxerga o texto final. Por isso, a correção é controlar a estrutura desse texto, não tentar adivinhar quais entradas são perigosas.

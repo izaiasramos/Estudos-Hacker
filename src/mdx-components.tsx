@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import { Callout, Code, Glossary } from "@/components/content-blocks";
+import { Diagram } from "@/components/diagrams";
 import { InlineMission } from "@/components/inline-mission";
 
 // Componentes e estilos de todo .mdx do app (exigido pelo @next/mdx no App Router).
@@ -7,6 +8,7 @@ const components = {
   Callout,
   Code,
   Glossary,
+  Diagram,
   InlineMission,
   ol: (props) => <ol {...props} className="list-decimal space-y-1 pl-6" />,
   ul: (props) => <ul {...props} className="list-disc space-y-1 pl-6" />,

@@ -41,7 +41,7 @@ export async function setLearningPath(userId: string, trailSlug: string, level: 
 }
 
 export const LEARNING_LEVEL_LABELS: Record<LearningLevel, { name: string; action: string; guidance: string }> = {
-  beginner: { name: "Iniciante", action: "Aprender do zero", guidance: "Siga o conteúdo completo e avance etapa por etapa." },
-  intermediate: { name: "Intermediário", action: "Revisar e praticar", guidance: "Use o conteúdo como revisão e confirme o aprendizado na avaliação." },
-  advanced: { name: "Avançado", action: "Ir direto à prática", guidance: "Vá direto ao quiz ou laboratório quando estiver pronto, sem pular os critérios de conclusão." },
+  beginner: { name: "Iniciante", action: "Aprender do zero", guidance: "Leia as unidades na ordem. Cada uma explica o conceito antes da prática." },
+  intermediate: { name: "Intermediário", action: "Revisar e praticar", guidance: "Use a leitura como revisão rápida e confirme o que sabe nos quizzes." },
+  advanced: { name: "Avançado", action: "Ir direto à prática", guidance: "Se você já conhece o assunto, vá direto ao quiz e ao laboratório. Para concluir a unidade, você ainda precisa passar neles." },
 };

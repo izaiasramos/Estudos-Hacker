@@ -1,27 +1,67 @@
-Se o banco vaza e as senhas estão legíveis, o atacante já pode testá-las neste e em outros sites. Guardar a senha de um jeito que dá para "desfazer" é o mesmo erro com mais passos.
+Quando você cria uma conta, o site precisa lembrar da sua senha para conferir depois. A pior ideia é guardá-la do jeito que você digitou. Se o banco de dados vazar, todas as senhas estão ali, prontas para o ladrão testar neste site e em outros (porque muita gente repete a senha).
 
-A saída é guardar uma **impressão digital** da senha, e não a senha.
+A solução é guardar **uma versão embaralhada** da senha. Essa versão se chama **hash**.
 
-<Glossary term={"Hash de senha"} text={"O resultado de uma conta de mão única feita com a senha. Dá para conferir se a senha digitada gera o mesmo resultado, mas não dá para voltar do resultado à senha."} />
+## O que é hash, sem complicar
 
-<Glossary term={"Salt"} text={"Um valor aleatório, diferente para cada senha, misturado antes de calcular o hash. Garante que duas pessoas com a mesma senha tenham hashes diferentes."} />
+Pense num **liquidificador**. Você coloca banana, leite e gelo e sai uma vitamina.
 
-<Glossary term={"bcrypt, scrypt e Argon2"} text={"Algoritmos feitos especialmente para guardar senhas. São propositalmente lentos, para que testar milhões de palpites custe caro ao atacante."} />
+- Se repetir a mesma receita, sai a mesma vitamina.
+- Mas ninguém consegue pegar a vitamina e separar de volta a banana, o leite e o gelo.
 
-<Code caption={"Errado vs. certo"}>
+O hash é um liquidificador para senhas. Você coloca a senha `pizza123`, e sai um código embaralhado, como `9f2c71…b4a0`.
+
+<Diagram name="hash" />
+
+Três coisas importam:
+
+1. **Mesma senha, mesmo código.** Sempre.
+2. **Senha diferente, código completamente diferente.** Mesmo que a diferença seja uma letra.
+3. **Não dá para voltar.** Do código não se recupera a senha.
+
+### Como o login funciona com isso
+
+O site **nunca guarda a sua senha**. Ele guarda só o código. Quando você tenta entrar:
+
+1. Você digita `pizza123`.
+2. O site passa o que você digitou pelo mesmo liquidificador.
+3. Compara o código novo com o código guardado.
+4. Se forem iguais, a senha estava certa. Se não, o login falha.
+
+Se o banco vazar, o ladrão só leva códigos embaralhados, e não as senhas.
+
+## O problema das senhas iguais, e o sal
+
+Se Ana e Bia usam a mesma senha, `pizza123`, as duas ficam com o **mesmo código**. Quem roubar o banco vê que elas repetem a senha. E pior: existem listas prontas com o código das senhas mais comuns, e o ladrão só precisa comparar.
+
+A correção é o **sal** (*salt*): antes de passar pelo liquidificador, o site mistura **um ingrediente aleatório diferente para cada pessoa**. Cada pessoa ganha o seu sal, e ele pode ficar guardado junto do código, sem problema.
+
+<Diagram name="salt" />
+
+<Glossary term="Sal (salt)" text={"Um pedaço de texto aleatório, diferente para cada usuário, misturado à senha antes do hash. Ele não é segredo. A função dele é fazer com que senhas iguais gerem códigos diferentes."} example={"Ana e Bia usam pizza123. Com sais diferentes, os códigos guardados são 7d1e09… e c40f6b…, e ninguém percebe que as senhas são iguais."} />
+
+## O liquidificador precisa ser lento
+
+Um computador rápido consegue testar bilhões de palpites por segundo se o hash for rápido. Por isso, para senhas, usamos algoritmos feitos para ser **lentos de propósito**: **bcrypt**, **scrypt** e **Argon2**.
+
+Para você, esperar 0,2 segundo no login não muda nada. Para quem tenta bilhões de palpites, essa lentidão transforma horas em anos.
+
+<Callout tone="armadilha">
+Não use hash rápido (como MD5 ou SHA-1 puros) para senhas. Eles servem para outras coisas, mas são rápidos demais e facilitam o chute em massa.
+</Callout>
+
+<Code caption="Errado vs. certo">
 ```
-errado: guardar a senha digitada
-certo:  guardar algoritmo + parâmetros + salt + hash
+errado: guardar a senha que a pessoa digitou
+certo:  guardar algoritmo + custo + sal + hash
 ```
 </Code>
 
-No login, a biblioteca do algoritmo lê esses dados guardados e confere a senha digitada. Você nunca precisa recuperar a senha original, e nem deve.
-
 <Callout tone="dev">
-Hash não salva senha fraca. Quem tem o banco pode testar palpites sem passar pelo login. Por isso o cadastro também deve recusar senhas curtas, óbvias ou que estejam em listas de senhas comuns, como "123456".
+Hash não salva uma senha fraca. Se alguém usa `123456`, o ladrão acerta no primeiro palpite, hash ou não. Por isso o cadastro também precisa **recusar senhas curtas, óbvias ou que estejam em listas de senhas comuns**.
 </Callout>
 
-**Na prática:** use uma biblioteca atual de bcrypt, scrypt ou Argon2, com salt único por senha, e revise o custo de tempos em tempos.
+**Na prática:** use uma biblioteca atual de bcrypt, scrypt ou Argon2, com sal único por senha, e nunca invente o seu próprio jeito de embaralhar.
 
 ## Mão na massa: compare os dois jeitos de guardar senha
 

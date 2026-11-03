@@ -1,10 +1,10 @@
 Compare duas chaves de sessão. A primeira pode ser lida por scripts, viaja até por conexões sem cadeado (HTTP) e acompanha pedidos feitos por outros sites. A segunda recebe três **atributos**, que são instruções que o servidor anexa ao cookie para reduzir esses riscos.
 
-<Glossary term={"HttpOnly"} text={"Proíbe que o JavaScript da página leia o cookie. O navegador continua enviando o cookie ao servidor normalmente."} />
+<Glossary term="HttpOnly" text={"Uma etiqueta no cookie que diz: “nenhum script da página pode ler este bilhete”. O navegador ainda entrega o cookie ao servidor normalmente."} example={"Com HttpOnly, digitar document.cookie no console não mostra a chave."} />
 
-<Glossary term={"Secure"} text={"Manda o navegador enviar o cookie apenas em conexões HTTPS (com cadeado). Ele não ativa o HTTPS: o site precisa estar configurado para isso."} />
+<Glossary term="Secure" text={"Uma etiqueta no cookie que diz: “só envie este bilhete por conexão segura (HTTPS, a com cadeado)”. Assim ele não viaja exposto."} example={"Em uma rede de café, o cookie não passa em texto aberto."} />
 
-<Glossary term={"SameSite"} text={"Controla se o cookie acompanha pedidos que começaram em outro site. Strict é o mais fechado. Lax libera alguns casos comuns, como clicar em um link. None libera tudo e exige Secure."} />
+<Glossary term="SameSite" text={"Uma etiqueta no cookie que decide se ele vai junto quando o pedido começa em OUTRO site. Strict: nunca vai. Lax: só em casos simples, como clicar num link. None: vai sempre."} example={"Com SameSite=Lax, um site de gatinhos não consegue enviar o cookie do seu banco num formulário escondido."} />
 
 <Code caption={"Antes e depois"}>
 ```

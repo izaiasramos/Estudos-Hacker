@@ -1,8 +1,8 @@
 export const SSRF_LAB_GAPS: Record<string, string> = {
-  scheme: "A prévia ainda aceita qualquer esquema, como `file:`. Permita só `https:`.",
+  scheme: "A prévia ainda aceita qualquer protocolo, como `file:`. Permita só `https:`.",
   resolve:
-    "O destino ainda não é conferido depois de resolver o nome. Recuse IP interno, loopback e link-local e conecte exatamente ao IP validado.",
-  redirect: "Redirect ainda é seguido sem checagem. Não siga, ou confira cada salto de novo.",
+    "Falta conferir o IP real do destino. Recuse IPs internos (como 127.0.0.1 e 169.254.x.x) e conecte exatamente no IP que você validou.",
+  redirect: "O servidor ainda segue redirecionamentos sem conferir. Não siga, ou confira cada novo destino de novo.",
   response: "O corpo inteiro ainda volta para o cliente. Devolva só o resumo, com limite de tamanho e tempo.",
 };
 

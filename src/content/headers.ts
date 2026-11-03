@@ -49,7 +49,7 @@ export const UNITS: Unit[] = [
             id: "nao",
             label: "Não. Qualquer pessoa vê o JSON na aba Network do navegador",
             correct: true,
-            explain: "O que sai na resposta é público para quem fez o pedido. A tela não é a fronteira.",
+            explain: "O que sai na resposta é público para quem fez o pedido. Esconder na tela não adianta: o dado já saiu do servidor.",
           },
           {
             id: "sim",
