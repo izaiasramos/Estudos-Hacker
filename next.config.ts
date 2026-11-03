@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
 
 // O texto das unidades mora em `src/content/<trilha>/<unidade>.mdx` (seção 12.1: conteúdo versionado no Git).
 // Nenhum .mdx vira rota: eles só são importados pelo player.
-const withMDX = createMDX({});
+const withMDX = createMDX({
+  options: {
+    // Realce de sintaxe em build, com o tema Dark+ do VS Code (cores vão em style inline, liberado pela CSP em style-src-attr).
+    rehypePlugins: [["@shikijs/rehype", { theme: "dark-plus", defaultLanguage: "text", fallbackLanguage: "text" }]],
+  },
+});
 
 export default withMDX(nextConfig);

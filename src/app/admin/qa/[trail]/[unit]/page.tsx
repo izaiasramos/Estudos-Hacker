@@ -25,7 +25,7 @@ export default async function AdminQaUnitPage({ params }: { params: Promise<{ tr
   const scene = sceneFor(trail.slug, unit.id, { title: unit.title, summary: unit.summary });
 
   return <div className="relative isolate flex min-h-full flex-col"><div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[420px]" /><SiteHeader />
-    <main className="relative mx-auto w-full max-w-5xl flex-1 px-5 py-8 sm:px-8">
+    <main className="relative mx-auto w-full max-w-[90rem] flex-1 px-5 py-8 sm:px-8">
       <nav className="flex flex-wrap gap-3 text-sm"><Link href="/admin/qa" className="text-muted hover:text-accent">← Central de QA</Link><Link href={`/trilha/${trail.slug}`} className="text-info hover:text-text">Ver página normal da trilha</Link></nav>
       <div className="mt-6 rounded-[16px] border border-info/40 bg-info/10 p-4 text-sm text-info"><strong>Preview QA.</strong> Nenhuma ação nesta página altera sua conta. Conteúdo, cena e gabarito são exibidos diretamente, mesmo se a unidade estiver bloqueada ou em rascunho.</div>
       <article className="mt-6 overflow-hidden rounded-[20px] border border-line bg-surface/90 px-5 py-8 sm:px-9"><p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">{trail.title} · unidade {unit.order} · {unit.kind}</p><h1 className="mt-3 text-3xl font-semibold"><InlineCode text={unit.title} /></h1><p className="mt-3 text-muted"><InlineCode text={unit.summary} /></p><div className="mt-8 space-y-5 text-base leading-8 text-text"><Body /></div><UnitScene scene={scene} />

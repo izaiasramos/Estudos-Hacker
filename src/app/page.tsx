@@ -29,12 +29,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
       <SiteHeader />
       <main id="conteudo">
         {conta === "excluida" ? (
-          <p role="status" className="relative mx-auto w-full max-w-6xl px-5 pb-4 text-sm text-defense sm:px-8">
+          <p role="status" className="relative mx-auto w-full max-w-[90rem] px-5 pb-4 text-sm text-defense sm:px-8">
             Sua conta e todo o histórico de aprendizagem foram excluídos.
           </p>
         ) : null}
 
-        <section className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1.04fr)_minmax(360px,0.96fr)] lg:gap-10 lg:pb-28 lg:pt-14">
+        <section className="relative mx-auto grid w-full max-w-[90rem] items-center gap-12 px-5 pb-20 pt-8 sm:px-8 lg:grid-cols-[minmax(0,1.04fr)_minmax(360px,0.96fr)] lg:gap-10 lg:pb-28 lg:pt-14">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent">
               <span aria-hidden className="size-2 rounded-full bg-accent shadow-[0_0_12px_rgba(214,255,74,0.8)]" />
@@ -60,7 +60,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           <TrailMap />
         </section>
 
-        <section aria-label="Benefícios da plataforma" className="relative mx-auto w-full max-w-6xl px-5 pb-24 sm:px-8">
+        <section aria-label="Benefícios da plataforma" className="relative mx-auto w-full max-w-[90rem] px-5 pb-24 sm:px-8">
           <ul className="grid gap-4 md:grid-cols-3">
             {BENEFITS.map((benefit) => (
               <li key={benefit.title} className="rounded-[20px] border border-line bg-surface/75 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.18)] backdrop-blur-sm">
@@ -72,7 +72,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           </ul>
         </section>
 
-        <section id="metodo" aria-labelledby="metodo-titulo" className="relative mx-auto w-full max-w-6xl scroll-mt-8 px-5 pb-24 sm:px-8">
+        <section id="metodo" aria-labelledby="metodo-titulo" className="relative mx-auto w-full max-w-[90rem] scroll-mt-8 px-5 pb-24 sm:px-8">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold text-accent">Como funciona</p>
             <h2 id="metodo-titulo" className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Da compreensão à correção, sem pular etapas.</h2>
@@ -90,7 +90,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           </ol>
         </section>
 
-        <section id="contrato" aria-labelledby="contrato-titulo" className="relative mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
+        <section id="contrato" aria-labelledby="contrato-titulo" className="relative mx-auto w-full max-w-[90rem] px-5 pb-20 sm:px-8">
           <div id="regras" className="grid gap-6 rounded-[24px] border border-defense/25 bg-[linear-gradient(120deg,rgba(62,224,176,0.10),rgba(18,20,28,0.9))] p-6 sm:p-8 md:grid-cols-[auto_1fr]">
             <span aria-hidden className="grid size-12 place-items-center rounded-2xl border border-defense/30 bg-defense/10 text-2xl text-defense">♢</span>
             <div className="max-w-3xl">

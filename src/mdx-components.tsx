@@ -8,15 +8,17 @@ const components = {
   Code,
   Glossary,
   InlineMission,
+  ol: (props) => <ol {...props} className="list-decimal space-y-1 pl-6" />,
+  ul: (props) => <ul {...props} className="list-disc space-y-1 pl-6" />,
   h2: (props) => <h2 {...props} className="mt-10 border-t border-white/10 pt-6 text-xl font-semibold tracking-tight text-text" />,
   pre: (props) => (
     <pre
       {...props}
-      className="overflow-x-auto rounded-[16px] border border-white/10 bg-ink p-4 font-mono text-[13px] leading-6 text-text"
+      className="overflow-x-auto rounded-[16px] border border-white/10 p-5 font-mono text-base font-semibold leading-7"
     />
   ),
   code: (props) => (
-    <code {...props} className="rounded bg-white/5 px-1 font-mono text-[0.9em] [pre_&]:bg-transparent [pre_&]:p-0" />
+    <code {...props} className="rounded bg-white/5 px-1 font-mono text-[0.9em] [pre_&]:bg-transparent [pre_&]:p-0 [pre_&]:text-[1em]" />
   ),
   a: (props) => <a {...props} className="text-accent underline underline-offset-4" />,
 } satisfies MDXComponents;

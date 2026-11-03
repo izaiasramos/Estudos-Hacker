@@ -76,7 +76,7 @@ export default async function PerfilPage({
     <div className="relative isolate flex min-h-full flex-col">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[640px]" />
       <SiteHeader />
-      <main className="relative mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-8">
+      <main className="relative mx-auto w-full max-w-[90rem] flex-1 px-5 py-8 sm:px-8">
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">Perfil</p>
 
         <div className="mt-4 flex items-center gap-4">

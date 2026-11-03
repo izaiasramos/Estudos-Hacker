@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function SiteFooter() {
   return (
-    <footer className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-3 px-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
+    <footer className="relative z-10 mx-auto flex w-full max-w-[90rem] flex-col gap-3 px-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
       <p>ShieldPath · estudo em laboratório próprio</p>
       <nav className="flex gap-5" aria-label="Rodapé">
         <Link

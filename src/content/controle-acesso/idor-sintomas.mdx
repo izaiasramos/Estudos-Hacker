@@ -1,7 +1,7 @@
 Na revisão da rota de pedidos, pergunte de onde vêm os dois valores que decidem tudo: **o identificador do pedido** e **a identidade de quem pede**. Na versão vulnerável, só o primeiro aparece.
 
 <Code caption={"Consulta que confia no identificador"}>
-```
+```js
 const pedido = await db.one(
   "SELECT * FROM pedidos WHERE id = ?",
   [params.id],
@@ -13,7 +13,7 @@ return pedido;
 O `?` aqui protege contra injeção de SQL, mas não cria autorização. A diferença está no filtro de dono:
 
 <Code caption={"Consulta que exige o dono da sessão"}>
-```
+```js
 const pedido = await db.one(
   "SELECT * FROM pedidos WHERE id = ? AND user_id = ?",
   [params.id, sessao.userId],

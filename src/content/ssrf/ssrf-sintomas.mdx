@@ -1,7 +1,7 @@
 Na revisão da prévia de link, procure um cliente HTTP cujo destino vem do corpo ou da query do pedido. Esta versão deixa o usuário escolher o destino **e** receber o conteúdo:
 
 <Code caption="Prévia que busca qualquer URL">
-```
+```js
 const resposta = await fetch(req.body.url);
 return Response.json({ html: await resposta.text() });
 ```
