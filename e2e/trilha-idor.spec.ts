@@ -50,7 +50,7 @@ test("trilha de controle de acesso até o selo", async ({ page, account }) => {
   await expect(page.getByText("Alice logada · GET /pedidos/:id")).toBeVisible();
   await page.getByRole("checkbox", { name: "Trocar o id sequencial por UUID" }).check();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Filtre também pelo dono obtido da sessão" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Filtre também pelo dono, que vem da sessão" })).toBeVisible();
 
   await page.getByRole("checkbox", { name: /Filtrar pelo dono/ }).check();
   await page.getByRole("checkbox", { name: /Conferir o papel na rota/ }).check();

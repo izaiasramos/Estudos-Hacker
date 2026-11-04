@@ -10,7 +10,7 @@ test("trilha de SSRF até o selo", async ({ page, account }) => {
   await page.getByRole("link", { name: "Seguir — Onde a checagem falha" }).click();
   await answerQuiz(page, [/Não\. Outro nome/, /Não seguir o redirect/, /Em nuvens como AWS/]);
   await page.getByRole("link", { name: "Seguir — Sintomas no código" }).click();
-  await answerQuiz(page, [/fetch\(req\.body\.url\) sem checar/, /Outros esquemas/, /Se algo interno passar/], {
+  await answerQuiz(page, [/fetch\(req\.body\.url\) sem checar/, /Outros protocolos/, /Se algo interno passar/], {
     "Em uma frase: por que a checagem tem de olhar o IP resolvido e não o texto da URL?":
       "Um nome inocente pode resolver para um IP interno.",
   });
@@ -23,7 +23,7 @@ test("trilha de SSRF até o selo", async ({ page, account }) => {
   await page.getByRole("checkbox", { name: /Devolver só o resumo/ }).check();
   await expect(page.getByText("A regra de texto barrou o localhost")).toBeVisible();
   await page.getByRole("button", { name: "Conferir defesas" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Recuse IP interno" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "Recuse IPs internos" })).toBeVisible();
 
   await page.getByRole("checkbox", { name: /Lista permitida de esquema/ }).check();
   await page.getByRole("checkbox", { name: /Resolver o nome pelo sistema de nomes de domínio/ }).check();
