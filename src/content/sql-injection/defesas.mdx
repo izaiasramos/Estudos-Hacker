@@ -28,32 +28,18 @@ Ordem de prioridade: 1) tire a concatenação do SQL; 2) valide as regras de neg
 
 **Em resumo:** parâmetros corrigem a causa, validação melhora a entrada, menor privilégio reduz o estrago e o WAF ajuda de longe.
 
-## Mão na massa: conserte o arquivo
+## Próxima prática: corrigir e retestar na plataforma
 
-Crie `seguro.mjs` com a correção. O banco e os dados são os mesmos. Só a função mudou: a instrução é fixa e o email vai como parâmetro.
+Na próxima unidade, o editor já vem aberto com as duas funções vulneráveis. Você fará tudo aqui:
 
-<Code caption="seguro.mjs: a mesma busca, com parâmetro">
-```js
-import { DatabaseSync } from "node:sqlite";
+1. localizar onde o `email` está sendo concatenado;
+2. trocar a parte variável por `?`;
+3. passar `[email]` separadamente;
+4. clicar em **Corrigir e testar**;
+5. conferir se o fluxo normal funciona e se o mesmo payload deixa de vazar o pedido de Bruno.
 
-const db = new DatabaseSync(":memory:");
-db.exec(`
-  CREATE TABLE pedidos (id INTEGER, email TEXT, item TEXT);
-  INSERT INTO pedidos VALUES (1, 'alice@exemplo.test', 'Margherita');
-  INSERT INTO pedidos VALUES (2, 'bruno@exemplo.test', 'Calabresa');
-`);
+<Callout tone="conceito">
+Você não precisa criar arquivo, instalar banco ou abrir terminal. O editor salva seu rascunho neste navegador e a plataforma mostra cada verificação.
+</Callout>
 
-// SEGURO: a instrução é fixa e o email vai separado
-function listarPedidos(email) {
-  const sql = "SELECT item, email FROM pedidos WHERE email = ?";
-  return db.prepare(sql).all(email).map((linha) => `${linha.email}: ${linha.item}`);
-}
-
-console.log(listarPedidos("alice@exemplo.test"));
-console.log(listarPedidos("alice@exemplo.test' OR '1'='1")); // []: nenhum email assim existe
-```
-</Code>
-
-**Rode `node seguro.mjs` e compare:** a busca da Alice continua funcionando, e o texto estranho agora é tratado como um email qualquer que não existe (`[]`). Nenhum filtro de caracteres foi necessário.
-
-**Seu desafio:** volte a concatenar e veja a falha reaparecer. Isso fixa a diferença entre os dois jeitos.
+Quando o ataque é enviado à consulta parametrizada, o banco recebe duas coisas distintas: a instrução `WHERE email = ?` e um valor textual completo. Aspas e `OR` permanecem dentro do valor. Eles não viram operadores.

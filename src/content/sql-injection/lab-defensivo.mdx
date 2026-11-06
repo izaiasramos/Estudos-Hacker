@@ -1,26 +1,77 @@
-Sua vez de consertar. Você vai editar duas funções fictícias:
+Agora você vai corrigir o mesmo problema sem sair da plataforma.
+
+O editor abaixo contém duas funções fictícias:
 
 - `findUser` busca uma pessoa pelo email.
-- `listOrders` lista só os pedidos desse email.
+- `listOrders` lista somente os pedidos desse email.
 
-**O que fazer:** nas duas funções, troque o email colado no texto por um `?` e passe o `email` numa lista separada, assim:
+Nas duas funções, substitua o email colado no texto por um `?` e envie o valor separadamente:
 
-<Code caption="O formato que o laboratório reconhece">
+<Code caption="Formato esperado pelo laboratório">
 ```js
 db.query("SELECT ... WHERE email = ?", [email])
 ```
 </Code>
 
-A tarefa de negócio não muda. Só muda o caminho do valor até o banco.
+A tarefa de negócio continua igual. Você muda apenas a fronteira entre instrução e valor.
+
+## O que significa cada pedaço
+
+<Code caption="Antes: função recebe o email, mas o cola dentro da instrução">
+```js
+function findUser(db, email) {
+  return db.query(
+    "SELECT id, name FROM usuarios WHERE email = '" + email + "'"
+  )
+}
+```
+</Code>
+
+O parâmetro `email` da função JavaScript já existe aqui. Ele guarda o valor recebido. O erro acontece depois: `+ email +` coloca o conteúdo dessa variável dentro da string SQL.
+
+<Code caption="Depois: a mesma função passa o valor separadamente">
+```js
+function findUser(db, email) {
+  return db.query(
+    "SELECT id, name FROM usuarios WHERE email = ?",
+    [email],
+  )
+}
+```
+</Code>
+
+Leia a versão correta em três passos:
+
+1. `findUser(db, email)` recebe o banco e o email como parâmetros da função JavaScript.
+2. `WHERE email = ?` mantém a instrução SQL fixa e cria uma vaga.
+3. `[email]` fornece o valor da primeira vaga como segundo argumento de `db.query`.
+
+Um `?` corresponde a um valor. Com duas vagas, a ordem da lista importa:
+
+<Code caption="Duas vagas e dois valores, na mesma ordem">
+```js
+function listOrders(db, email, status) {
+  return db.query(
+    "SELECT id, item FROM pedidos WHERE email = ? AND status = ?",
+    [email, status],
+  )
+}
+```
+</Code>
+
+Aqui, `email` preenche a primeira vaga e `status` preenche a segunda. Eles continuam sendo dados separados da instrução.
+
+<SqlDefensePractice mode="assemble" />
+
+Ao clicar em **Corrigir e testar**, a plataforma faz duas etapas seguras:
+
+1. inspeciona se as duas consultas usam a estrutura parametrizada esperada;
+2. roda uma simulação comportamental conhecida, incluindo o mesmo payload usado no ataque.
 
 <Callout tone="conceito">
-Este editor **não roda o seu JavaScript e não consulta um banco**. Ao enviar, o servidor faz uma leitura de texto: procura as duas funções, recusa as formas conhecidas de concatenar o `email` e confere se o padrão com `?` está lá. Verde quer dizer "a estrutura está certa", não "o login funciona".
+Seu JavaScript não é executado no servidor. Quando o padrão seguro é reconhecido, o laboratório aplica uma implementação parametrizada controlada ao cenário fictício e verifica: login válido, senha inválida, pedidos da Alice e bloqueio do vazamento do Bruno.
 </Callout>
 
-A leitura é bem estreita de propósito. Mantenha os nomes `findUser` e `listOrders`, a ordem das funções e a chamada `db.query`. Num projeto real, você combinaria essa revisão de código com testes que executam de verdade. Aqui, só a revisão existe.
+Seu rascunho é salvo neste navegador. Você pode recarregar a página e continuar de onde parou.
 
-<Callout tone="dev">
-Se a inspeção apontar uma das funções, leia a mensagem como "o padrão de texto que eu esperava não está lá", e não como resultado de uma execução.
-</Callout>
-
-**Para concluir:** as duas consultas precisam ter a instrução fixa e o `email` passado em separado.
+**Para concluir:** todos os testes devem ficar verdes, inclusive o reteste do payload ofensivo.

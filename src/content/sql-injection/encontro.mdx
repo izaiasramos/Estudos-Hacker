@@ -22,6 +22,84 @@ db.query("SELECT id FROM usuarios WHERE email = ?", [email])
 
 O `?` é um **placeholder**, um marcador de vaga. O `[email]` entrega o valor pra essa vaga por um canal à parte. Esse jeito se chama **consulta parametrizada**.
 
+## Três peças diferentes chamadas de “parâmetro”
+
+É comum confundir `email`, `?` e `[email]`. Eles se conectam, mas cada um vive em uma parte diferente:
+
+<Code caption="A viagem completa do valor de Alice">
+```js
+function findUser(db, email) { // 1. email recebe o valor dentro da função JavaScript
+  return db.query(
+    "SELECT id FROM usuarios WHERE email = ?", // 2. ? é uma vaga na instrução SQL
+    [email],                                    // 3. o valor da vaga vai separado
+  )
+}
+
+findUser(db, "alice@exemplo.test") // valor concreto entregue ao parâmetro email
+```
+</Code>
+
+Sim: a função do servidor tem um parâmetro chamado `email`, esperando receber um valor quando alguém chama `findUser`. Isso já acontecia na versão vulnerável. A proteção não vem apenas de a função “ter um parâmetro”. Ela vem da forma como a função passa esse valor ao banco.
+
+- `email` na assinatura é uma variável da função JavaScript.
+- `?` é uma vaga dentro da instrução SQL fixa.
+- `[email]` é a lista de valores que o driver associa às vagas.
+
+O driver não cola `[email]` na frase como se usasse `+`. Ele entrega instrução e valores de maneiras separadas, para o banco saber que o conteúdo de `email` é dado, não comando.
+
+<SqlDefensePractice mode="roles" />
+
+## Do formulário até o banco: onde nasce a falha
+
+O formulário pode ser igual nas duas versões:
+
+<Code caption="1. O navegador envia um campo chamado email">
+```html
+<form action="/usuarios/buscar" method="post">
+  <input name="email" type="email" />
+  <button>Buscar</button>
+</form>
+```
+</Code>
+
+A rota também só recebe o campo e chama a função:
+
+<Code caption="2. O servidor lê o email e chama findUser">
+```js
+export async function POST(request) {
+  const form = await request.formData()
+  const email = String(form.get("email") ?? "")
+  return findUser(db, email)
+}
+```
+</Code>
+
+Receber o email não é a vulnerabilidade. O problema aparece no próximo passo, quando `findUser` decide como conversar com o banco.
+
+<Code caption="3A. Forma errada: o valor ajuda a construir a instrução">
+```js
+function findUser(db, email) {
+  const sql = "SELECT id, name FROM usuarios WHERE email = '" + email + "'"
+  return db.query(sql)
+}
+```
+</Code>
+
+<Code caption="3B. Forma correta: instrução fixa e valor separado">
+```js
+function findUser(db, email) {
+  const sql = "SELECT id, name FROM usuarios WHERE email = ?"
+  return db.query(sql, [email])
+}
+```
+</Code>
+
+O formulário e a rota não mudaram. Mudou apenas a fronteira na função que consulta o banco.
+
+<SqlDefensePractice mode="spot" />
+
+<SqlDefensePractice mode="assemble" />
+
 <Callout tone="conceito">
 As duas versões fazem a mesma busca. A diferença é quem controla a frase: na concatenada, o conteúdo do campo ajuda a escrevê-la. Na parametrizada, a frase é fixa e o campo é só preenchimento.
 </Callout>

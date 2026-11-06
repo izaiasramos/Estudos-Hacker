@@ -18,6 +18,8 @@ const themes: { id: BuiltInTheme; name: string; icon: string; description: strin
 const successSounds = ["/audio/ui/ui_ogg/Ding.ogg", "/audio/ui/ui_ogg/chimes.ogg", "/audio/ui/ui_ogg/ding_deep.ogg"];
 const errorSounds = ["/audio/ui/ui_ogg/negative_sound.ogg", "/audio/ui/ui_ogg/negative_sound2.ogg", "/audio/ui/ui_ogg/alarm2.ogg"];
 const STORAGE_KEY = "shieldpath-audio-v2";
+const CHANNEL_NAME = "shieldpath-audio-sync";
+type SyncMessage = { from: string; type: "playing" | "pause" | "volume"; volume?: number };
 
 function clampVolume(value: number) {
   return Math.min(1, Math.max(0, value));
@@ -30,7 +32,17 @@ function themeForPath(pathname: string): BuiltInTheme {
   return "terror";
 }
 
+/**
+ * A Pizzaria do Lab aparece dentro de um iframe da própria plataforma. A página da trilha já tem
+ * o player, então dentro do iframe não montamos outro (senão duas músicas tocam juntas).
+ */
 export function GlobalAudioPlayer() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/lab/pizzaria")) return null;
+  return <AudioPlayer />;
+}
+
+function AudioPlayer() {
   const pathname = usePathname();
   const [manualTheme, setManualTheme] = useState<ThemeId>("terror");
   const [autoMode, setAutoMode] = useState(true);
@@ -42,6 +54,13 @@ export function GlobalAudioPlayer() {
   const customUrl = useRef<string | null>(null);
   const desiredPlaying = useRef(true);
   const volumeRef = useRef(volume);
+  // Várias abas abertas = vários players. Este canal faz as abas obedecerem ao mesmo controle:
+  // quem começa a tocar silencia as outras, e pausar ou mudar o volume vale para todas.
+  const [tabId] = useState(() => Math.random().toString(36).slice(2));
+  const channel = useRef<BroadcastChannel | null>(null);
+  const send = useCallback((message: Omit<SyncMessage, "from">) => {
+    channel.current?.postMessage({ ...message, from: tabId } satisfies SyncMessage);
+  }, [tabId]);
   const effectiveTheme: ThemeId = autoMode ? themeForPath(pathname) : manualTheme;
   const selected = effectiveTheme === "custom" ? null : themes.find((item) => item.id === effectiveTheme)!;
 
@@ -53,16 +72,44 @@ export function GlobalAudioPlayer() {
       audio.volume = volumeRef.current;
       await audio.play();
       setStatus("playing");
+      send({ type: "playing" });
     } catch {
       setStatus("blocked");
     }
-  }, []);
+  }, [send]);
 
   const pause = useCallback(() => {
     desiredPlaying.current = false;
     backgroundAudio.current?.pause();
     setStatus("paused");
-  }, []);
+    send({ type: "pause" });
+  }, [send]);
+
+  useEffect(() => {
+    if (typeof BroadcastChannel === "undefined") return;
+    const link = new BroadcastChannel(CHANNEL_NAME);
+    channel.current = link;
+    link.onmessage = (event: MessageEvent<SyncMessage>) => {
+      const message = event.data;
+      if (!message || message.from === tabId) return;
+      const audio = backgroundAudio.current;
+      if (message.type === "volume" && typeof message.volume === "number") {
+        const safe = clampVolume(message.volume);
+        volumeRef.current = safe;
+        setVolume(safe);
+        if (audio) audio.volume = safe;
+        return;
+      }
+      // "playing" (outra aba assumiu) e "pause" (alguém pausou) silenciam esta aba.
+      desiredPlaying.current = false;
+      audio?.pause();
+      setStatus("paused");
+    };
+    return () => {
+      link.close();
+      channel.current = null;
+    };
+  }, [tabId]);
 
   useEffect(() => {
     let restoreTimer: number | undefined;
@@ -102,9 +149,9 @@ export function GlobalAudioPlayer() {
     audio.volume = volumeRef.current;
     audio.load();
     if (desiredPlaying.current) {
-      void audio.play().then(() => setStatus("playing")).catch(() => setStatus("blocked"));
+      void audio.play().then(() => { setStatus("playing"); send({ type: "playing" }); }).catch(() => setStatus("blocked"));
     }
-  }, [effectiveTheme, selected?.src]);
+  }, [effectiveTheme, selected?.src, send]);
 
   useEffect(() => {
     try {
@@ -150,6 +197,7 @@ export function GlobalAudioPlayer() {
     volumeRef.current = safe;
     setVolume(safe);
     if (backgroundAudio.current) backgroundAudio.current.volume = safe;
+    send({ type: "volume", volume: safe });
   };
 
   const testSound = () => {

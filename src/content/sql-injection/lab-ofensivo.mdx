@@ -1,63 +1,26 @@
-Este é um laboratório de **observação**. Você vai ler um caso pronto e descobrir o que deu errado, sem digitar nada contra ninguém.
+O laboratório acima divide o ataque em seis práticas curtas. Você começa pelo comportamento normal e só chega ao payload completo depois de entender cada peça.
 
-O painel abaixo é uma **simulação guiada**. Nomes, emails, pedidos e resultados são fictícios e já estão prontos. Nenhuma consulta é executada para gerá-los.
+A sequência mostra:
 
-A regra do cenário é: Alice só pode ver os pedidos dela. O painel mostra três peças:
-
-1. **O requisito:** só pedidos da Alice.
-2. **O resultado simulado:** aparece também um pedido do Bruno.
-3. **A inspeção do código:** `findUser` e `listOrders` colam o `email` dentro do texto SQL.
+1. por que Alice aparece numa busca normal;
+2. como uma aspa encerra o valor do email;
+3. por que `OR` precisa de uma condição verdadeira;
+4. por que `'1'='1'` é sempre verdadeiro;
+5. como essas peças formam o payload;
+6. por que o mesmo texto deixa de funcionar contra uma consulta parametrizada.
 
 <Callout tone="conceito">
-A simulação não reproduz um ataque real nem prova nada sobre sistemas externos. Ela só te dá material para raciocinar: o que era esperado, o que apareceu e onde o código falhou.
+`OR` significa “uma condição **ou** a outra”. Para cada linha, basta um lado ser verdadeiro. Como `1` é sempre igual a `1`, essa condição aceita até linhas cujo email não é o da Alice.
 </Callout>
 
-Juntas, as três peças sustentam uma hipótese: o filtro que chegou ao banco não manteve a busca exata por email. A inspeção mostra onde agir. As duas funções misturam o valor com a instrução, mesmo que só uma delas tenha mostrado o sintoma.
+A aspa é a primeira peça importante. O código vulnerável já coloca o email entre aspas. Quando uma aspa vem dentro da entrada, ela pode encerrar esse valor antes da hora. A partir desse ponto, `OR` deixa de parecer parte de um email e passa a ocupar a estrutura da consulta.
 
-Mais abaixo, a Pizzaria do Lab pode abrir uma sessão executável separada, onde você faz verificações no ambiente autorizado. Ela é independente do código que você vai corrigir no próximo laboratório.
-
-<Callout tone="dev">
-Não existe passo escondido. Responda com base no que está na tela. A prática de corrigir fica para o laboratório seguinte.
+<Callout tone="armadilha">
+Comentários SQL às vezes aparecem em outros exemplos para ignorar uma parte que o programa acrescentaria depois do campo. Eles não são necessários nesta consulta curta, e a sintaxe varia conforme o banco. O ponto central continua sendo a fronteira quebrada entre instrução e valor.
 </Callout>
 
-**Na prática:** o conserto será mexer em `findUser` e `listOrders`, mantendo a mesma função de negócio e enviando o `email` como parâmetro separado.
+O cenário é uma simulação controlada sobre Alice e Bruno. Nenhum SQL digitado é enviado a um banco real. A tabela de avaliação mostra exatamente por que cada linha entra ou fica de fora.
 
-## Mão na massa: veja a falha acontecer no seu computador
+A Pizzaria do Lab, mais abaixo, continua disponível como aplicação autorizada para verificar login e listagem normais. Nenhum passo exige sair da plataforma.
 
-**Onde se faz isso?** Num arquivo de servidor, não no console do navegador. SQL Injection acontece no código que fala com o banco, então vamos escrever um mini "servidor" de pedidos com um banco SQLite em memória. Precisa do Node.js 22.5 ou mais novo (`node -v` mostra a versão). Tudo roda **só na sua máquina**, em arquivos que você mesmo cria.
-
-1. Crie uma pasta `praticar-sql` e, dentro dela, o arquivo `inseguro.mjs`.
-2. Cole o código abaixo.
-3. No terminal, rode `node inseguro.mjs`.
-
-<Code caption="inseguro.mjs: a busca que cola o email no SQL">
-```js
-import { DatabaseSync } from "node:sqlite";
-
-const db = new DatabaseSync(":memory:");
-db.exec(`
-  CREATE TABLE pedidos (id INTEGER, email TEXT, item TEXT);
-  INSERT INTO pedidos VALUES (1, 'alice@exemplo.test', 'Margherita');
-  INSERT INTO pedidos VALUES (2, 'bruno@exemplo.test', 'Calabresa');
-`);
-
-// INSEGURO: o email é colado dentro do texto SQL
-function listarPedidos(email) {
-  const sql = "SELECT item, email FROM pedidos WHERE email = '" + email + "'";
-  console.log("SQL enviado:", sql);
-  return db.prepare(sql).all().map((linha) => `${linha.email}: ${linha.item}`);
-}
-
-console.log(listarPedidos("alice@exemplo.test"));
-// Um "email" que muda a frase SQL:
-console.log(listarPedidos("alice@exemplo.test' OR '1'='1"));
-```
-</Code>
-
-**O que observar:** a primeira chamada mostra só a Alice. Na segunda, o "email" tem um pedaço extra (`' OR '1'='1`). Olhe a linha "SQL enviado": o texto virou outra frase, cujo filtro é verdadeiro para todas as linhas. Resultado: o pedido do Bruno aparece na lista da Alice.
-
-<Callout tone="dev">
-Na vida real, esse "email" viria de um campo de formulário, e a função `listarPedidos` estaria dentro da rota do servidor. A mecânica é idêntica. Pratique **apenas** nos arquivos que você criou ou em ambientes autorizados.
-</Callout>
-
-**Seu desafio:** adicione uma coluna `senha` à tabela e mude só o texto passado à função para fazer a busca mostrar dados que ela não devia. Depois siga para a unidade de defesa e conserte.
+**Objetivo desta unidade:** explicar o ataque com suas próprias palavras: a entrada fechou o valor, adicionou uma alternativa com `OR` e tornou essa alternativa verdadeira para todas as linhas.

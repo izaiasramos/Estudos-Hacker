@@ -66,3 +66,5 @@ createServer((req, res) => {
 **Agora conserte:** comente a linha "INSEGURO" e descomente a linha "SEGURO". Reinicie o servidor e repita. O `/pedidos/103` passa a responder `não encontrado`, e o `101` continua funcionando.
 
 **O que observar:** a diferença é um `&& p.dono === usuarioLogado`. Um filtro de dono, vindo da sessão, é o que separa um app seguro de um vazamento.
+
+<SecurityMicroPractice topic="idor" />

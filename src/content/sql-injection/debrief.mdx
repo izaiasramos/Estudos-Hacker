@@ -23,3 +23,24 @@ Num relatório de incidente real, registre: de onde veio o valor, qual função 
 </Callout>
 
 **Em resumo:** o servidor perdeu a separação ao concatenar, o banco leu a consulta final e a correção é separar os papéis antes de enviar.
+
+## Reconstrua também o caminho corrigido
+
+1. A rota recebe `email` do formulário.
+2. A rota chama `findUser(db, email)`. Aqui, `email` é o parâmetro da função JavaScript.
+3. `findUser` envia a instrução fixa com `?` como primeiro argumento de `db.query`.
+4. A função envia `[email]` como segundo argumento.
+5. O driver associa o primeiro valor à primeira vaga sem transformar seu conteúdo em instrução.
+6. O mesmo payload passa a ser procurado como um email literal e não traz o pedido de Bruno.
+
+<Code caption="A fronteira corrigida em uma única função">
+```js
+function findUser(db, email) {
+  const sql = "SELECT id, name FROM usuarios WHERE email = ?"
+  const values = [email]
+  return db.query(sql, values)
+}
+```
+</Code>
+
+Dar nomes temporários, como `sql` e `values`, ajuda a enxergar os dois canais. A versão curta `db.query("... = ?", [email])` faz exatamente a mesma separação.

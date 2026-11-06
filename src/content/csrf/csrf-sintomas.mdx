@@ -69,3 +69,5 @@ console.log("3) volte em http://localhost:4000 e veja o saldo");
 <Callout tone="armadilha">
 As portas 4000 e 4001 contam como o **mesmo site** para o navegador, porque o SameSite ignora a porta. Num cenário real os domínios seriam diferentes e o `SameSite=Lax` já barraria esse GET. Mesmo assim, uma ação que muda estado em GET é um erro de projeto.
 </Callout>
+
+<SecurityMicroPractice topic="csrf" />

@@ -7,8 +7,8 @@ import { SsrfDefenseLab } from "@/components/ssrf-defense-lab";
 import { UploadDefenseLab } from "@/components/upload-defense-lab";
 import { IdorDefenseLab } from "@/components/idor-defense-lab";
 import { LabDesk } from "@/components/lab-desk";
-import { OrdersPreview } from "@/components/orders-preview";
 import { PhishingInboxLab } from "@/components/phishing-inbox-lab";
+import { SqlAttackWorkbench } from "@/components/sql-attack-workbench";
 import { SessionFlagLab } from "@/components/session-flag-lab";
 import { XssDefenseLab } from "@/components/xss-defense-lab";
 
@@ -37,10 +37,11 @@ const LABS: Record<string, (ctx: LabContext) => LabSlots> = {
   "lab-ofensivo": (ctx) => ({
     before: (
       <>
-        <OrdersPreview />
+        <SqlAttackWorkbench />
         <LabDesk userId={ctx.userId} />
       </>
     ),
+    wide: true,
   }),
   "lab-defensivo": (ctx) => ({ end: <DefenseEditor done={ctx.done} />, wide: true }),
   "sessao-lab": (ctx) => ({ afterBlocks: <SessionFlagLab done={ctx.done} missing={ctx.missing} /> }),
