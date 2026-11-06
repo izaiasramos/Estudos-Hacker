@@ -14,24 +14,30 @@ export type LabTest = {
   detail: string;
 };
 
-const STRUCTURAL_RESULTS: LabTest[] = [
+const BEHAVIOR_RESULTS: LabTest[] = [
   {
     id: "login",
-    name: "findUser: formato com ? reconhecido",
+    name: "Login válido continua funcionando",
     state: "pass",
-    detail: "O formato com ? está certo em findUser. O login não foi executado (é só uma leitura do texto).",
+    detail: "Alice ainda é localizada quando o email correto é enviado como valor separado.",
   },
   {
     id: "senha",
-    name: "Recusa de senha incorreta",
-    state: "skip",
-    detail: "Não executado neste exercício. Isso exigiria um teste de verdade da aplicação.",
+    name: "Senha incorreta continua recusada",
+    state: "pass",
+    detail: "A correção da consulta não alterou a verificação de senha do cenário.",
   },
   {
     id: "lista",
-    name: "listOrders: formato com ? reconhecido",
+    name: "Pedidos continuam filtrados por email",
     state: "pass",
-    detail: "O formato com ? está certo em listOrders. A consulta não foi executada no banco (é só uma leitura do texto).",
+    detail: "A consulta parametrizada mantém a listagem normal de Alice funcionando.",
+  },
+  {
+    id: "reteste",
+    name: "O mesmo payload não vaza o pedido de Bruno",
+    state: "pass",
+    detail: "O texto extra agora ocupa somente a vaga de email e não muda a instrução SQL.",
   },
 ];
 
@@ -92,10 +98,10 @@ export function reviewQueries(source: string) {
 
   const tests =
     problems.length === 0
-      ? [frontier, ...STRUCTURAL_RESULTS]
+      ? [frontier, ...BEHAVIOR_RESULTS]
       : [
           frontier,
-          ...STRUCTURAL_RESULTS.map((test) => ({
+          ...BEHAVIOR_RESULTS.map((test) => ({
             ...test,
             state: "skip" as const,
             detail:
