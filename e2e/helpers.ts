@@ -1,6 +1,11 @@
 import { test as base, expect, type Page } from "@playwright/test";
 
 export const PASSWORD = "SenhaE2eShield1!";
+/** PNG 1x1 válido, usado como foto de perfil obrigatória no cadastro. */
+export const AVATAR_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 /** Cria uma conta nova pela UI e passa pelas Regras do jogo. Devolve o e-mail usado. */
 export async function signUpAndAcceptRules(page: Page, prefix = "e2e") {
@@ -9,6 +14,7 @@ export async function signUpAndAcceptRules(page: Page, prefix = "e2e") {
   await page.goto("/criar-conta");
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill(PASSWORD);
+  await page.getByLabel("Foto de perfil").setInputFiles({ name: "avatar.png", mimeType: "image/png", buffer: AVATAR_PNG });
   await page.getByRole("button", { name: "Criar conta" }).click();
   await expect(page).toHaveURL(/\/regras/);
   await expect(page.getByRole("heading", { name: "Regras do jogo" })).toBeVisible();

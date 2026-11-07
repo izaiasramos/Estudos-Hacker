@@ -1,3 +1,4 @@
+import { AVATAR_MAX_BYTES, sniffAvatarMime } from "@/lib/avatar";
 import { cookies } from "next/headers";
 import { timingSafeEqual } from "node:crypto";
 import { redirectTo } from "@/lib/http";
@@ -13,6 +14,7 @@ type GoogleProfile = {
   email?: string;
   email_verified?: boolean;
   name?: string;
+  picture?: string;
 };
 
 function statesMatch(left: string, right: string) {
@@ -74,12 +76,14 @@ export async function GET(request: Request) {
     return redirectTo(request, "/entrar?erro=google-conta");
   }
 
+  const avatar = existingBySub ? null : await googleAvatar(profile.picture);
   const user =
     existingBySub ??
     (await createGoogleUser({
       email: profile.email,
       name: profile.name ?? "",
       sub: profile.sub,
+      avatar,
     }));
 
   const cookie = sessionCookie(createSessionToken(user.id));
@@ -87,4 +91,21 @@ export async function GET(request: Request) {
   response.cookies.set(cookie.name, cookie.value, cookie.options);
   response.cookies.set("shieldpath_oauth_state", "", { path: "/", maxAge: 0 });
   return response;
+}
+
+/** Foto do Google, só se vier de googleusercontent.com por HTTPS e for imagem válida e pequena. */
+async function googleAvatar(picture: string | undefined) {
+  try {
+    if (!picture) return null;
+    const url = new URL(picture);
+    if (url.protocol !== "https:" || !url.hostname.endsWith(".googleusercontent.com")) return null;
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000), redirect: "error" });
+    if (!res.ok) return null;
+    const bytes = new Uint8Array(await res.arrayBuffer());
+    if (bytes.length > AVATAR_MAX_BYTES) return null;
+    const mime = sniffAvatarMime(bytes);
+    return mime ? `data:${mime};base64,${Buffer.from(bytes).toString("base64")}` : null;
+  } catch {
+    return null;
+  }
 }

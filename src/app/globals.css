@@ -38,9 +38,12 @@
 html {
   color-scheme: dark;
   scroll-behavior: smooth;
+  /* Nenhuma página rola para o lado: efeitos decorativos (mesh com scale) não podem alargar o documento. */
+  overflow-x: clip;
 }
 
 body {
+  overflow-x: clip;
   position: relative;
   isolation: isolate;
   background: var(--ink);
@@ -78,6 +81,7 @@ html[data-motion="reduce"] .matrix-background { display: none; }
 }
 
 .mesh {
+  overflow: hidden;
   background:
     radial-gradient(900px 520px at 8% -10%, rgba(214, 255, 74, 0.16), transparent 58%),
     radial-gradient(720px 480px at 96% 0%, rgba(62, 224, 176, 0.1), transparent 52%),
@@ -942,3 +946,15 @@ html[data-motion="reduce"] .global-audio-player[data-playing="true"] .audio-disc
 }
 
 html[data-motion="reduce"] .global-audio-player[data-playing="true"] .audio-launcher { animation: none; }
+
+/* Editor didático: o textarea mantém cursor/teclado e deixa o realce Dark+ aparecer atrás. */
+.code-editor-input {
+  -webkit-text-fill-color: transparent;
+  white-space: pre;
+}
+
+.code-editor-input::selection {
+  background: rgba(0, 122, 204, 0.55);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}

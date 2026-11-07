@@ -4,6 +4,9 @@ export const DATABASE_UNAVAILABLE_MESSAGE =
 const ERRORS: Record<string, string> = {
   email: "Informe um e-mail válido.",
   senha: "A senha precisa ter pelo menos 8 caracteres e não pode ser uma senha comum.",
+  foto: "Envie uma foto de perfil para criar a conta.",
+  "foto-tamanho": "A foto é grande demais. Use uma imagem de até 400 KB.",
+  "foto-tipo": "Formato de foto não aceito. Use JPG, PNG ou WebP.",
   existe: "Já existe uma conta com este e-mail. Entre com a senha.",
   credenciais: "E-mail ou senha não conferem.",
   bloqueado:

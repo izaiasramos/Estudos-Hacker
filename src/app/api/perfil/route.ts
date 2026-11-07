@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { redirectTo, sameOrigin } from "@/lib/http";
 import { SESSION_COOKIE, readSessionToken } from "@/lib/session";
-import { cleanDisplayName, findUserById, updateUserName } from "@/lib/users";
+import { readAvatarFile } from "@/lib/avatar";
+import { cleanDisplayName, findUserById, updateUserAvatar, updateUserName } from "@/lib/users";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return redirectTo(request, "/perfil?erro=origem");
@@ -11,6 +12,12 @@ export async function POST(request: Request) {
   if (!user) return redirectTo(request, "/entrar");
 
   const form = await request.formData();
+  if (form.get("avatar") instanceof File && (form.get("avatar") as File).size > 0) {
+    const photo = await readAvatarFile(form.get("avatar"));
+    if ("error" in photo) return redirectTo(request, `/perfil?erro=${photo.error}`);
+    await updateUserAvatar(user.id, photo.dataUrl);
+    if (!form.has("name")) return redirectTo(request, "/perfil?ok=foto");
+  }
   const name = cleanDisplayName(String(form.get("name") ?? ""));
   if (!name) return redirectTo(request, "/perfil?erro=nome");
 
