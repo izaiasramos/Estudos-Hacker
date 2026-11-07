@@ -15,6 +15,8 @@ export type UserRecord = {
   createdAt: string;
   /** Preferência do perfil: menos movimento, além do prefers-reduced-motion do sistema. */
   reduceMotion: boolean;
+  /** Foto de perfil como data URL validada. Servida por /api/avatar/[id]. */
+  avatar: string | null;
 };
 
 type UserRow = {
@@ -29,6 +31,7 @@ type UserRow = {
   xp: number;
   created_at: string;
   reduce_motion?: boolean;
+  avatar?: string | null;
 };
 
 function mapUser(row: UserRow): UserRecord {
@@ -44,6 +47,7 @@ function mapUser(row: UserRow): UserRecord {
     xp: row.xp,
     createdAt: row.created_at,
     reduceMotion: row.reduce_motion === true,
+    avatar: row.avatar ?? null,
   };
 }
 
@@ -75,6 +79,7 @@ export async function createLocalUser(input: {
   email: string;
   name: string;
   passwordHash: string;
+  avatar: string;
 }) {
   const user: UserRow = {
     id: randomUUID(),
@@ -87,11 +92,12 @@ export async function createLocalUser(input: {
     ethics_accepted_at: null,
     xp: 0,
     created_at: new Date().toISOString(),
+    avatar: input.avatar,
   };
   await run(
     `INSERT INTO users (
-      id, email, name, password_hash, provider, google_sub, role, ethics_accepted_at, xp, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      id, email, name, password_hash, provider, google_sub, role, ethics_accepted_at, xp, created_at, avatar
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user.id,
       user.email,
@@ -103,12 +109,18 @@ export async function createLocalUser(input: {
       user.ethics_accepted_at,
       user.xp,
       user.created_at,
+      user.avatar,
     ],
   );
   return mapUser(user);
 }
 
-export async function createGoogleUser(input: { email: string; name: string; sub: string }) {
+export async function createGoogleUser(input: {
+  email: string;
+  name: string;
+  sub: string;
+  avatar?: string | null;
+}) {
   const user: UserRow = {
     id: randomUUID(),
     email: input.email.toLowerCase(),
@@ -120,11 +132,12 @@ export async function createGoogleUser(input: { email: string; name: string; sub
     ethics_accepted_at: null,
     xp: 0,
     created_at: new Date().toISOString(),
+    avatar: input.avatar ?? null,
   };
   await run(
     `INSERT INTO users (
-      id, email, name, password_hash, provider, google_sub, role, ethics_accepted_at, xp, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      id, email, name, password_hash, provider, google_sub, role, ethics_accepted_at, xp, created_at, avatar
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user.id,
       user.email,
@@ -136,9 +149,14 @@ export async function createGoogleUser(input: { email: string; name: string; sub
       user.ethics_accepted_at,
       user.xp,
       user.created_at,
+      user.avatar,
     ],
   );
   return mapUser(user);
+}
+
+export async function updateUserAvatar(userId: string, avatar: string) {
+  await run("UPDATE users SET avatar = ? WHERE id = ?", [avatar, userId]);
 }
 
 export async function acceptEthics(userId: string) {

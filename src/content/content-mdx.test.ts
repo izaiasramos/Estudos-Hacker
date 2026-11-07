@@ -7,7 +7,7 @@ import { DIAGRAM_NAMES } from "@/components/diagrams";
 
 // Quem escreve conteúdo só edita .mdx. Este teste garante, antes do deploy, que cada unidade
 // tem o seu arquivo, que ele compila e que só usa os componentes que o player conhece.
-const COMPONENTS = new Set(["Callout", "Code", "Glossary", "InlineMission", "SecurityMicroPractice", "SecurityPractice", "SqlDefensePractice", "Diagram"]);
+const COMPONENTS = new Set(["Callout", "Code", "Glossary", "InlineMission", "SecurityCodePractice", "SecurityMicroPractice", "SecurityPractice", "SqlDefensePractice", "Diagram"]);
 const TONES = new Set(["conceito", "analogia", "armadilha", "dev"]);
 
 const units = TRAILS.flatMap((trail) =>

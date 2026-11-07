@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { AvatarPicker } from "@/components/avatar-picker";
 import { DATABASE_UNAVAILABLE_MESSAGE } from "@/lib/auth-errors";
 
 type AuthFormProps = {
@@ -52,6 +53,7 @@ export function AuthForm({ mode, error }: AuthFormProps) {
     <form
       action={action}
       method="post"
+      encType={mode === "signup" ? "multipart/form-data" : undefined}
       className="mt-8 space-y-4"
       onSubmit={mode === "login" ? handleLogin : undefined}
     >
@@ -89,6 +91,7 @@ export function AuthForm({ mode, error }: AuthFormProps) {
           <p className="mt-2 text-xs text-muted">Mínimo de 8 caracteres. Evite senhas óbvias.</p>
         ) : null}
       </div>
+      {mode === "signup" ? <AvatarPicker /> : null}
       <button
         type="submit"
         disabled={pending}

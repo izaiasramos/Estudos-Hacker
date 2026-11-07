@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_study_on TEXT,
   created_at TEXT NOT NULL
 );
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;
 CREATE TABLE IF NOT EXISTS login_failures (
   id BIGSERIAL PRIMARY KEY,
   key_hash TEXT NOT NULL,

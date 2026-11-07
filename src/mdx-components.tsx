@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import { Callout, Code, Glossary } from "@/components/content-blocks";
 import { Diagram } from "@/components/diagrams";
+import { SecurityCodePractice } from "@/components/security-code-practice";
 import { SecurityMicroPractice } from "@/components/security-micro-practice";
 import { SecurityPractice } from "@/components/security-practice";
 import { SqlDefensePractice } from "@/components/sql-defense-practice";
@@ -13,6 +14,7 @@ const components = {
   Glossary,
   Diagram,
   InlineMission,
+  SecurityCodePractice,
   SecurityMicroPractice,
   SecurityPractice,
   SqlDefensePractice,

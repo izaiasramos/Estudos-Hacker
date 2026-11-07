@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AvatarPicker } from "@/components/avatar-picker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { UserAvatar } from "@/components/user-avatar";
+import { avatarUrl } from "@/lib/avatar";
 import { PUBLISHED_TRAILS as TRAILS } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
 import { squadOf } from "@/lib/squad";
@@ -16,6 +19,9 @@ export const metadata: Metadata = {
 
 const ERRORS: Record<string, string> = {
   nome: "O nome precisa ter entre 2 e 60 caracteres.",
+  foto: "Escolha uma imagem para a foto.",
+  "foto-tamanho": "A foto é grande demais. Use até 400 KB.",
+  "foto-tipo": "Formato não aceito. Use JPG, PNG ou WebP.",
   origem: "Não foi possível confirmar a origem do pedido.",
   confirmar: "O e-mail digitado não é o desta conta. Nada foi apagado.",
   senha: "A senha não confere. Nada foi apagado.",
@@ -49,7 +55,7 @@ export default async function PerfilPage({
 
   const query = await searchParams;
   const error = query.erro ? (ERRORS[query.erro] ?? null) : null;
-  const saved = query.ok === "nome" ? "Nome atualizado." : query.ok === "movimento" ? "Preferência de movimento salva." : null;
+  const saved = query.ok === "nome" ? "Nome atualizado." : query.ok === "foto" ? "Foto atualizada." : query.ok === "movimento" ? "Preferência de movimento salva." : null;
 
   const [progress, { streak }, squad, lastLab] = await Promise.all([
     listProgress(user.id),
@@ -69,7 +75,6 @@ export default async function PerfilPage({
   const level = accountLevel(seals);
   const streakLabel =
     streak === 0 ? "Nenhum dia fechado" : streak === 1 ? "1 dia" : `${streak} dias seguidos`;
-  const initial = user.name.trim().charAt(0).toUpperCase() || "?";
   const isMentor = squad?.mentorId === user.id;
 
   return (
@@ -80,12 +85,7 @@ export default async function PerfilPage({
         <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">Perfil</p>
 
         <div className="mt-4 flex items-center gap-4">
-          <span
-            aria-hidden
-            className="grid size-16 shrink-0 place-items-center rounded-full border border-accent/50 bg-accent/10 text-2xl font-semibold text-accent"
-          >
-            {initial}
-          </span>
+          <UserAvatar userId={user.id} name={user.name} hasAvatar={Boolean(user.avatar)} className="size-16 text-2xl" />
           <div className="min-w-0">
             <h1 className="truncate text-4xl font-semibold tracking-tight">{user.name}</h1>
             <p className="mt-1 truncate text-sm text-muted">
@@ -187,6 +187,20 @@ export default async function PerfilPage({
           </form>
         </section>
 
+        <section aria-labelledby="foto-titulo" className="mt-12 max-w-xl">
+          <h2 id="foto-titulo" className="text-xl font-semibold">
+            Foto de perfil
+          </h2>
+          <form action="/api/perfil" method="post" encType="multipart/form-data" className="mt-4">
+            <AvatarPicker required={!user.avatar} currentSrc={user.avatar ? avatarUrl(user.id) : null} />
+            <button
+              type="submit"
+              className={`mt-4 inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink ${FOCUS}`}
+            >
+              Salvar foto
+            </button>
+          </form>
+        </section>
         <section id="movimento" aria-labelledby="movimento-titulo" className="mt-12 max-w-xl">
           <h2 id="movimento-titulo" className="text-xl font-semibold">
             Movimento
