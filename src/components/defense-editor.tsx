@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { DarkPlusCodeEditor } from "@/components/dark-plus-code";
 import { emitAudioOutcome } from "@/lib/audio-events";
 import { VULNERABLE_QUERIES, type LabTest } from "@/lib/lab-check";
 
@@ -107,14 +108,13 @@ export function DefenseEditor({ done }: { done: boolean }) {
         </ol>
         <p className="mt-3 text-xs text-muted">Você pode conferir o rascunho quantas vezes quiser. Isso não registra tentativa nem conclui o laboratório.</p>
       </section>
-      <textarea
+      <DarkPlusCodeEditor
         id="source"
         name="source"
+        fileName="consultas.js"
         value={source}
-        onChange={(event) => updateSource(event.target.value)}
-        spellCheck={false}
-        rows={12}
-        className="w-full rounded-[16px] border border-white/10 bg-ink p-4 font-mono text-[13px] leading-6 text-text outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+        onChange={updateSource}
+        minHeight={18}
       />
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={inspectDraft} className="inline-flex h-12 items-center rounded-full border border-defense/40 px-5 text-sm font-semibold text-defense">
