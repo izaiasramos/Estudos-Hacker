@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { authError } from "@/lib/auth-errors";
 
 export const metadata: Metadata = {
-  title: "Criar conta — ShieldPath",
+  title: "Criar conta — DefendaDev",
 };
 
 export default async function CriarContaPage({

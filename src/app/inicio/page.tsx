@@ -10,7 +10,7 @@ import { squadOf } from "@/lib/squad";
 import { accountLevel, hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
 
 export const metadata: Metadata = {
-  title: "Início — ShieldPath",
+  title: "Início — DefendaDev",
 };
 
 // Classes literais para o Tailwind enxergar no build.

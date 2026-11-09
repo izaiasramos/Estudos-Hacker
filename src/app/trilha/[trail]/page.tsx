@@ -15,7 +15,7 @@ type Params = Promise<{ trail: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { trail: slug } = await params;
   const trail = trailBySlug(slug);
-  return { title: `${trail && trail.status !== "rascunho" ? trail.title : "Trilha"} — ShieldPath` };
+  return { title: `${trail && trail.status !== "rascunho" ? trail.title : "Trilha"} — DefendaDev` };
 }
 
 export default async function TrailPage({ params }: { params: Params }) {

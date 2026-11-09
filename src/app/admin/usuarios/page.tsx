@@ -7,7 +7,7 @@ import { isAdmin } from "@/lib/access";
 import { searchAdminUsers } from "@/lib/admin-users";
 import { getCurrentUser } from "@/lib/current-user";
 
-export const metadata: Metadata = { title: "Usuários · Admin — ShieldPath", robots: { index: false } };
+export const metadata: Metadata = { title: "Usuários · Admin — DefendaDev", robots: { index: false } };
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const actor = await getCurrentUser();

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { trail: slug } = await params;
   const trail = trailBySlug(slug);
   return {
-    title: trail && trail.status !== "rascunho" ? `Selo de ${trail.seal.name} — ShieldPath` : "Selo — ShieldPath",
+    title: trail && trail.status !== "rascunho" ? `Selo de ${trail.seal.name} — DefendaDev` : "Selo — DefendaDev",
   };
 }
 

@@ -96,7 +96,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
             <div className="max-w-3xl">
               <p className="text-sm font-semibold text-defense">Prática responsável</p>
               <h2 id="contrato-titulo" className="mt-2 text-2xl font-semibold tracking-tight">Aprender com segurança também é respeitar limites.</h2>
-              <p className="mt-3 text-base leading-7 text-muted">Todos os exercícios acontecem em ambientes controlados da ShieldPath. As técnicas são apresentadas para prevenção e só devem ser usadas em sistemas próprios ou com autorização explícita.</p>
+              <p className="mt-3 text-base leading-7 text-muted">Todos os exercícios acontecem em ambientes controlados do DefendaDev. As técnicas são apresentadas para prevenção e só devem ser usadas em sistemas próprios ou com autorização explícita.</p>
             </div>
           </div>
         </section>

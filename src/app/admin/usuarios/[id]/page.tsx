@@ -7,7 +7,7 @@ import { isAdmin } from "@/lib/access";
 import { getAdminUser } from "@/lib/admin-users";
 import { getCurrentUser } from "@/lib/current-user";
 
-export const metadata: Metadata = { title: "Detalhe do usuário · Admin — ShieldPath", robots: { index: false } };
+export const metadata: Metadata = { title: "Detalhe do usuário · Admin — DefendaDev", robots: { index: false } };
 const DATE = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" });
 
 export default async function AdminUserDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string; erro?: string }> }) {
