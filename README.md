@@ -1,4 +1,4 @@
-# ShieldPath
+# DefendaDev
 
 Trilha gamificada de segurança para devs júnior. A spec do produto está em `SPEC.md`. Cada stack, onde ela roda e o fluxo para ela funcionar estão em [`docs/stacks.md`](docs/stacks.md).
 

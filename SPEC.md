@@ -1,6 +1,6 @@
 # SPEC — Trilha Gamificada de Segurança para Devs
 
-**Produto (nome provisório):** ShieldPath  
+**Produto:** DefendaDev  
 **Versão:** 0.29
 **Data:** 2026-10-26
 **Status:** beta público em https://estudos-hacker.vercel.app com Postgres no Supabase. Dez trilhas, quiz, simulações didáticas embutidas, progresso, squad, competições e áudio estão disponíveis. Migrações, identidade, isolamento remoto e operação ainda têm pendências em `docs/backlog.md`.
@@ -31,7 +31,7 @@ Devs júnior costumam:
 - não ter um lugar seguro para errar e repetir;
 - misturar conteúdo ofensivo solto da internet com o trabalho do dia a dia, sem método nem ética.
 
-O mercado já tem TryHackMe, PortSwigger Academy, OWASP Juice Shop e similares. ShieldPath se diferencia por ser **feito para o fluxo mental de quem programa**: cada trilha termina com o aluno **corrigindo código**, não só “capturando a flag”.
+O mercado já tem TryHackMe, PortSwigger Academy, OWASP Juice Shop e similares. DefendaDev se diferencia por ser **feito para o fluxo mental de quem programa**: cada trilha termina com o aluno **corrigindo código**, não só “capturando a flag”.
 
 ---
 
@@ -849,4 +849,4 @@ Já decidido e no código:
 
 ## 27. Resumo executivo
 
-ShieldPath é uma plataforma de estudo para devs júnior: autenticação simples, trilhas sequenciais, teoria curta, quiz, prática em laboratório isolado e, obrigatoriamente, defesa no código. A interface é escura, em Tailwind, e prende em três cenas — a trilha se desenhando na entrada, o nó acendendo no progresso e o selo montando no fim. A primeira especialidade é SQL Injection. O sucesso não é o aluno “virar hacker”; é ele conseguir **explicar o buraco e fechá-lo**. Tudo que incentiva uso contra sistemas reais está fora da spec de propósito.
+DefendaDev é uma plataforma de estudo para devs júnior: autenticação simples, trilhas sequenciais, teoria curta, quiz, prática em laboratório isolado e, obrigatoriamente, defesa no código. A interface é escura, em Tailwind, e prende em três cenas — a trilha se desenhando na entrada, o nó acendendo no progresso e o selo montando no fim. A primeira especialidade é SQL Injection. O sucesso não é o aluno “virar hacker”; é ele conseguir **explicar o buraco e fechá-lo**. Tudo que incentiva uso contra sistemas reais está fora da spec de propósito.
