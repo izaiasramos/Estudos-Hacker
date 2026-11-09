@@ -11,7 +11,7 @@ import { many, one } from "@/lib/db";
 import { labRuntimeLabel, listRunningLabs, minutesLeft } from "@/lib/lab-runtime";
 
 export const metadata: Metadata = {
-  title: "Admin — ShieldPath",
+  title: "Admin — DefendaDev",
   robots: { index: false },
 };
 

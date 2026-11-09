@@ -6,7 +6,7 @@ const EMAILS = [
   {
     id: "msg1",
     from: "noreply@shieldpath.app",
-    subject: "Novo login no seu time — ShieldPath",
+    subject: "Novo login no seu time — DefendaDev",
     preview:
       "Você esperava este aviso e confirmou o mesmo evento abrindo diretamente o app. A mensagem não pede senha.",
   },

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { UserAvatar } from "@/components/user-avatar";
 import { isAdmin } from "@/lib/access";
@@ -23,15 +24,13 @@ export async function SiteHeader() {
     <header className="relative z-20 mx-auto flex w-full max-w-[90rem] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-4 sm:flex-nowrap sm:px-8 sm:py-6">
       <Link
         href={user ? "/inicio" : "/"}
+        aria-label="DefendaDev"
         className="inline-flex items-center gap-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
       >
-        <span
-          aria-hidden
-          className="grid size-9 place-items-center rounded-full border border-accent/50 bg-accent/10"
-        >
-          <span className="size-2.5 rounded-full bg-accent" />
+        <Image src="/logo-icone.png" alt="" width={40} height={40} priority className="size-10" />
+        <span className="sr-only text-lg font-semibold tracking-tight min-[480px]:not-sr-only">
+          Defenda<span className="text-info">Dev</span>
         </span>
-        <span className="sr-only text-base font-semibold tracking-tight min-[480px]:not-sr-only">ShieldPath</span>
       </Link>
       <nav className="flex min-w-0 flex-wrap items-center justify-end gap-0.5 sm:gap-2" aria-label="Conta">
         {user ? (

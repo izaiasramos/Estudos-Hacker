@@ -1,4 +1,4 @@
-ShieldPath audio assets
+DefendaDev audio assets
 
 All assets below were published under Creative Commons CC0 1.0 (public-domain dedication):
 https://creativecommons.org/publicdomain/zero/1.0/

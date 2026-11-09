@@ -34,8 +34,8 @@ function locate(slug: string, unitId: string) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { trail: slug, unit: unitId } = await params;
   const { trail, unit } = locate(slug, unitId);
-  if (!trail || trail.status === "rascunho") return { title: "Trilha — ShieldPath" };
-  return { title: `${unit?.title ?? trail.title} — ShieldPath` };
+  if (!trail || trail.status === "rascunho") return { title: "Trilha — DefendaDev" };
+  return { title: `${unit?.title ?? trail.title} — DefendaDev` };
 }
 
 export default async function UnitPage({

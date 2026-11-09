@@ -14,7 +14,7 @@ import { accountLevel, hasTrailSeal, listProgress, nextUnit, sealDate } from "@/
 import { lastLabStartedAt } from "@/lib/users";
 
 export const metadata: Metadata = {
-  title: "Perfil — ShieldPath",
+  title: "Perfil — DefendaDev",
 };
 
 const ERRORS: Record<string, string> = {

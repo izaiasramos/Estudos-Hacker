@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ShieldPath — segurança de aplicações na prática",
+  title: "DefendaDev — segurança de aplicações na prática",
   description:
     "Aprenda a identificar riscos e proteger aplicações com trilhas guiadas, laboratórios seguros e correções validadas por testes.",
 };

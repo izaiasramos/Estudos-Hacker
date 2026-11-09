@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { getCurrentUser } from "@/lib/current-user";
 
 export const metadata: Metadata = {
-  title: "Regras do jogo — ShieldPath",
+  title: "Regras do jogo — DefendaDev",
 };
 
 const EXPLANATIONS: Record<string, string> = {

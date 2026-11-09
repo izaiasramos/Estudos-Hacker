@@ -1,6 +1,6 @@
 # Stacks e fluxos
 
-O que cada peça do ShieldPath faz, onde ela roda e o que precisa estar de pé para ela funcionar. O passo a passo de instalação está no `README.md`; aqui fica o porquê e o caminho de cada pedido.
+O que cada peça do DefendaDev faz, onde ela roda e o que precisa estar de pé para ela funcionar. O passo a passo de instalação está no `README.md`; aqui fica o porquê e o caminho de cada pedido.
 
 ## Visão geral
 

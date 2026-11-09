@@ -11,7 +11,7 @@ import { trailBySlug } from "@/content/trails";
 import { isAdmin } from "@/lib/access";
 import { getCurrentUser } from "@/lib/current-user";
 
-export const metadata: Metadata = { title: "Preview de unidade · Admin — ShieldPath", robots: { index: false } };
+export const metadata: Metadata = { title: "Preview de unidade · Admin — DefendaDev", robots: { index: false } };
 
 export default async function AdminQaUnitPage({ params }: { params: Promise<{ trail: string; unit: string }> }) {
   const actor = await getCurrentUser();

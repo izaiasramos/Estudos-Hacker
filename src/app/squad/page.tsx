@@ -7,7 +7,7 @@ import { competitionAwards, competitionRanking, getSquadCompetition, type Compet
 import { getCurrentUser } from "@/lib/current-user";
 import { squadOf, squadStandings, type Standing } from "@/lib/squad";
 
-export const metadata: Metadata = { title: "Time — ShieldPath" };
+export const metadata: Metadata = { title: "Time — DefendaDev" };
 
 const ERRORS: Record<string, string> = {
   nome: "O nome do time precisa ter entre 2 e 32 caracteres.",

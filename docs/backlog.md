@@ -1,4 +1,4 @@
-# Backlog do ShieldPath
+# Backlog do DefendaDev
 
 **Atualizado em:** 2026-10-26  
 **Estado do produto:** beta público. As trilhas e fluxos principais estão disponíveis, mas ainda existem lacunas para considerar a operação pronta para produção plena.
