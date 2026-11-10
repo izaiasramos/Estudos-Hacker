@@ -12,6 +12,7 @@ export async function signUpAndAcceptRules(page: Page, prefix = "e2e") {
   const email = `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@shieldpath.test`;
 
   await page.goto("/criar-conta");
+  await page.getByLabel("Nome completo").fill("Maria Souza Lima");
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill(PASSWORD);
   await page.getByLabel("Foto de perfil").setInputFiles({ name: "avatar.png", mimeType: "image/png", buffer: AVATAR_PNG });

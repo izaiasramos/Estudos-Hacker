@@ -282,7 +282,7 @@ Objetivo da gamificação: **ritmo e memória**, não ranking tóxico.
 | Selo por trilha | badge + data + critérios | sim |
 | Streak de estudo | dias consecutivos com ≥ 1 unidade, no fuso de São Paulo. Um dia sem unidade zera a sequência na tela | entregue na fase 4 |
 | “Squad” do time | nota média, tentativas, ranking de cada trilha e ranking geral, visíveis para quem está no time | entregue na fase 4 |
-| Ranking aberto fora do time | — | não |
+| Ranking geral na tela inicial | top 10 por XP (desempate: selos, depois conta mais antiga), com nome, foto, nível e selos, visível para quem está logado. Cada pessoa pode sair da lista em Perfil. O e-mail nunca aparece | entregue |
 | Vidas / punição | — | não |
 
 Copy da UI: profissional, direto, sem “você é um hacker elite”. Preferir “você fechou o vetor” / “você defendeu o login”.

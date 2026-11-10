@@ -8,6 +8,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { avatarUrl } from "@/lib/avatar";
 import { PUBLISHED_TRAILS as TRAILS } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
+import { PERSON_NAME_MESSAGE } from "@/lib/person-name";
 import { squadOf } from "@/lib/squad";
 import { readStreak } from "@/lib/streak";
 import { accountLevel, hasTrailSeal, listProgress, nextUnit, sealDate } from "@/lib/trail-progress";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const ERRORS: Record<string, string> = {
-  nome: "O nome precisa ter entre 2 e 60 caracteres.",
+  nome: PERSON_NAME_MESSAGE,
   foto: "Escolha uma imagem para a foto.",
   "foto-tamanho": "A foto é grande demais. Use até 400 KB.",
   "foto-tipo": "Formato não aceito. Use JPG, PNG ou WebP.",
@@ -55,7 +56,7 @@ export default async function PerfilPage({
 
   const query = await searchParams;
   const error = query.erro ? (ERRORS[query.erro] ?? null) : null;
-  const saved = query.ok === "nome" ? "Nome atualizado." : query.ok === "foto" ? "Foto atualizada." : query.ok === "movimento" ? "Preferência de movimento salva." : null;
+  const saved = query.ok === "nome" ? "Nome atualizado." : query.ok === "ranking" ? "Preferência do ranking salva." : query.ok === "foto" ? "Foto atualizada." : query.ok === "movimento" ? "Preferência de movimento salva." : null;
 
   const [progress, { streak }, squad, lastLab] = await Promise.all([
     listProgress(user.id),
@@ -172,7 +173,7 @@ export default async function PerfilPage({
               id="name"
               name="name"
               required
-              minLength={2}
+              minLength={5}
               maxLength={60}
               defaultValue={user.name}
               autoComplete="name"
@@ -198,6 +199,34 @@ export default async function PerfilPage({
               className={`mt-4 inline-flex h-12 items-center rounded-full bg-accent px-6 text-sm font-semibold text-ink ${FOCUS}`}
             >
               Salvar foto
+            </button>
+          </form>
+        </section>
+        <section id="ranking" aria-labelledby="ranking-titulo" className="mt-12 max-w-xl">
+          <h2 id="ranking-titulo" className="text-xl font-semibold">
+            Ranking
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            O ranking da tela inicial mostra seu nome, sua foto, seu XP e seus selos para quem está
+            logado na plataforma. O e-mail nunca aparece. Se preferir estudar sem ficar à mostra,
+            desligue e você sai da lista.
+          </p>
+          <form action="/api/perfil/ranking" method="post" className="mt-4 space-y-4">
+            <label className="flex items-start gap-3 text-sm">
+              <input
+                type="checkbox"
+                name="show"
+                value="on"
+                defaultChecked={user.showInRanking}
+                className="mt-1 accent-[#d6ff4a]"
+              />
+              Aparecer no ranking
+            </label>
+            <button
+              type="submit"
+              className={`inline-flex h-12 items-center rounded-full border border-white/15 px-6 text-sm text-text ${FOCUS}`}
+            >
+              Salvar ranking
             </button>
           </form>
         </section>

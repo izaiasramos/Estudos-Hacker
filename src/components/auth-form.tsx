@@ -12,6 +12,7 @@ type AuthFormProps = {
 export function AuthForm({ mode, error }: AuthFormProps) {
   const submitLabel = mode === "signup" ? "Criar conta" : "Entrar";
   const action = mode === "signup" ? "/api/auth/register" : "/api/auth/login";
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
@@ -57,6 +58,26 @@ export function AuthForm({ mode, error }: AuthFormProps) {
       className="mt-8 space-y-4"
       onSubmit={mode === "login" ? handleLogin : undefined}
     >
+      {mode === "signup" ? (
+        <div>
+          <label htmlFor="name" className="text-sm text-muted">
+            Nome completo
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            required
+            minLength={5}
+            maxLength={60}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className="mt-2 h-12 w-full rounded-[16px] border border-white/10 bg-ink px-4 text-sm text-text outline-none transition focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
+          />
+          <p className="mt-2 text-xs text-muted">Nome e sobrenome reais. Ele aparece no ranking.</p>
+        </div>
+      ) : null}
       <div>
         <label htmlFor="email" className="text-sm text-muted">
           E-mail

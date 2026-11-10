@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { isEmail, redirectTo, sameOrigin } from "@/lib/http";
 import { readAvatarFile } from "@/lib/avatar";
+import { validatePersonName } from "@/lib/person-name";
 import { hashPassword, passwordProblem } from "@/lib/password";
 import { createSessionToken, sessionCookie } from "@/lib/session";
-import { createLocalUser, findUserByEmail, nameFromEmail } from "@/lib/users";
+import { createLocalUser, findUserByEmail } from "@/lib/users";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) {
@@ -14,6 +15,10 @@ export async function POST(request: Request) {
   const email = String(form.get("email") ?? "").trim().toLowerCase();
   const password = String(form.get("password") ?? "");
 
+  const person = validatePersonName(String(form.get("name") ?? ""));
+  if (!person.ok) {
+    return redirectTo(request, "/criar-conta?erro=nome");
+  }
   if (!isEmail(email)) {
     return redirectTo(request, "/criar-conta?erro=email");
   }
@@ -30,7 +35,7 @@ export async function POST(request: Request) {
 
   const user = await createLocalUser({
     email,
-    name: nameFromEmail(email),
+    name: person.name,
     passwordHash: await hashPassword(password),
     avatar: photo.dataUrl,
   });

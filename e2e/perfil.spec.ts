@@ -7,10 +7,10 @@ test("perfil: nome, reduzir movimento e exclusão da conta", async ({ page, acco
   await page.goto("/perfil");
   await expect(page.getByRole("heading", { name: "Selos · 0 de 10" })).toBeVisible();
 
-  await page.getByLabel("Nome", { exact: true }).fill("Ana Teste");
+  await page.getByLabel("Nome", { exact: true }).fill("Ana Souza");
   await page.getByRole("button", { name: "Salvar nome" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Nome atualizado." })).toBeVisible();
-  await expect(page.getByRole("heading", { level: 1, name: "Ana Teste" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Ana Souza" })).toBeVisible();
 
   // Reduzir movimento liga o atributo no <html> em todas as páginas.
   await expect(page.locator("html")).not.toHaveAttribute("data-motion", "reduce");

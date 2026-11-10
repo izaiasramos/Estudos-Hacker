@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Leaderboard } from "@/components/leaderboard";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { PUBLISHED_TRAILS as TRAILS, type Trail } from "@/content/trails";
 import { getCurrentUser } from "@/lib/current-user";
+import { getRanking } from "@/lib/ranking";
 import { readStreak } from "@/lib/streak";
 import { squadOf } from "@/lib/squad";
 import { accountLevel, hasTrailSeal, listProgress, nextUnit } from "@/lib/trail-progress";
@@ -34,6 +36,7 @@ export default async function InicioPage() {
   const level = accountLevel(seals);
   const { streak } = await readStreak(user.id);
   const squad = await squadOf(user.id);
+  const ranking = await getRanking(user.id);
   const streakLabel =
     streak === 0 ? "Nenhum dia fechado" : streak === 1 ? "1 dia" : `${streak} dias seguidos`;
 
@@ -50,7 +53,8 @@ export default async function InicioPage() {
     <div className="relative isolate flex min-h-full flex-col">
       <div aria-hidden className="mesh pointer-events-none absolute inset-x-0 top-0 h-[720px]" />
       <SiteHeader />
-      <main className="relative mx-auto w-full max-w-[90rem] flex-1 px-5 py-8 sm:px-8">
+      <main className="relative mx-auto grid w-full max-w-[90rem] flex-1 gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <div className="min-w-0">
         <p className="text-sm text-muted">
           {user.name}
           <span className="mx-2 text-white/20">·</span>
@@ -89,7 +93,7 @@ export default async function InicioPage() {
         >
           {primary.label}
         </Link>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3">
           {trails.map(({ trail, sealed, upcoming }) => (
             <Link
               key={trail.slug}
@@ -109,7 +113,7 @@ export default async function InicioPage() {
           ))}
           <Link
             href="/squad"
-            className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:col-span-2 lg:col-span-1"
+            className="rounded-[16px] border border-white/10 bg-surface/80 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:col-span-2 2xl:col-span-1"
           >
             <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">Time</p>
             <h2 className="mt-2 text-xl font-semibold">{squad ? squad.name : "Montar o time"}</h2>
@@ -118,6 +122,10 @@ export default async function InicioPage() {
             </p>
           </Link>
         </div>
+        </div>
+        <aside aria-label="Ranking" className="lg:sticky lg:top-6">
+          <Leaderboard ranking={ranking} currentUserId={user.id} optedOut={!user.showInRanking} />
+        </aside>
       </main>
       <SiteFooter />
     </div>
