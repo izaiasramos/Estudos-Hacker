@@ -17,6 +17,8 @@ export type UserRecord = {
   reduceMotion: boolean;
   /** Foto de perfil como data URL validada. Servida por /api/avatar/[id]. */
   avatar: string | null;
+  /** Aparece no ranking da tela inicial. Ligado por padrão; a pessoa desliga no perfil. */
+  showInRanking: boolean;
 };
 
 type UserRow = {
@@ -32,6 +34,7 @@ type UserRow = {
   created_at: string;
   reduce_motion?: boolean;
   avatar?: string | null;
+  show_in_ranking?: boolean;
 };
 
 function mapUser(row: UserRow): UserRecord {
@@ -48,6 +51,7 @@ function mapUser(row: UserRow): UserRecord {
     createdAt: row.created_at,
     reduceMotion: row.reduce_motion === true,
     avatar: row.avatar ?? null,
+    showInRanking: row.show_in_ranking !== false,
   };
 }
 
@@ -93,6 +97,7 @@ export async function createLocalUser(input: {
     xp: 0,
     created_at: new Date().toISOString(),
     avatar: input.avatar,
+    show_in_ranking: true,
   };
   await run(
     `INSERT INTO users (
@@ -133,6 +138,7 @@ export async function createGoogleUser(input: {
     xp: 0,
     created_at: new Date().toISOString(),
     avatar: input.avatar ?? null,
+    show_in_ranking: true,
   };
   await run(
     `INSERT INTO users (
@@ -198,14 +204,12 @@ export async function recordEthicsAttempt(userId: string) {
   );
 }
 
-export function cleanDisplayName(value: string) {
-  const clean = value.trim().replace(/\s+/g, " ");
-  if (clean.length < 2 || clean.length > 60) return null;
-  return clean;
-}
-
 export async function updateUserName(userId: string, name: string) {
   await run("UPDATE users SET name = ? WHERE id = ?", [name, userId]);
+}
+
+export async function updateShowInRanking(userId: string, show: boolean) {
+  await run("UPDATE users SET show_in_ranking = ? WHERE id = ?", [show, userId]);
 }
 
 export async function updateReduceMotion(userId: string, reduce: boolean) {

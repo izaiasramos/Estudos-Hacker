@@ -1,9 +1,12 @@
+import { PERSON_NAME_MESSAGE } from "@/lib/person-name";
+
 export const DATABASE_UNAVAILABLE_MESSAGE =
   "O serviço de dados está temporariamente indisponível. Tente novamente em alguns minutos.";
 
 const ERRORS: Record<string, string> = {
   email: "Informe um e-mail válido.",
   senha: "A senha precisa ter pelo menos 8 caracteres e não pode ser uma senha comum.",
+  nome: PERSON_NAME_MESSAGE,
   foto: "Envie uma foto de perfil para criar a conta.",
   "foto-tamanho": "A foto é grande demais. Use uma imagem de até 400 KB.",
   "foto-tipo": "Formato de foto não aceito. Use JPG, PNG ou WebP.",
