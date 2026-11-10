@@ -5,9 +5,9 @@ import { IDOR_LAB_GAPS } from "@/lib/idor-lab-check";
 
 // Pedidos fictícios da Pizzaria do Lab (labs/pizzaria/fixture.json).
 const ORDERS = [
-  { id: 101, owner: "Alice", item: "Mussarela" },
-  { id: 102, owner: "Alice", item: "Calabresa" },
-  { id: 103, owner: "Bruno", item: "Portuguesa" },
+  { orderId: 101, ownerName: "Alice", itemName: "Mussarela" },
+  { orderId: 102, ownerName: "Alice", itemName: "Calabresa" },
+  { orderId: 103, ownerName: "Bruno", itemName: "Portuguesa" },
 ];
 
 const RESPONSES = [
@@ -51,11 +51,11 @@ export function IdorDefenseLab({ done, missing }: { done: boolean; missing: stri
         </p>
         <ul className="mt-3 space-y-1 font-mono text-[13px]">
           {ORDERS.map((order) => {
-            const id = uuid ? `…${String(order.id * 7919).slice(-4)}` : String(order.id);
-            const mine = order.owner === "Alice";
+            const id = uuid ? `…${String(order.orderId * 7919).slice(-4)}` : String(order.orderId);
+            const mine = order.ownerName === "Alice";
             return (
-              <li key={order.id} className={mine ? "text-text" : leaks ? "text-danger" : "text-defense"}>
-                /pedidos/{id} → {mine ? `200 · ${order.item}` : brunoAnswer}
+              <li key={order.orderId} className={mine ? "text-text" : leaks ? "text-danger" : "text-defense"}>
+                /pedidos/{id} → {mine ? `200 · ${order.itemName}` : brunoAnswer}
               </li>
             );
           })}
@@ -76,7 +76,7 @@ export function IdorDefenseLab({ done, missing }: { done: boolean; missing: stri
       ) : null}
 
       <Check name="owner" checked={owner} onChange={setOwner}>
-        Filtrar pelo dono — <code className="font-mono text-[13px]">WHERE id = ? AND user_id = sessão</code>
+        Filtrar pelo dono — <code className="font-mono text-[13px]">WHERE pedido_id = ? AND proprietario_usuario_id = sessao.usuarioId</code>
       </Check>
       <Check name="server" checked={server} onChange={setServer}>
         Conferir o papel na rota, no servidor — não só esconder o botão

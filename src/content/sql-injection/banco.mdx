@@ -6,16 +6,39 @@ O passo que importa é o do meio: **o servidor escreve o pedido que o banco vai 
 **SQL** (lê-se "ésse-quê-éle") é a linguagem usada para conversar com bancos de dados. Uma **consulta** (em inglês, *query*) é uma frase nessa linguagem, por exemplo: "traga os pedidos cujo email seja este".
 </Callout>
 
-Toda consulta tem duas partes com papéis diferentes:
+Antes da consulta, imagine esta tabela fictícia da Pizzaria do Lab:
 
-- **Instrução:** o que fazer. Qual tabela ler, qual filtro aplicar.
-- **Valor:** o dado que muda a cada busca. Aqui, o email.
+| pedido_id | nome_do_item | email_cliente |
+|---:|---|---|
+| 101 | Margherita | alice@exemplo.test |
+| 102 | Calabresa | bruno@exemplo.test |
+
+Uma **tabela** organiza dados em linhas e colunas. Cada linha acima é um pedido. Cada coluna descreve uma parte dele:
+
+- `pedido_id`: número que identifica aquele pedido;
+- `nome_do_item`: produto escolhido pelo cliente;
+- `email_cliente`: email de quem fez o pedido.
+
+Os nomes usam `snake_case`: palavras minúsculas separadas por `_`, um padrão comum em bancos de dados.
+
+Agora leia a consulta por partes:
 
 <Code caption="Uma busca por email">
 ```sql
-SELECT id, item FROM pedidos WHERE email = ?
+SELECT pedido_id, nome_do_item
+FROM pedidos
+WHERE email_cliente = ?
 ```
 </Code>
+
+- `SELECT pedido_id, nome_do_item`: escolha as colunas que serão devolvidas;
+- `FROM pedidos`: leia as linhas da tabela `pedidos`;
+- `WHERE email_cliente = ?`: mantenha apenas as linhas cujo email corresponda ao valor enviado.
+
+Toda consulta tem duas partes com papéis diferentes:
+
+- **Instrução:** o que fazer. Qual tabela ler, quais colunas devolver e qual filtro aplicar.
+- **Valor:** o dado que muda a cada busca. Aqui, o email da cliente.
 
 O `?` é uma vaga reservada. O email de Alice entra nela por um caminho separado, então a instrução nunca muda, não importa quem esteja buscando.
 

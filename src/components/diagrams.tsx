@@ -198,7 +198,7 @@ function Idor() {
       <Arrow id={id} x1={192} y1={220} x2={263} y2={220} />
       <Arrow id={id} x1={457} y1={220} x2={528} y2={220} tone="defense" />
       <rect x={20} y={296} width={680} height={78} rx={12} className="fill-surface-raised stroke-line-strong" strokeWidth={1.4} />
-      <Text x={36} y={324} lines={["SELECT * FROM pedidos", "WHERE id = 103  AND  dono = 'alice'   ← o dono vem da sessão, não da URL"]} size={14} mono anchor="start" />
+      <Text x={36} y={324} lines={["SELECT pedido_id, nome_do_item FROM pedidos", "WHERE pedido_id = 103  AND  proprietario_usuario_id = 'alice'   ← o dono vem da sessão, não da URL"]} size={14} mono anchor="start" />
     </Svg>
   );
 }

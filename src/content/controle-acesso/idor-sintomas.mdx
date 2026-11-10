@@ -3,27 +3,27 @@ Na revisão da rota de pedidos, pergunte de onde vêm os dois valores que decide
 <Code caption={"Consulta que confia no identificador"}>
 ```js
 const pedido = await db.one(
-  "SELECT * FROM pedidos WHERE id = ?",
-  [params.id],
+  "SELECT pedido_id, nome_do_item, situacao_do_pedido FROM pedidos WHERE pedido_id = ?",
+  [params.pedidoId],
 );
 return pedido;
 ```
 </Code>
 
-O `?` aqui protege contra injeção de SQL, mas não cria autorização. A diferença está no filtro de dono:
+Nesta consulta, `pedido_id` é a coluna que identifica o pedido. `params.pedidoId` é o número retirado do endereço, como o `103` de `/pedidos/103`. O `?` protege contra injeção de SQL, mas não cria autorização. A diferença está no segundo filtro:
 
 <Code caption={"Consulta que exige o dono da sessão"}>
 ```js
 const pedido = await db.one(
-  "SELECT * FROM pedidos WHERE id = ? AND user_id = ?",
-  [params.id, sessao.userId],
+  "SELECT pedido_id, nome_do_item, situacao_do_pedido FROM pedidos WHERE pedido_id = ? AND proprietario_usuario_id = ?",
+  [params.pedidoId, sessao.usuarioId],
 );
 if (!pedido) return notFound();
 return pedido;
 ```
 </Code>
 
-O `user_id` vem da sessão que o servidor emitiu e verificou, nunca do corpo do pedido, da URL ou de um campo escondido. Para um recurso de outra pessoa, a equipe escolhe entre **403** (proibido) e **404** (não encontrado, sem confirmar que existe). Em ambos os casos, nunca devolve o conteúdo.
+O `proprietario_usuario_id` é a coluna que guarda quem é dono do pedido. `params.pedidoId` veio do endereço; `sessao.usuarioId` veio da sessão que o servidor emitiu e verificou, nunca do corpo do pedido, da URL ou de um campo escondido. Para um recurso de outra pessoa, a equipe escolhe entre **403** (proibido) e **404** (não encontrado, sem confirmar que existe). Em ambos os casos, nunca devolve o conteúdo.
 
 **Em resumo:** identificar quem pede, sem filtrar o recurso, ainda é acesso quebrado.
 
@@ -36,20 +36,22 @@ O `user_id` vem da sessão que o servidor emitiu e verificou, nunca do corpo do 
 import { createServer } from "node:http";
 
 const pedidos = [
-  { id: 101, dono: "alice", item: "Margherita" },
-  { id: 102, dono: "alice", item: "Suco" },
-  { id: 103, dono: "bruno", item: "Calabresa" },
+  { pedidoId: 101, proprietario: "alice", nomeDoItem: "Margherita" },
+  { pedidoId: 102, proprietario: "alice", nomeDoItem: "Suco" },
+  { pedidoId: 103, proprietario: "bruno", nomeDoItem: "Calabresa" },
 ];
 
 createServer((req, res) => {
   const usuarioLogado = "alice"; // finja que isso veio de uma sessão válida
-  const id = Number(req.url.split("/").pop());
+  const pedidoId = Number(req.url.split("/").pop());
 
   // INSEGURO: acha pelo id e entrega
-  const pedido = pedidos.find((p) => p.id === id);
+  const pedido = pedidos.find((pedido) => pedido.pedidoId === pedidoId);
 
   // SEGURO: troque a linha acima por esta
-  // const pedido = pedidos.find((p) => p.id === id && p.dono === usuarioLogado);
+  // const pedido = pedidos.find((pedido) =>
+  pedido.pedidoId === pedidoId && pedido.proprietario === usuarioLogado
+);
 
   if (!pedido) { res.statusCode = 404; return res.end("não encontrado"); }
   res.end(JSON.stringify(pedido));
@@ -65,6 +67,6 @@ createServer((req, res) => {
 
 **Agora conserte:** comente a linha "INSEGURO" e descomente a linha "SEGURO". Reinicie o servidor e repita. O `/pedidos/103` passa a responder `não encontrado`, e o `101` continua funcionando.
 
-**O que observar:** a diferença é um `&& p.dono === usuarioLogado`. Um filtro de dono, vindo da sessão, é o que separa um app seguro de um vazamento.
+**O que observar:** a diferença é um `&& pedido.proprietario === usuarioLogado`. Um filtro de proprietário, vindo da sessão, é o que separa um app seguro de um vazamento.
 
 <SecurityMicroPractice topic="idor" />

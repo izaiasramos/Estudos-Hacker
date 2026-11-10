@@ -64,7 +64,7 @@ function Feedback({ result, attempt, success, retry }: { result: Result; attempt
 
 function ClassifyMission() {
   const items = [
-    { id: "select", label: "SELECT id FROM pedidos WHERE email = ?", answer: "instruction" },
+    { id: "select", label: "SELECT pedido_id FROM pedidos WHERE email_cliente = ?", answer: "instruction" },
     { id: "email", label: "alice@exemplo.test", answer: "value" },
     { id: "table", label: "A tabela pedidos", answer: "instruction" },
   ];

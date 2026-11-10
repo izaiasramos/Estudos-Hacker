@@ -75,10 +75,10 @@ const SCENARIOS: Record<Topic, Scenario> = {
   idor: {
     title: "Vincule o recurso à pessoa da sessão",
     observe: "Alice altera /pedidos/101 para /pedidos/103. A rota busca somente pelo ID e devolve o pedido de Bruno.",
-    vulnerable: `const order = await orders.findById(params.id)\nreturn Response.json(order)`,
+    vulnerable: `const order = await orderRepository.findById(params.orderId)\nreturn Response.json(order)`,
     diagnoses: [{ id: "uuid", label: "O ID precisa ser mais difícil de adivinhar" }, { id: "owner", label: "A consulta não relaciona o pedido ao dono da sessão" }, { id: "login", label: "Alice não está autenticada" }],
     answer: "owner",
-    fixes: [{ id: "hidden", label: "Trocar o número por UUID", code: `orders.findById(params.uuid)` }, { id: "filter", label: "Buscar por ID e dono vindo da sessão", code: `orders.findOne({ id: params.id, userId: session.userId })` }],
+    fixes: [{ id: "hidden", label: "Trocar o número por UUID", code: `orderRepository.findById(params.orderUuid)` }, { id: "filter", label: "Buscar por ID e dono vindo da sessão", code: `orderRepository.findOne({ orderId: params.orderId, ownerUserId: session.userId })` }],
     fix: "filter",
     tests: [{ name: "Alice lê o pedido dela", before: "passa", after: "passa" }, { name: "Alice tenta pedido de Bruno", before: "falha: 200 com dados", after: "passa: 404 sem corpo" }, { name: "Resposta expõe só campos permitidos", before: "falha: registro inteiro", after: "passa: DTO" }],
     lesson: "Identificador localiza. Autorização decide se a pessoa da sessão pode acessar aquele recurso.",

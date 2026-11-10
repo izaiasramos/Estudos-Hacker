@@ -6,7 +6,7 @@ import { DarkPlusCodeEditor } from "@/components/dark-plus-code";
 import { emitAudioOutcome } from "@/lib/audio-events";
 import { VULNERABLE_QUERIES, type LabTest } from "@/lib/lab-check";
 
-const DRAFT_KEY = "shieldpath:sql-defense-draft";
+const DRAFT_KEY = "shieldpath:sql-defense-draft:v2";
 
 export function DefenseEditor({ done }: { done: boolean }) {
   const router = useRouter();
@@ -22,11 +22,11 @@ export function DefenseEditor({ done }: { done: boolean }) {
 
   function inspectDraft() {
     const noConcat = !(/\+\s*email\b|\bemail\s*\+|\$\{\s*email\s*\}/.test(source));
-    const placeholders = (source.match(/WHERE\s+email\s*=\s*\?/gi) ?? []).length;
+    const placeholders = (source.match(/WHERE\s+(?:email_usuario|email_cliente)\s*=\s*\?/gi) ?? []).length;
     const valueLists = (source.match(/,\s*\[\s*email\s*\]\s*\)/g) ?? []).length;
     setDraftChecks([
       { id: "draft-concat", name: "Remover a concatenação nas duas funções", state: noConcat ? "pass" : "fail", detail: noConcat ? "Não encontramos email colado com + ou interpolação." : "Ainda existe email participando da construção da string SQL." },
-      { id: "draft-slots", name: "Criar uma vaga ? em cada consulta", state: placeholders >= 2 ? "pass" : "fail", detail: `${Math.min(placeholders, 2)} de 2 consultas têm WHERE email = ?.` },
+      { id: "draft-slots", name: "Criar uma vaga ? em cada consulta", state: placeholders >= 2 ? "pass" : "fail", detail: `${Math.min(placeholders, 2)} de 2 consultas têm o filtro de email com uma vaga ?.` },
       { id: "draft-values", name: "Enviar [email] como segundo argumento", state: valueLists >= 2 ? "pass" : "fail", detail: `${Math.min(valueLists, 2)} de 2 chamadas enviam a lista [email].` },
     ]);
   }

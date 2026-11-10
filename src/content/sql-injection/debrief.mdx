@@ -36,7 +36,7 @@ Num relatório de incidente real, registre: de onde veio o valor, qual função 
 <Code caption="A fronteira corrigida em uma única função">
 ```js
 function findUser(db, email) {
-  const sql = "SELECT id, name FROM usuarios WHERE email = ?"
+  const sql = "SELECT usuario_id, nome FROM usuarios WHERE email_usuario = ?"
   const values = [email]
   return db.query(sql, values)
 }
