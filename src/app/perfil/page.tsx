@@ -226,7 +226,7 @@ export default async function PerfilPage({
               type="submit"
               className={`inline-flex h-12 items-center rounded-full border border-white/15 px-6 text-sm text-text ${FOCUS}`}
             >
-              Salvar preferência
+              Salvar ranking
             </button>
           </form>
         </section>
