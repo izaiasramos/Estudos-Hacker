@@ -9,7 +9,7 @@ Nas duas funções, substitua o email colado no texto por um `?` e envie o valor
 
 <Code caption="Formato esperado pelo laboratório">
 ```js
-db.query("SELECT ... WHERE email = ?", [email])
+db.query("SELECT ... WHERE email_cliente = ?", [email])
 ```
 </Code>
 
@@ -21,7 +21,7 @@ A tarefa de negócio continua igual. Você muda apenas a fronteira entre instru�
 ```js
 function findUser(db, email) {
   return db.query(
-    "SELECT id, name FROM usuarios WHERE email = '" + email + "'"
+    "SELECT usuario_id, nome FROM usuarios WHERE email_usuario = '" + email + "'"
   )
 }
 ```
@@ -33,7 +33,7 @@ O parâmetro `email` da função JavaScript já existe aqui. Ele guarda o valor 
 ```js
 function findUser(db, email) {
   return db.query(
-    "SELECT id, name FROM usuarios WHERE email = ?",
+    "SELECT usuario_id, nome FROM usuarios WHERE email_usuario = ?",
     [email],
   )
 }
@@ -43,7 +43,7 @@ function findUser(db, email) {
 Leia a versão correta em três passos:
 
 1. `findUser(db, email)` recebe o banco e o email como parâmetros da função JavaScript.
-2. `WHERE email = ?` mantém a instrução SQL fixa e cria uma vaga.
+2. `WHERE email_cliente = ?` mantém a instrução SQL fixa e cria uma vaga.
 3. `[email]` fornece o valor da primeira vaga como segundo argumento de `db.query`.
 
 Um `?` corresponde a um valor. Com duas vagas, a ordem da lista importa:
@@ -52,14 +52,16 @@ Um `?` corresponde a um valor. Com duas vagas, a ordem da lista importa:
 ```js
 function listOrders(db, email, status) {
   return db.query(
-    "SELECT id, item FROM pedidos WHERE email = ? AND status = ?",
+    "SELECT pedido_id, nome_do_item FROM pedidos WHERE email_cliente = ? AND situacao_do_pedido = ?",
     [email, status],
   )
 }
 ```
 </Code>
 
-Aqui, `email` preenche a primeira vaga e `status` preenche a segunda. Eles continuam sendo dados separados da instrução.
+Aqui, `email` preenche a primeira vaga (`email_cliente`) e `status` preenche a segunda (`situacao_do_pedido`). Eles continuam sendo dados separados da instrução.
+
+Os nomes dizem o papel de cada coluna: `pedido_id` identifica o pedido, `nome_do_item` é o produto e `situacao_do_pedido` guarda valores como `aberto` ou `entregue`.
 
 <SqlDefensePractice mode="assemble" />
 

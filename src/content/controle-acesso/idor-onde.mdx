@@ -8,7 +8,7 @@ O controle costuma sumir quando a equipe confia no que a interface esconde:
 Um **UUID** (*Universally Unique Identifier*) é um identificador longo e difícil de adivinhar. Ele ajuda a evitar que alguém teste números em sequência, mas **não autoriza nada**. Pode vazar em um link, num log ou num email. E uma interface bem desenhada pode esconder ações, mas só a rota consegue recusá-las.
 
 <Callout tone="armadilha">
-Compare: `WHERE id = ?` encontra qualquer registro cujo id você conheça. `WHERE id = ? AND user_id = ?` exige também o dono, que vem da sessão.
+Compare: `WHERE pedido_id = ?` encontra qualquer pedido cujo identificador você conheça. `WHERE pedido_id = ? AND proprietario_usuario_id = ?` exige também o proprietário, que vem da sessão. Aqui, `pedido_id` identifica o pedido; `proprietario_usuario_id` identifica a pessoa dona dele. Os dois `?` são vagas preenchidas na mesma ordem.
 </Callout>
 
 Outra falha comum é o ***mass assignment***: copiar automaticamente todos os campos do corpo do pedido para o registro. Se o modelo tem `role` ou `userId`, o cliente pode tentar trocar o próprio papel ou o dono. A saída é aceitar só uma lista explícita de campos.

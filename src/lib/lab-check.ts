@@ -1,9 +1,9 @@
 export const VULNERABLE_QUERIES = `function findUser(db, email) {
-  return db.query("SELECT id, name FROM usuarios WHERE email = '" + email + "'");
+  return db.query("SELECT usuario_id, nome FROM usuarios WHERE email_usuario = '" + email + "'");
 }
 
 function listOrders(db, email) {
-  return db.query("SELECT id, item FROM pedidos WHERE email = '" + email + "'");
+  return db.query("SELECT pedido_id, nome_do_item FROM pedidos WHERE email_cliente = '" + email + "'");
 }
 `;
 
@@ -41,8 +41,8 @@ const BEHAVIOR_RESULTS: LabTest[] = [
   },
 ];
 
-const FIND_USER_QUERY = /^\s*function\s+findUser\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+id\s*,\s*name\s+FROM\s+usuarios\s+WHERE\s+email\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
-const LIST_ORDERS_QUERY = /^\s*function\s+listOrders\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+id\s*,\s*item\s+FROM\s+pedidos\s+WHERE\s+email\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
+const FIND_USER_QUERY = /^\s*function\s+findUser\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+usuario_id\s*,\s*nome\s+FROM\s+usuarios\s+WHERE\s+email_usuario\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
+const LIST_ORDERS_QUERY = /^\s*function\s+listOrders\s*\(\s*db\s*,\s*email\s*\)\s*\{\s*return\s+db\.query\(\s*["'`]SELECT\s+pedido_id\s*,\s*nome_do_item\s+FROM\s+pedidos\s+WHERE\s+email_cliente\s*=\s*\?["'`]\s*,\s*(?:\[\s*email\s*\]|email)\s*\)\s*;?\s*\}\s*$/i;
 
 export function reviewQueries(source: string) {
   const problems: string[] = [];
@@ -61,13 +61,13 @@ export function reviewQueries(source: string) {
       name: "findUser",
       body: listAt >= 0 ? source.slice(0, listAt) : source,
       expected: FIND_USER_QUERY,
-      example: 'db.query("SELECT id, name FROM usuarios WHERE email = ?", [email])',
+      example: 'db.query("SELECT usuario_id, nome FROM usuarios WHERE email_usuario = ?", [email])',
     },
     {
       name: "listOrders",
       body: listAt >= 0 ? source.slice(listAt) : "",
       expected: LIST_ORDERS_QUERY,
-      example: 'db.query("SELECT id, item FROM pedidos WHERE email = ?", [email])',
+      example: 'db.query("SELECT pedido_id, nome_do_item FROM pedidos WHERE email_cliente = ?", [email])',
     },
   ];
 

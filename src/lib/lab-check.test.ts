@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { reviewQueries, VULNERABLE_QUERIES } from "@/lib/lab-check";
 
 const FIXED = `function findUser(db, email) {
-  return db.query("SELECT id, name FROM usuarios WHERE email = ?", [email]);
+  return db.query("SELECT usuario_id, nome FROM usuarios WHERE email_usuario = ?", [email]);
 }
 
 function listOrders(db, email) {
-  return db.query("SELECT id, item FROM pedidos WHERE email = ?", [email]);
+  return db.query("SELECT pedido_id, nome_do_item FROM pedidos WHERE email_cliente = ?", [email]);
 }
 `;
 

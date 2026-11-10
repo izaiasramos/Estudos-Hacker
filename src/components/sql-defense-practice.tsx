@@ -38,8 +38,8 @@ function SpotPractice() {
   const lines = [
     { id: "read", code: "const email = String(form.get('email') ?? '')" },
     { id: "call", code: "return findUser(db, email)" },
-    { id: "bad", code: `return db.query("SELECT id FROM usuarios WHERE email = '" + email + "'")` },
-    { id: "safe", code: `return db.query("SELECT id FROM usuarios WHERE email = ?", [email])` },
+    { id: "bad", code: `return db.query("SELECT usuario_id FROM usuarios WHERE email_usuario = '" + email + "'")` },
+    { id: "safe", code: `return db.query("SELECT usuario_id FROM usuarios WHERE email_usuario = ?", [email])` },
   ];
   const [picked, setPicked] = useState("");
   const [result, setResult] = useState<Result>("idle");

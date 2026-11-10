@@ -10,10 +10,10 @@ const TRUE_EMAIL = "alice@exemplo.test' OR '1'='1";
 const STEPS = ["normal", "quote", "false", "true", "build", "defense"] as const;
 type Step = (typeof STEPS)[number];
 
-type Person = { name: string; email: string; item: string };
-const PEOPLE: Person[] = [
-  { name: "Alice", email: NORMAL_EMAIL, item: "Margherita" },
-  { name: "Bruno", email: "bruno@exemplo.test", item: "Calabresa" },
+type SimulatedOrder = { customerName: string; customerEmail: string; itemName: string };
+const ORDERS: SimulatedOrder[] = [
+  { customerName: "Alice", customerEmail: NORMAL_EMAIL, itemName: "Margherita" },
+  { customerName: "Bruno", customerEmail: "bruno@exemplo.test", itemName: "Calabresa" },
 ];
 
 const STEP_COPY: Record<Step, { kicker: string; title: string; instruction: string }> = {
@@ -45,7 +45,7 @@ export function SqlAttackWorkbench() {
   const syntaxError = step === "quote";
   const injectedTruth = step === "true" || (step === "build" && buildResult === "success");
   const parameterized = step === "defense";
-  const visible = parameterized ? [] : injectedTruth ? PEOPLE : PEOPLE.filter((person) => person.email === NORMAL_EMAIL);
+  const visible = parameterized ? [] : injectedTruth ? ORDERS : ORDERS.filter((order) => order.customerEmail === NORMAL_EMAIL);
 
   function selectStep(next: Step) {
     setStep(next);
@@ -136,7 +136,7 @@ export function SqlAttackWorkbench() {
             ) : parameterized ? (
               <DefenseComparison input={input} />
             ) : (
-              <ResultTable people={PEOPLE} injectedTruth={injectedTruth} visible={visible} />
+              <ResultTable people={ORDERS} injectedTruth={injectedTruth} visible={visible} />
             )}
             <StepConclusion step={step} />
           </div>
@@ -173,13 +173,13 @@ function QueryAssembly({ input, parameterized, syntaxError }: { input: string; p
       <h4 className="text-base font-semibold text-text">1. O que o servidor entrega ao banco</h4>
       {parameterized ? (
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-defense/30 bg-defense/5 p-3"><p className="text-xs font-bold uppercase text-defense">1º argumento de db.query · instrução fixa</p><code className="mt-2 block break-words text-sm text-text">SELECT email, item FROM pedidos WHERE email = ?</code><p className="mt-2 text-xs text-muted">O ? é a vaga. Ele não contém o email.</p></div>
+          <div className="rounded-xl border border-defense/30 bg-defense/5 p-3"><p className="text-xs font-bold uppercase text-defense">1º argumento de db.query · instrução fixa</p><code className="mt-2 block break-words text-sm text-text">SELECT email_cliente, nome_do_item FROM pedidos WHERE email_cliente = ?</code><p className="mt-2 text-xs text-muted">O ? é a vaga. Ele não contém o email.</p></div>
           <div className="rounded-xl border border-info/30 bg-info/5 p-3"><p className="text-xs font-bold uppercase text-info">2º argumento · lista [email]</p><code className="mt-2 block break-words text-sm text-text">[{JSON.stringify(input)}]</code><p className="mt-2 text-xs text-muted">A variável email contém o payload inteiro como um único valor.</p></div>
         </div>
       ) : (
         <>
           <div className="mt-3 flex flex-wrap items-center gap-1 rounded-xl border border-white/10 bg-black/35 p-3 font-mono text-sm leading-7">
-            <span className="text-muted">SELECT email, item FROM pedidos WHERE email = &apos;</span>
+            <span className="text-muted">SELECT email_cliente, nome_do_item FROM pedidos WHERE email_cliente = &apos;</span>
             <span className="rounded bg-info/15 px-1 text-info">{input}</span>
             <span className="text-muted">&apos;</span>
           </div>
@@ -212,11 +212,11 @@ function LogicCard({ title, children }: { title: string; children: React.ReactNo
   return <div className="h-full rounded-xl border border-white/10 bg-black/25 p-3"><p className="text-xs font-bold uppercase tracking-wide text-muted">{title}</p><p className="mt-2 text-sm text-text">{children}</p></div>;
 }
 
-function ResultTable({ people, injectedTruth, visible }: { people: Person[]; injectedTruth: boolean; visible: Person[] }) {
+function ResultTable({ people, injectedTruth, visible }: { people: SimulatedOrder[]; injectedTruth: boolean; visible: SimulatedOrder[] }) {
   return (
     <section className="overflow-hidden rounded-[18px] border border-line bg-ink/65">
       <div className="p-4"><h4 className="text-base font-semibold text-text">3. Avalie cada linha do banco</h4><p className="mt-1 text-sm text-muted">O banco repete a condição para cada pedido.</p></div>
-      <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="border-y border-white/10 bg-white/[0.03] text-xs uppercase text-muted"><tr><th className="p-3">Pedido</th><th className="p-3">Email = Alice</th><th className="p-3">Condição após OR</th><th className="p-3">Linha incluída?</th></tr></thead><tbody>{people.map((person) => { const emailMatch = person.email === NORMAL_EMAIL; const included = visible.some((item) => item.email === person.email); return <tr key={person.email} className={included && !emailMatch ? "bg-danger/10" : "border-t border-white/5"}><td className="p-3 text-text">{person.item} · {person.name}</td><td className="p-3">{emailMatch ? "verdadeiro" : "falso"}</td><td className="p-3">{emailMatch ? "verdadeiro" : injectedTruth ? "falso OR verdadeiro = verdadeiro" : "falso"}</td><td className={`p-3 font-semibold ${included && !emailMatch ? "text-danger" : included ? "text-defense" : "text-muted"}`}>{included ? "Sim" : "Não"}</td></tr>; })}</tbody></table></div>
+      <div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="border-y border-white/10 bg-white/[0.03] text-xs uppercase text-muted"><tr><th className="p-3">Pedido</th><th className="p-3">Email = Alice</th><th className="p-3">Condição após OR</th><th className="p-3">Linha incluída?</th></tr></thead><tbody>{people.map((order) => { const emailMatch = order.customerEmail === NORMAL_EMAIL; const included = visible.some((candidate) => candidate.customerEmail === order.customerEmail); return <tr key={order.customerEmail} className={included && !emailMatch ? "bg-danger/10" : "border-t border-white/5"}><td className="p-3 text-text">{order.itemName} · {order.customerName}</td><td className="p-3">{emailMatch ? "verdadeiro" : "falso"}</td><td className="p-3">{emailMatch ? "verdadeiro" : injectedTruth ? "falso OR verdadeiro = verdadeiro" : "falso"}</td><td className={`p-3 font-semibold ${included && !emailMatch ? "text-danger" : included ? "text-defense" : "text-muted"}`}>{included ? "Sim" : "Não"}</td></tr>; })}</tbody></table></div>
       {injectedTruth ? <p className="m-4 rounded-xl border border-danger/35 bg-danger/10 p-3 text-sm font-semibold text-danger">Vazamento reproduzido: Bruno entrou porque a condição adicionada era verdadeira, não porque o email dele correspondia.</p> : <p className="m-4 rounded-xl border border-defense/30 bg-defense/10 p-3 text-sm text-defense">O filtro ainda depende do email. Somente Alice foi incluída.</p>}
     </section>
   );

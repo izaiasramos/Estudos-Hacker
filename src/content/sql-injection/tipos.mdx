@@ -24,18 +24,23 @@ A decisão prática não depende do nome. Parametrize toda consulta, inclusive a
 
 <Code caption="O valor é salvo normalmente hoje">
 ```js
-function saveNickname(db, nickname) {
-  return db.query("UPDATE usuarios SET apelido = ? WHERE id = ?", [nickname, userId])
+function salvarApelido(db, usuarioId, apelido) {
+  return db.query(
+    "UPDATE usuarios SET apelido = ? WHERE usuario_id = ?",
+    [apelido, usuarioId],
+  )
 }
 ```
 </Code>
 
-Até aqui, o apelido foi tratado como dado. O problema pode aparecer amanhã, se outro código confiar nele e concatená-lo:
+`usuarioId` identifica a pessoa que será atualizada; `apelido` é o novo valor. Até aqui, o apelido foi tratado como dado. O problema pode aparecer amanhã, se outro código confiar nele e concatená-lo:
 
 <Code caption="Forma errada: um valor vindo do próprio banco é colado em outra consulta">
 ```js
-function buildReport(db, storedNickname) {
-  const sql = "SELECT * FROM relatorio WHERE autor = '" + storedNickname + "'"
+function montarRelatorio(db, apelidoArmazenado) {
+  const sql =
+    "SELECT relatorio_id, titulo FROM relatorios WHERE autor_apelido = '" +
+    apelidoArmazenado + "'"
   return db.query(sql)
 }
 ```
@@ -43,10 +48,10 @@ function buildReport(db, storedNickname) {
 
 <Code caption="Forma correta: o valor continua separado, mesmo vindo do banco">
 ```js
-function buildReport(db, storedNickname) {
+function montarRelatorio(db, apelidoArmazenado) {
   return db.query(
-    "SELECT * FROM relatorio WHERE autor = ?",
-    [storedNickname],
+    "SELECT relatorio_id, titulo FROM relatorios WHERE autor_apelido = ?",
+    [apelidoArmazenado],
   )
 }
 ```

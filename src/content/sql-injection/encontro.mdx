@@ -5,7 +5,7 @@ Aqui está a versão que **cola** o email no texto SQL:
 <Code caption="Versão que concatena">
 ```js
 const email = body.email
-db.query("SELECT id FROM usuarios WHERE email = '" + email + "'")
+db.query("SELECT usuario_id FROM usuarios WHERE email_usuario = '" + email + "'")
 ```
 </Code>
 
@@ -16,7 +16,7 @@ Agora a versão que **separa**:
 <Code caption="Versão que envia o valor à parte">
 ```js
 const email = body.email
-db.query("SELECT id FROM usuarios WHERE email = ?", [email])
+db.query("SELECT usuario_id FROM usuarios WHERE email_usuario = ?", [email])
 ```
 </Code>
 
@@ -30,7 +30,7 @@ O `?` é um **placeholder**, um marcador de vaga. O `[email]` entrega o valor pr
 ```js
 function findUser(db, email) { // 1. email recebe o valor dentro da função JavaScript
   return db.query(
-    "SELECT id FROM usuarios WHERE email = ?", // 2. ? é uma vaga na instrução SQL
+    "SELECT usuario_id FROM usuarios WHERE email_usuario = ?", // 2. ? é uma vaga na instrução SQL
     [email],                                    // 3. o valor da vaga vai separado
   )
 }
@@ -79,7 +79,7 @@ Receber o email não é a vulnerabilidade. O problema aparece no próximo passo,
 <Code caption="3A. Forma errada: o valor ajuda a construir a instrução">
 ```js
 function findUser(db, email) {
-  const sql = "SELECT id, name FROM usuarios WHERE email = '" + email + "'"
+  const sql = "SELECT usuario_id, nome FROM usuarios WHERE email_usuario = '" + email + "'"
   return db.query(sql)
 }
 ```
@@ -88,7 +88,7 @@ function findUser(db, email) {
 <Code caption="3B. Forma correta: instrução fixa e valor separado">
 ```js
 function findUser(db, email) {
-  const sql = "SELECT id, name FROM usuarios WHERE email = ?"
+  const sql = "SELECT usuario_id, nome FROM usuarios WHERE email_usuario = ?"
   return db.query(sql, [email])
 }
 ```
