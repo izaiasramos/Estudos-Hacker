@@ -4,13 +4,19 @@ Na Pizzaria, o inspetor do navegador mostra `sessao=chave-da-alice`. Três obser
 2. O navegador envia a mesma chave por HTTP, sem cadeado.
 3. A chave é a mesma antes e depois do login.
 
-<Code caption={"Cada sintoma aponta para uma decisão que faltou"}>
-```
-script lê o cookie       → falta HttpOnly
-cookie segue por HTTP    → falta Secure
-chave não muda no login  → falta trocar a chave no login
-```
-</Code>
+<DidacticTable
+  caption="Do sintoma à defesa que está faltando"
+  columns={[
+    { key: "sintoma", label: "Sintoma observado" },
+    { key: "defesa", label: "Defesa ausente" },
+    { key: "risco", label: "Risco" },
+  ]}
+  rows={[
+    { sintoma: "Script lê o cookie", defesa: "HttpOnly", risco: "Um script malicioso pode copiar a chave" },
+    { sintoma: "Cookie segue por HTTP", defesa: "Secure", risco: "A chave pode viajar sem criptografia" },
+    { sintoma: "Chave não muda no login", defesa: "Rotação da sessão", risco: "Quem sabia a chave antiga mantém o acesso" },
+  ]}
+/>
 
 O primeiro caso deixa qualquer script na página ler a chave. O segundo permite que ela viaje por um canal sem proteção. O terceiro é a **fixação de sessão**: se alguém conhecia a chave antes do login, continua conhecendo depois, agora ligada à conta já autenticada.
 

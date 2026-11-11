@@ -1,8 +1,19 @@
 Hora de transformar sinais em decisões. Os três rótulos abaixo são **estados da investigação**, e não palpites sobre a aparência:
 
-- **Legítimo:** você confirmou por um canal independente.
-- **Suspeito:** há risco ou falta informação. Pare, não clique e verifique.
-- **Phishing:** o cenário tem evidências claras de golpe. Reporte.
+<DidacticTable
+  caption="Da evidência à próxima ação"
+  columns={[
+    { key: "estado", label: "Estado" },
+    { key: "criterio", label: "Quando usar" },
+    { key: "acao", label: "Próxima ação" },
+    { key: "interagir", label: "Interagir com a mensagem?" },
+  ]}
+  rows={[
+    { estado: "Legítimo", criterio: "Você confirmou por um canal independente", acao: "Seguir pelo app ou canal oficial", interagir: "Só depois de confirmar" },
+    { estado: "Suspeito", criterio: "Há risco ou falta informação", acao: "Parar e verificar por outro canal", interagir: "Não" },
+    { estado: "Phishing", criterio: "Há evidências claras de golpe", acao: "Reportar e remover", interagir: "Não" },
+  ]}
+/>
 
 <Callout tone="dev">
 Raciocínio esperado: observe pressão, origem, pedido e contexto. Não interaja com nada que veio na mensagem. Confirme no app ou num canal oficial. Só então classifique e, se for o caso, reporte.

@@ -6,6 +6,21 @@ Compare duas chaves de sessão. A primeira pode ser lida por scripts, viaja até
 
 <Glossary term="SameSite" text={"Uma etiqueta no cookie que decide se ele vai junto quando o pedido começa em OUTRO site. Strict: nunca vai. Lax: só em casos simples, como clicar num link. None: vai sempre."} example={"Com SameSite=Lax, um site de gatinhos não consegue enviar o cookie do seu banco num formulário escondido."} />
 
+<DidacticTable
+  caption="O papel de cada atributo do cookie"
+  columns={[
+    { key: "atributo", label: "Atributo" },
+    { key: "controla", label: "O que controla" },
+    { key: "ajuda", label: "Ajuda contra" },
+    { key: "limite", label: "Não resolve sozinho" },
+  ]}
+  rows={[
+    { atributo: "HttpOnly", controla: "Leitura pelo JavaScript", ajuda: "Roubo do cookie por scripts", limite: "Envio em pedidos de outros sites" },
+    { atributo: "Secure", controla: "Tipo de conexão", ajuda: "Cookie exposto em HTTP", limite: "Leitura por scripts" },
+    { atributo: "SameSite", controla: "Envio entre sites", ajuda: "Parte dos ataques CSRF", limite: "Scripts maliciosos no próprio site" },
+  ]}
+/>
+
 <Code caption={"Antes e depois"}>
 ```
 frágil:   sessao=chave

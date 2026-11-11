@@ -50,12 +50,20 @@ Para você, esperar 0,2 segundo no login não muda nada. Para quem tenta bilhõe
 Não use hash rápido (como MD5 ou SHA-1 puros) para senhas. Eles servem para outras coisas, mas são rápidos demais e facilitam o chute em massa.
 </Callout>
 
-<Code caption="Errado vs. certo">
-```
-errado: guardar a senha que a pessoa digitou
-certo:  guardar algoritmo + custo + sal + hash
-```
-</Code>
+<DidacticTable
+  caption="O que muda quando a senha é armazenada corretamente"
+  columns={[
+    { key: "aspecto", label: "Aspecto" },
+    { key: "errado", label: "Senha em texto puro" },
+    { key: "certo", label: "Algoritmo + custo + sal + hash" },
+  ]}
+  rows={[
+    { aspecto: "O que fica salvo", errado: "A senha digitada", certo: "Dados para conferir a senha sem guardá-la" },
+    { aspecto: "Se o banco vazar", errado: "A senha pode ser lida imediatamente", certo: "Ainda é necessário testar palpites" },
+    { aspecto: "Senhas iguais", errado: "Ficam iguais", certo: "Geram registros diferentes por causa do sal" },
+    { aspecto: "Login", errado: "Compara texto com texto", certo: "Calcula novamente e compara os hashes" },
+  ]}
+/>
 
 <Callout tone="dev">
 Hash não salva uma senha fraca. Se alguém usa `123456`, o ladrão acerta no primeiro palpite, hash ou não. Por isso o cadastro também precisa **recusar senhas curtas, óbvias ou que estejam em listas de senhas comuns**.
