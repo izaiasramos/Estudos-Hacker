@@ -958,3 +958,51 @@ html[data-motion="reduce"] .global-audio-player[data-playing="true"] .audio-laun
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
+
+/* Tabelas didáticas: grade visual clara sem sacrificar telas pequenas. */
+.content-table-wrap {
+  width: 100%;
+  margin-block: 1.5rem;
+  overflow-x: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22);
+}
+.content-table-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.content-table {
+  width: 100%;
+  min-width: 38rem;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9375rem;
+}
+.content-table-head {
+  background: color-mix(in srgb, var(--info) 12%, var(--surface-raised));
+}
+.content-table-header {
+  color: var(--info);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.015em;
+}
+.content-table-cell {
+  padding: 0.9rem 1rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  white-space: nowrap;
+}
+.content-table-cell:last-child {
+  border-right: 0;
+}
+.content-table-body tr:last-child .content-table-cell {
+  border-bottom: 0;
+}
+.content-table-body tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
+}

@@ -23,6 +23,20 @@ return pedido;
 ```
 </Code>
 
+<DidacticTable
+  caption="De onde vem cada filtro da consulta"
+  columns={[
+    { key: "filtro", label: "Filtro SQL" },
+    { key: "valor", label: "Valor usado" },
+    { key: "origem", label: "De onde vem" },
+    { key: "funcao", label: "O que faz" },
+  ]}
+  rows={[
+    { filtro: "pedido_id = ?", valor: "params.pedidoId", origem: "Endereço solicitado", funcao: "Localiza o pedido" },
+    { filtro: "proprietario_usuario_id = ?", valor: "sessao.usuarioId", origem: "Sessão verificada pelo servidor", funcao: "Autoriza o acesso" },
+  ]}
+/>
+
 O `proprietario_usuario_id` é a coluna que guarda quem é dono do pedido. `params.pedidoId` veio do endereço; `sessao.usuarioId` veio da sessão que o servidor emitiu e verificou, nunca do corpo do pedido, da URL ou de um campo escondido. Para um recurso de outra pessoa, a equipe escolhe entre **403** (proibido) e **404** (não encontrado, sem confirmar que existe). Em ambos os casos, nunca devolve o conteúdo.
 
 **Em resumo:** identificar quem pede, sem filtrar o recurso, ainda é acesso quebrado.

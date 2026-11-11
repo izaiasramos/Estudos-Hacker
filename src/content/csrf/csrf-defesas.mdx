@@ -14,6 +14,36 @@ Escolha pensando nos fluxos legítimos do seu produto.
 
 **4. GET e POST.** O GET deve apenas ler. O POST envia uma ação que muda estado. Mover a mutação para POST evita disparos por um simples link ou imagem, mas **POST sozinho não impede CSRF**: um site externo também consegue enviar formulários POST.
 
+<DidacticTable
+  caption="O papel de cada camada contra CSRF"
+  columns={[
+    { key: "camada", label: "Camada" },
+    { key: "controla", label: "O que confere ou controla" },
+    { key: "bloqueia", label: "O que ajuda a bloquear" },
+    { key: "limite", label: "Limite" },
+  ]}
+  rows={[
+    { camada: "Token anti-CSRF", controla: "Intenção do formulário legítimo", bloqueia: "Formulário externo sem o token", limite: "Precisa ser imprevisível e validado" },
+    { camada: "SameSite", controla: "Quando o cookie viaja entre sites", bloqueia: "Muitos pedidos iniciados fora", limite: "Não separa subdomínios do mesmo site" },
+    { camada: "Origin / Referer", controla: "De onde o pedido partiu", bloqueia: "Origens fora da lista permitida", limite: "O servidor decide o que fazer se estiver ausente" },
+    { camada: "GET / POST", controla: "Leitura ou mudança de estado", bloqueia: "Mudança acidental por link ou imagem", limite: "POST sozinho não impede CSRF" },
+  ]}
+/>
+
+<DidacticTable
+  caption="Diferenças entre os valores de SameSite"
+  columns={[
+    { key: "valor", label: "Valor" },
+    { key: "entreSites", label: "Cookie entre sites" },
+    { key: "uso", label: "Uso e cuidado" },
+  ]}
+  rows={[
+    { valor: "Strict", entreSites: "Não envia", uso: "Mais fechado; pode atrapalhar links legítimos" },
+    { valor: "Lax", entreSites: "Permite navegações simples, restringe muitos POSTs", uso: "Bom padrão quando o fluxo permite" },
+    { valor: "None", entreSites: "Envia", uso: "Exige Secure e outra proteção contra CSRF" },
+  ]}
+/>
+
 <Callout tone="conceito">
 Defesa em camadas não significa que todas precisam falhar para o ataque passar, nem que todo sistema usa o mesmo conjunto. Uma camada bem feita já pode barrar o pedido. As outras cobrem limites, erros de configuração e fluxos diferentes.
 </Callout>

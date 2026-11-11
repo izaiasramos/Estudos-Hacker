@@ -8,10 +8,29 @@ O passo que importa é o do meio: **o servidor escreve o pedido que o banco vai 
 
 Antes da consulta, imagine esta tabela fictícia da Pizzaria do Lab:
 
-| pedido_id | nome_do_item | email_cliente |
-|---:|---|---|
-| 101 | Margherita | alice@exemplo.test |
-| 102 | Calabresa | bruno@exemplo.test |
+<div className="content-table-wrap" tabIndex="0" role="region" aria-label="Exemplo da tabela de pedidos">
+<table className="content-table">
+  <thead className="content-table-head">
+    <tr>
+      <th className="content-table-cell content-table-header">pedido_id</th>
+      <th className="content-table-cell content-table-header">nome_do_item</th>
+      <th className="content-table-cell content-table-header">email_cliente</th>
+    </tr>
+  </thead>
+  <tbody className="content-table-body">
+    <tr>
+      <td className="content-table-cell">101</td>
+      <td className="content-table-cell">Margherita</td>
+      <td className="content-table-cell">alice@exemplo.test</td>
+    </tr>
+    <tr>
+      <td className="content-table-cell">102</td>
+      <td className="content-table-cell">Calabresa</td>
+      <td className="content-table-cell">bruno@exemplo.test</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
 Uma **tabela** organiza dados em linhas e colunas. Cada linha acima é um pedido. Cada coluna descreve uma parte dele:
 

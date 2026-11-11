@@ -1,16 +1,19 @@
 Até aqui o mecanismo foi um só: uma entrada ganhou influência sobre a estrutura SQL. Os nomes abaixo não são três problemas diferentes. Eles descrevem **como você percebe** o efeito.
 
-<Callout tone="conceito">
-- **Direta:** a própria resposta mostra o que não devia, como as linhas de outra pessoa.
-- **Cega:** a resposta não mostra o dado, mas muda de comportamento (erro, lista vazia, demora) e isso revela que a consulta foi alterada.
-- **De segunda ordem:** o valor é guardado hoje como dado inofensivo e só causa estrago depois, quando outra função o cola numa nova consulta.
-</Callout>
-
-Na Pizzaria do Lab:
-
-- Alice vê o pedido de Bruno na lista dela? É **direta**.
-- A tela só alterna entre "resultado" e "erro", sem mostrar linhas? É **cega**.
-- Um apelido salvo hoje é colado por um relatório amanhã? É **segunda ordem**.
+<DidacticTable
+  caption="Como cada tipo de SQL Injection aparece"
+  columns={[
+    { key: "tipo", label: "Tipo" },
+    { key: "evidencia", label: "O que você percebe" },
+    { key: "exemplo", label: "Exemplo na Pizzaria" },
+    { key: "momento", label: "Quando acontece" },
+  ]}
+  rows={[
+    { tipo: "Direta", evidencia: "A resposta mostra dados indevidos", exemplo: "Alice vê o pedido de Bruno", momento: "Na consulta atacada" },
+    { tipo: "Cega", evidencia: "Erro, lista vazia ou demora mudam", exemplo: "A tela alterna entre resultado e erro", momento: "Na consulta atacada" },
+    { tipo: "De segunda ordem", evidencia: "Um valor salvo antes causa o problema depois", exemplo: "Apelido salvo hoje é colado no relatório amanhã", momento: "Em uma consulta futura" },
+  ]}
+/>
 
 O terceiro caso engana muita gente. "Veio do nosso banco" não significa "é seguro colar no SQL". Um valor lido do banco continua sendo dado.
 

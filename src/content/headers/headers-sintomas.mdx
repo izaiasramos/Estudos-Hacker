@@ -19,6 +19,25 @@ X-Content-Type-Options: nosniff
 ```
 </Code>
 
+<DidacticTable
+  caption="O que mudou na resposta HTTP"
+  columns={[
+    { key: "parte", label: "Parte da resposta" },
+    { key: "antes", label: "Antes" },
+    { key: "depois", label: "Depois" },
+    { key: "motivo", label: "Por que mudou" },
+  ]}
+  rows={[
+    { parte: "Tecnologia", antes: "X-Powered-By: Express 4.17.1", depois: "Removido", motivo: "Não divulgar tecnologia e versão" },
+    { parte: "Scripts", antes: "unsafe-inline", depois: "nonce + strict-dynamic", motivo: "Restringir quais scripts podem executar" },
+    { parte: "Transporte", antes: "Sem HSTS", depois: "Strict-Transport-Security", motivo: "Mandar o navegador usar HTTPS" },
+    { parte: "Tipo de conteúdo", antes: "Sem proteção", depois: "X-Content-Type-Options: nosniff", motivo: "Impedir que o navegador adivinhe outro tipo" },
+    { parte: "password_hash", antes: "Exposto", depois: "Removido", motivo: "A tela não precisa do hash da senha" },
+    { parte: "reset_token", antes: "Exposto", depois: "Removido", motivo: "Token de recuperação é segredo" },
+    { parte: "email", antes: "Ausente", depois: "Permitido", motivo: "É um dado necessário para o perfil" },
+  ]}
+/>
+
 A solução não é "limpar no navegador". A rota escolhe uma lista permitida de campos **antes** de montar o JSON, troca a pilha de erro por uma mensagem pública genérica e adiciona as políticas certas na resposta.
 
 **Em resumo:** se chegou ao cliente, já vazou.

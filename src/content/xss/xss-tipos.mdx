@@ -1,8 +1,19 @@
 Siga o caminho do comentário. Dependendo de como ele chega e volta, o XSS ganha um nome:
 
-- **Refletido:** o comentário vem pela busca e volta na mesma resposta.
-- **Armazenado:** o comentário fica salvo (num chamado, por exemplo) e atinge quem abrir depois.
-- **Baseado no DOM:** um script da própria página lê um valor da URL e o escreve na tela de forma insegura.
+<DidacticTable
+  caption="Os três caminhos mais comuns do XSS"
+  columns={[
+    { key: "tipo", label: "Tipo" },
+    { key: "deOnde", label: "De onde o dado vem" },
+    { key: "persistencia", label: "Fica armazenado?" },
+    { key: "quando", label: "Quando chega à tela" },
+  ]}
+  rows={[
+    { tipo: "Refletido", deOnde: "URL, busca ou formulário", persistencia: "Não", quando: "Na mesma resposta" },
+    { tipo: "Armazenado", deOnde: "Comentário, chamado ou cadastro", persistencia: "Sim", quando: "Quando alguém abre depois" },
+    { tipo: "Baseado no DOM", deOnde: "URL ou outro valor lido pelo JavaScript", persistencia: "Não necessariamente", quando: "Quando um script escreve no DOM" },
+  ]}
+/>
 
 **DOM** (*Document Object Model*) é a versão em objetos da página que o navegador monta. O JavaScript usa essa estrutura para criar textos, links e botões.
 

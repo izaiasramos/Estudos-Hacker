@@ -6,12 +6,20 @@ Agora olhe um ambiente de **staging**, uma cópia do sistema usada para testes a
 
 Se esse ambiente ficar exposto ou for copiado, as facilidades de teste viram portas de entrada.
 
-<Code caption={"Duas respostas que entregam contas"}>
-```
-404 → "E-mail não cadastrado"
-401 → "Senha incorreta para este e-mail"
-```
-</Code>
+<DidacticTable
+  caption="Como respostas diferentes revelam se a conta existe"
+  columns={[
+    { key: "caso", label: "Tentativa" },
+    { key: "status", label: "Status" },
+    { key: "mensagem", label: "Mensagem" },
+    { key: "oQueRevela", label: "O que revela" },
+  ]}
+  rows={[
+    { caso: "Email inexistente", status: "404", mensagem: "E-mail não cadastrado", oQueRevela: "Esta conta não existe" },
+    { caso: "Email existente e senha errada", status: "401", mensagem: "Senha incorreta para este e-mail", oQueRevela: "Esta conta existe" },
+    { caso: "Resposta recomendada nos dois casos", status: "Mesmo status", mensagem: "E-mail ou senha inválidos", oQueRevela: "Nada sobre a existência da conta" },
+  ]}
+/>
 
 O certo é uma resposta única, como "E-mail ou senha inválidos". E ela deve ser igual em tudo que dá para observar, não só no texto: mesmo status HTTP, mesmo formato e tempo parecido.
 
