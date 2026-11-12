@@ -1,4 +1,4 @@
-A defesa principal vem direto do que você já viu: **estrutura SQL fixa e valores enviados por parâmetros**. No driver que o laboratório usa, o `?` marca a vaga e o `[email]` leva o valor por um canal à parte.
+A defesa principal vem direto do que você já viu: **estrutura SQL fixa e valores enviados por parâmetros**. A biblioteca que conecta o código ao banco recebe duas partes: o `?` marca uma vaga na instrução e `[email]` leva o valor que preencherá essa vaga. Como essas partes são enviadas separadamente, o banco não interpreta o email como comando SQL.
 
 <Code caption="A mesma busca, com os papéis separados">
 ```js

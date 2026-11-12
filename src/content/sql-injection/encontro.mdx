@@ -43,9 +43,11 @@ Sim: a função do servidor tem um parâmetro chamado `email`, esperando receber
 
 - `email` na assinatura é uma variável da função JavaScript.
 - `?` é uma vaga dentro da instrução SQL fixa.
-- `[email]` é a lista de valores que o driver associa às vagas.
+- `[email]` é a lista de valores enviada para preencher as vagas.
 
-O driver não cola `[email]` na frase como se usasse `+`. Ele entrega instrução e valores de maneiras separadas, para o banco saber que o conteúdo de `email` é dado, não comando.
+Entre o código e o banco existe uma biblioteca de conexão. Ela recebe a instrução SQL e seus valores, envia os dois ao banco da forma correta e devolve o resultado para a aplicação. Essa biblioteca costuma ser chamada de **driver do banco**.
+
+Aqui, `db.query` representa essa biblioteca. Ela não cola `[email]` na frase como se usasse `+`. Em vez disso, envia a instrução e o valor separadamente. Assim, o banco trata o conteúdo de `email` como dado, mesmo quando esse conteúdo parece um comando SQL.
 
 <SqlDefensePractice mode="roles" />
 
